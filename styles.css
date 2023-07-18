@@ -1,0 +1,172 @@
+* {
+    margin: 0;
+    padding: 0;
+  }
+  
+  header.navbar {
+    background-color: #333333;
+    border-bottom: 1px solid #999999;
+    margin: 0;
+    overflow: auto;
+  }
+  
+  header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  
+  header nav ul li {
+    display: inline-block;
+    margin: 0 10px;
+  }
+  
+  header nav ul li a {
+    display: block;
+    padding: 10px;
+    background-color: #333333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+  }
+  
+  header nav ul li a:hover {
+    background-color: #444444;
+    color: #fff;
+  }
+  
+  footer button {
+    background-color: #333333;
+    border: none;
+    padding: 0;
+  }
+  
+  footer button img {
+    height: 30px;
+  }
+  
+  body {
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+
+
+  
+  .pagina-clara {
+    background-color: #f2f2f2;
+    color: #333333;
+  }
+  
+  .pagina-escura {
+    background-color: #333333;
+    color: #f2f2f2;
+  }
+  
+  /* Adiciona uma transição suave entre os modos */
+  .pagina-clara *,
+  .pagina-escura * {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  main {
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    text-align: center;
+  }
+  
+  #noticias {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  footer {
+    left: 0;
+    right: 0;
+    position: fixed;
+    display: flex;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  main p {
+    max-width: 600px;
+    margin: auto;
+    font-size: 1.2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5em;
+    font-weight: 300;
+  }
+  
+  #pinfo {
+    max-width: 600px;
+    padding-left: 20px;
+    margin: 20px auto;
+    font-size: 1.2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.8em;
+    text-align: justify;
+    font-weight: 300;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    padding-right: 20px;
+  }
+  
+  #principal {
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+  
+  .overlay::before {
+    display: flex;
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.20);
+    opacity: 1;
+  }
+  
+  .overlay.remove-overlay::before {
+    opacity: 0;
+  }
+  
+  .discord-button {
+    background-color: #7289da;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .discord-button:hover {
+    background-color: #677bc4;
+  }
+  
+  #info {
+    justify-content: center;
+    align-items: center;
+  }
+  

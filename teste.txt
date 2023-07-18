@@ -1,0 +1,53 @@
+<div class="container">
+    <h1>Login</h1>
+    <form>
+      <label for="email">Email:</label>
+      <input type="text" id="email" name="email">
+
+      <label for="password">Senha:</label>
+      <input type="password" id="password" name="password">
+
+      <input type="submit" value="Entrar">
+
+      <button class="google-login">
+        <img src="google-icon.png" alt="Google Icon">
+        Logar com o Google
+      </button>
+
+      <div class="create-account">
+        Não tem uma conta? <a href="criar-conta.html">Criar uma conta</a>
+      </div>
+    </form>
+  </div>
+
+     header.navbar {
+      background-color: #333333;
+      border-bottom: 1px solid #999999;
+      margin: 0;
+    }
+
+    header nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header nav ul li {
+      display: inline-block;
+      margin: 0 10px;
+    }
+
+    header nav ul li a {
+      display: block;
+      padding: 10px;
+      background-color: #333333;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    header nav ul li a:hover {
+      background-color: #444444;
+      color: #fff;
+    }
