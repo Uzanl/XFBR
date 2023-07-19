@@ -49,8 +49,8 @@
 
     input[type="submit"] {
       padding: 10px 20px;
-      background-color: #333333;
-      color: #f2f2f2;
+      background-color: #ffffff;
+      color: #000000; /* Letra preta */
       border: none;
       cursor: pointer;
     }
@@ -64,7 +64,7 @@
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
-      margin-bottom: 20px;
+      margin-bottom: 10px; /* Adicionada a margem de 10 pixels */
       cursor: pointer;
     }
 
@@ -119,7 +119,6 @@
       color: #fff;
     }
 
-
     .footer {
       background-color: #333333;
       color: #fff;
@@ -156,6 +155,9 @@
       <input type="password" id="password" name="password">
 
       <input type="submit" value="Entrar">
+
+      <!-- Adicionei uma div para criar um espaço vertical entre os botões -->
+      <div style="height: 10px;"></div>
 
       <button class="google-login">
         <img src="google-icon.png" alt="Google Icon">
