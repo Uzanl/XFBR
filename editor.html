@@ -1,57 +1,37 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="UTF-8">
   <title>Editor de Notícias</title>
   <script src="https://cdn.tiny.cloud/1/bjfo8zrpuri2l033ekmkidpsvm7qba94fcvobj9bzweizm4c/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-  <script>
-    tinymce.init({
-      selector: '#editor',
-      plugins: 'advlist autolink lists link image charmap print preview anchor',
-      toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | image link',
-      image_title: true,
-      automatic_uploads: true,
-      file_picker_types: 'image',
-      file_picker_callback: function (cb, value, meta) {
-        var input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.onchange = function () {
-          var file = this.files[0];
-          var reader = new FileReader();
-          reader.onload = function () {
-            var id = 'blobid' + (new Date()).getTime();
-            var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-            var base64 = reader.result.split(',')[1];
-            var blobInfo = blobCache.create(id, file, base64);
-            blobCache.add(blobInfo);
-            cb(blobInfo.blobUri(), { title: file.name });
-          };
-          reader.readAsDataURL(file);
-        };
-        input.click();
-      }
-    });
-  </script>
   <style>
+    /* Estilos gerais */
     * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
       font-family: Arial, sans-serif;
-      margin: 0;
+      background-color: #333333;
+      color: #f2f2f2;
+      padding-top: 80px; /* Adicione padding superior para acomodar o header */
+      padding-bottom: 100px; /* Adicione padding inferior para acomodar o footer */
+      overflow-y: scroll; /* Adicionar scrollbar vertical quando o conteúdo ultrapassa a altura disponível */
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      min-height: calc(100vh - 180px); /* 80px para o header + 100px para o footer */
     }
 
     header.navbar {
       background-color: #333333;
       border-bottom: 1px solid #999999;
-      margin: 0;
       position: fixed;
       top: 0;
       left: 0;
@@ -91,15 +71,13 @@
       padding: 20px;
       box-sizing: border-box;
       flex-direction: column;
-      margin-top: auto;
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 2;
+      width: 100%;
       position: fixed;
       bottom: 0;
       left: 0;
-      width: 100%;
     }
 
     footer button {
@@ -110,10 +88,6 @@
 
     footer button img {
       height: 30px;
-    }
-
-    body {
-      margin: 80px 20px 80px 20px;
     }
 
     label {
@@ -130,37 +104,69 @@
 
     input[type="submit"] {
       padding: 10px 20px;
-      background-color: #333;
+      background-color: #007bff;
       color: #fff;
       border: none;
       cursor: pointer;
     }
+
+    /* Estilo da prévia */
+    #preview {
+      padding: 20px;
+      background-color: #f2f2f2;
+      color: #333333;
+      width: 60%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    /* Estilo do video-container */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* Proporção 16:9 (Divide a altura pela largura e multiplica por 100 para obter a porcentagem) */
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
   </style>
 </head>
-
 <body>
   <header class="navbar">
     <nav>
       <ul>
         <li><a href="informacoes.html">Informações</a></li>
-        <li><a href="notícias.html">Notícias</a></li>
+        <li><a href="noticias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
         <li><a href="video-clipes.html">Vídeo-clipes</a></li>
       </ul>
     </nav>
   </header>
 
-  <h1>Editor de Notícias</h1>
+  <div class="container">
+    <h1>Editor de Notícias</h1>
+    <form>
+      <label for="title">Título:</label>
+      <input type="text" id="title" name="title">
 
-  <form>
-    <label for="title">Título:</label>
-    <input type="text" id="title" name="title">
+      <label for="content">Conteúdo:</label>
+      <textarea id="editor" name="content"></textarea>
 
-    <label for="content">Conteúdo:</label>
-    <textarea id="editor" name="content"></textarea>
+      <input type="submit" value="Publicar">
+    </form>
 
-    <input type="submit" value="Publicar">
-  </form>
+    <!-- Prévia em tempo real -->
+    <div id="preview">
+      
+    </div>
+  </div>
 
   <footer>
     <div class="footer">
@@ -168,6 +174,84 @@
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
-</body>
 
+  <script>
+    tinymce.init({
+      selector: '#editor',
+      plugins: 'advlist autolink lists link image charmap print preview anchor',
+      toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | image link',
+      image_title: true,
+      automatic_uploads: true,
+      file_picker_types: 'image',
+      file_picker_callback: function (cb, value, meta) {
+        var input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.onchange = function () {
+          var file = this.files[0];
+          var reader = new FileReader();
+          reader.onload = function () {
+            var id = 'blobid' + (new Date()).getTime();
+            var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+            var base64 = reader.result.split(',')[1];
+            var blobInfo = blobCache.create(id, file, base64);
+            blobCache.add(blobInfo);
+            cb(blobInfo.blobUri(), { title: file.name });
+          };
+          reader.readAsDataURL(file);
+        };
+        input.click();
+      },
+      setup: function (editor) {
+        editor.on('input', function () {
+          updatePreview();
+        });
+
+        editor.on('PostProcess', function (e) {
+          if (e.get) {
+            var content = e.content;
+            var div = document.createElement('div');
+            div.innerHTML = content;
+
+            var youtubeLinks = div.querySelectorAll('a[href*="youtube.com"]');
+            for (var i = 0; i < youtubeLinks.length; i++) {
+              var link = youtubeLinks[i];
+              var videoId = getVideoIdFromUrl(link.href);
+              if (videoId) {
+                var videoContainer = document.createElement('div');
+                videoContainer.setAttribute('class', 'video-container');
+                var iframe = createYouTubeIframe(videoId);
+                videoContainer.appendChild(iframe);
+                link.parentNode.replaceChild(videoContainer, link);
+              }
+            }
+
+            e.content = div.innerHTML;
+          }
+        });
+      }
+    });
+
+    function updatePreview() {
+      var content = tinymce.activeEditor.getContent();
+      document.getElementById('preview').innerHTML = content;
+    }
+
+    function getVideoIdFromUrl(url) {
+      var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\??v?=?))([^#&?]*).*/;
+      var match = url.match(regExp);
+      return match && match[7].length === 11 ? match[7] : false;
+    }
+
+    function createYouTubeIframe(videoId) {
+      var iframe = document.createElement('iframe');
+      iframe.setAttribute('width', '100%');
+      iframe.setAttribute('height', '100%');
+      iframe.setAttribute('src', 'https://www.youtube.com/embed/' + videoId);
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allowfullscreen', 'true');
+      return iframe;
+    }
+  </script>
+</body>
 </html>
