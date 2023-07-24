@@ -4,7 +4,191 @@
 <head>
   <meta charset="UTF-8">
   <title>Bate-papo</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    header.navbar {
+      background-color: #333333;
+      border-bottom: 1px solid #999999;
+      margin: 0;
+      overflow: auto;
+    }
+
+    header nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header nav ul li {
+      display: inline-block;
+      margin: 0 10px;
+    }
+
+    header nav ul li a {
+      display: block;
+      padding: 10px;
+      background-color: #333333;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    header nav ul li a:hover {
+      background-color: #444444;
+      color: #fff;
+    }
+
+    footer button {
+      background-color: #333333;
+      border: none;
+      padding: 0;
+    }
+
+    footer button img {
+      height: 30px;
+    }
+
+    body {
+      transition: all 0.3s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+
+    main {
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      text-align: center;
+      background-color: #333333;
+      color: #f2f2f2;
+    }
+
+
+    footer {
+      left: 0;
+      right: 0;
+      position: fixed;
+      display: flex;
+      bottom: 0;
+      width: 100%;
+      background-color: #333;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    main p {
+      max-width: 600px;
+      margin: auto;
+      font-size: 1.2rem;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.5em;
+      font-weight: 300;
+    }
+
+    .wb-embed{
+      width: 60%;
+    }
+    #sidebar {
+      display: none;
+    }
+
+    @media screen and (max-width: 768px) {
+      .navbar {
+        display: none;
+      }
+
+      #sidebar {
+        position: fixed;
+        display: block;
+        top: 0;
+        left: -200px;
+        width: 200px;
+        height: 100%;
+        background-color: #333333;
+        transition: left 0.4s;
+        z-index: 9999;
+      }
+
+      #sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      #sidebar ul li a {
+        font-size: 20px;
+        padding: 26px 24px;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .toggle-btn {
+        position: fixed;
+        top: 30px;
+        left: 0;
+        width: 40px;
+        height: 40px;
+        background: #333333;
+        color: #fff;
+        border-radius: 0;
+        font-size: 0;
+        text-align: center;
+        line-height: 40px;
+        cursor: pointer;
+        z-index: 9999;
+        transition: left 0.4s;
+      }
+
+      .toggle-btn span {
+        width: 80%;
+        height: 3px;
+        margin: 4px auto;
+        background: #fff;
+        display: block;
+        margin-top: 8px;
+        transition: transform 0.4s;
+      }
+
+      #sidebar.active {
+        left: 0;
+      }
+
+      #sidebar.active~.toggle-btn {
+        left: 195px;
+      }
+
+      .footer {
+        padding: 10px;
+      }
+
+      .footer button img {
+        height: 20px;
+      }
+
+      .wb-embed {
+
+        width: 90%;
+
+      }
+
+    }
+  </style>
 </head>
 
 <body class="pagina-escura">
@@ -19,10 +203,30 @@
     </nav>
   </header>
 
+  <div id="sidebar">
+    <!-- Conteúdo do menu lateral -->
+    <ul>
+      <li><a href="informacoes.html">Informações</a></li>
+      <li><a href="notícias.html">Notícias</a></li>
+      <li><a href="bate-papo.html">Bate-papo</a></li>
+      <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+    </ul>
+  </div>
+
+  <div class="toggle-btn" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
   <main>
     <div id="bate-papo" class="container">
-      <p>"Bem-vindo ao lugar onde as discussões sobre Xbox e o mundo dos jogos são intensas e emocionantes! Junte-se a nós para trocar ideias e compartilhar seus conhecimentos sobre tudo relacionado aos jogos. Este é o lugar onde você pode se conectar com outros jogadores apaixonados e mergulhar no universo dos jogos de uma forma incrível!"</p>
-      <widgetbot server="901946904408113212" channel="903661574592561192" width="65%" height="500"></widgetbot>
+      <p>"Bem-vindo ao lugar onde as discussões sobre Xbox e o mundo dos jogos são intensas e emocionantes! Junte-se a
+        nós para trocar ideias e compartilhar seus conhecimentos sobre tudo relacionado aos jogos. Este é o lugar onde
+        você pode se conectar com outros jogadores apaixonados e mergulhar no universo dos jogos de uma forma incrível!"
+      </p>
+      <widgetbot class="wb-embed" server="901946904408113212" channel="903661574592561192" style="margin-top: 20px;"
+        height="500"></widgetbot>
       <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed"></script>
     </div>
   </main>
@@ -30,10 +234,20 @@
   <script src="script.js"></script>
   <footer>
     <div class="container">
-      <button><a href="https://discord.gg/RZF7K5BX"><img src="discord.png" alt="Botão do Discord"></a></button>
+      <button><a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a></button>
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
+
+  <script>
+    function toggleSidebar() {
+      var sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+      var toggleBtn = document.querySelector('.toggle-btn');
+      toggleBtn.classList.toggle('active');
+    }
+  </script>
+
 </body>
 
 </html>
