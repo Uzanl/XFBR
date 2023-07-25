@@ -130,6 +130,97 @@
       width: 100%;
       font-weight: bold;
     }
+
+    footer button {
+      background-color: #333333;
+      border: none;
+      padding: 0;
+    }
+
+    footer button img {
+      height: 30px;
+    }
+
+    #sidebar {
+      display: none;
+    }
+
+    @media screen and (max-width: 768px) {
+      .navbar {
+        display: none;
+      }
+
+      #sidebar {
+        position: fixed;
+        display: block;
+        top: 0;
+        left: -200px;
+        width: 200px;
+        height: 100%;
+        background-color: #333333;
+        transition: left 0.4s;
+        z-index: 9999;
+      }
+
+      #sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      #sidebar ul li a {
+        font-size: 20px;
+        padding: 26px 24px;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      .toggle-btn {
+        position: fixed;
+        top: 30px;
+        left: 0;
+        width: 40px;
+        height: 40px;
+        background: #333333;
+        color: #fff;
+        border-radius: 0;
+        font-size: 0;
+        text-align: center;
+        line-height: 40px;
+        cursor: pointer;
+        z-index: 9999;
+        transition: left 0.4s;
+      }
+
+      .toggle-btn span {
+        width: 80%;
+        height: 3px;
+        margin: 4px auto;
+        background: #fff;
+        display: block;
+        margin-top: 8px;
+        transition: transform 0.4s;
+      }
+
+      #sidebar.active {
+        left: 0;
+      }
+
+      #sidebar.active~.toggle-btn {
+        left: 195px;
+      }
+
+      .footer {
+        padding: 10px;
+      }
+
+      .footer button img {
+        height: 20px;
+      }
+
+     
+
+    }
+
   </style>
 </head>
 
@@ -137,13 +228,30 @@
   <header class="navbar">
     <nav>
       <ul>
-        <li><a href="informacoes.html">Informações</a></li>
+        <li><a href="index.html">Informações</a></li>
         <li><a href="noticias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
         <li><a href="video-clipes.html">Vídeo-clipes</a></li>
       </ul>
     </nav>
   </header>
+
+  
+  <div id="sidebar">
+    <!-- Conteúdo do menu lateral -->
+    <ul>
+      <li><a href="index.html">Informações</a></li>
+      <li><a href="notícias.html">Notícias</a></li>
+      <li><a href="bate-papo.html">Bate-papo</a></li>
+      <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+    </ul>
+  </div>
+
+  <div class="toggle-btn" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
 
   <div class="container">
     <h1>Login</h1>
@@ -170,8 +278,18 @@
     </form>
   </div>
 
+  <script>
+    function toggleSidebar() {
+      var sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+      var toggleBtn = document.querySelector('.toggle-btn');
+      toggleBtn.classList.toggle('active');
+    }
+  </script>
+
   <footer>
     <div class="footer">
+      <button><a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a></button>
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>

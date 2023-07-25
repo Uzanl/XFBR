@@ -43,16 +43,6 @@
       color: #fff;
     }
 
-    footer button {
-      background-color: #333333;
-      border: none;
-      padding: 0;
-    }
-
-    footer button img {
-      height: 30px;
-    }
-
     body {
       transition: all 0.3s ease-in-out;
       display: flex;
@@ -72,25 +62,26 @@
     }
 
 
-    footer {
-      left: 0;
-      right: 0;
+    .footer {
+      background-color: #333333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
       position: fixed;
-      display: flex;
+      left: 0;
       bottom: 0;
       width: 100%;
-      background-color: #333;
-      color: #fff;
-      font-size: 16px;
       font-weight: bold;
-      text-align: center;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      box-sizing: border-box;
+    footer button {
+      background-color: #333333;
+      border: none;
+      padding: 0;
+    }
+
+    footer button img {
+      height: 30px;
     }
 
     main p {
@@ -108,6 +99,8 @@
     #sidebar {
       display: none;
     }
+
+    
 
     @media screen and (max-width: 768px) {
       .navbar {
@@ -173,7 +166,7 @@
         left: 195px;
       }
 
-      .footer {
+       .footer {
         padding: 10px;
       }
 
@@ -189,7 +182,7 @@
 
     }
   </style>
-  <link rel="stylesheet" href="styles.css">
+
 
 
 </head>
@@ -198,13 +191,29 @@
   <header class="navbar">
     <nav>
       <ul>
-        <li><a href="informacoes.html">Informações</a></li>
+        <li><a href="index.html">Informações</a></li>
         <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
         <li><a href="video-clipes.html">Vídeo-clipes</a></li>
       </ul>
     </nav>
   </header>
+
+  <div id="sidebar">
+    <!-- Conteúdo do menu lateral -->
+    <ul>
+      <li><a href="index.html">Informações</a></li>
+      <li><a href="notícias.html">Notícias</a></li>
+      <li><a href="bate-papo.html">Bate-papo</a></li>
+      <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+    </ul>
+  </div>
+
+  <div class="toggle-btn" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
 
   <main>
     <div id="video-clipes" class="container">
@@ -225,7 +234,7 @@
   </script>
 
   <footer>
-    <div class="container">
+    <div class="footer">
       <button><a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a></button>
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
