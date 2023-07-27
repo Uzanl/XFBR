@@ -3,9 +3,9 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Bate-papo</title>
+  <title>Vídeo-clipes</title>
   <style>
-    * {
+* {
       margin: 0;
       padding: 0;
     }
@@ -43,16 +43,6 @@
       color: #fff;
     }
 
-    footer button {
-      background-color: #333333;
-      border: none;
-      padding: 0;
-    }
-
-    footer button img {
-      height: 30px;
-    }
-
     body {
       transition: all 0.3s ease-in-out;
       display: flex;
@@ -72,25 +62,26 @@
     }
 
 
-    footer {
-      left: 0;
-      right: 0;
+    .footer {
+      background-color: #333333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
       position: fixed;
-      display: flex;
+      left: 0;
       bottom: 0;
       width: 100%;
-      background-color: #333;
-      color: #fff;
-      font-size: 16px;
       font-weight: bold;
-      text-align: center;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      box-sizing: border-box;
+    footer button {
+      background-color: #333333;
+      border: none;
+      padding: 0;
+    }
+
+    footer button img {
+      height: 30px;
     }
 
     main p {
@@ -100,6 +91,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.5em;
       font-weight: 300;
+      margin-top: 20px;
     }
 
     .wb-embed{
@@ -108,6 +100,8 @@
     #sidebar {
       display: none;
     }
+
+    
 
     @media screen and (max-width: 768px) {
       .navbar {
@@ -173,7 +167,7 @@
         left: 195px;
       }
 
-      .footer {
+       .footer {
         padding: 10px;
       }
 
@@ -189,6 +183,9 @@
 
     }
   </style>
+
+
+
 </head>
 
 <body class="pagina-escura">
@@ -231,14 +228,6 @@
     </div>
   </main>
 
-  <script src="script.js"></script>
-  <footer>
-    <div class="container">
-      <button><a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a></button>
-      <p>© 2023 Xbox Family Br, Inc.</p>
-    </div>
-  </footer>
-
   <script>
     function toggleSidebar() {
       var sidebar = document.getElementById('sidebar');
@@ -248,6 +237,12 @@
     }
   </script>
 
+  <footer>
+    <div class="footer">
+      <button><a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a></button>
+      <p>© 2023 Xbox Family Br, Inc.</p>
+    </div>
+  </footer>
 </body>
 
 </html>

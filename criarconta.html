@@ -65,8 +65,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #dd4b39;
-      color: #f2f2f2;
+      background-color: #ffffff;
+      color: #000000;
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
@@ -152,6 +152,20 @@
       display: none;
     }
 
+    .password-match-message {
+    
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+
+    .password-match-message.red {
+      color: red;
+    }
+
+    .password-match-message.green {
+      color: green;
+    }
+
     @media screen and (max-width: 768px) {
       .navbar {
         display: none;
@@ -235,7 +249,7 @@
     <nav>
       <ul>
         <li><a href="index.html">Informações</a></li>
-        <li><a href="noticias.html">Notícias</a></li>
+        <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
         <li><a href="video-clipes.html">Vídeo-clipes</a></li>
       </ul>
@@ -260,7 +274,7 @@
 
   <div class="container">
     <h1>Criar Conta</h1>
-    <form>
+    <form action="http://localhost:3000/submit" method="POST">
       <label for="name">Nome:</label>
       <input type="text" id="name" name="name">
 
@@ -270,13 +284,23 @@
       <label for="password">Senha:</label>
       <input type="password" id="password" name="password">
 
+       <!-- Novo campo de confirmação de senha -->
+       <label for="confirmPassword">Confirmar Senha:</label>
+       <input type="password" id="confirmPassword" name="confirmPassword">
+ 
+       <!-- Exibição da força da senha -->
+       <div id="passwordStrength"></div>
+
+         <!-- Exibição da validação de senha e confirmação de senha -->
+      <div class="password-match-message" id="passwordMatchMessage"></div>
+
       <input type="submit" value="Criar Conta">
 
       <!-- Adicionei uma div para criar um espaço vertical entre os botões -->
       <div style="height: 10px;"></div>
 
       <button class="google-login">
-        <img src="google-icon.png" alt="Google Icon">
+        <img src="/rsc/google-icon.png" alt="Google Icon">
         Criar conta com o Google
       </button>
 
@@ -285,6 +309,139 @@
       </div>
     </form>
   </div>
+
+  <script>
+     // Código para medir a força da senha
+     document.getElementById("password").addEventListener("input", function () {
+      var password = this.value;
+      var passwordStrength = document.getElementById("passwordStrength");
+      var strength = 0;
+
+      // Verificar o tamanho da senha
+      if (password.length >= 8) {
+        strength += 1;
+      }
+
+      // Verificar se a senha contém letras maiúsculas e minúsculas
+      if (password.match(/[a-z]/) && password.match(/[A-Z]/)) {
+        strength += 1;
+      }
+
+      // Verificar se a senha contém números
+      if (password.match(/\d+/)) {
+        strength += 1;
+      }
+
+      // Verificar se a senha contém caracteres especiais
+      if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) {
+        strength += 1;
+      }
+
+      // Exibir a força da senha
+      switch (strength) {
+        case 0:
+          passwordStrength.innerHTML = "Senha Fraca";
+          break;
+        case 1:
+          passwordStrength.innerHTML = "Senha Moderada";
+          break;
+        case 2:
+        case 3:
+          passwordStrength.innerHTML = "Senha Forte";
+          break;
+        case 4:
+          passwordStrength.innerHTML = "Senha Muito Forte";
+          break;
+        default:
+          passwordStrength.innerHTML = "";
+          break;
+      }
+    });
+
+    // Código para verificar se a senha e a confirmação de senha coincidem
+    document.getElementById("confirmPassword").addEventListener("input", function () {
+      togglePasswordValidationMessages();
+    });
+
+    // Função para exibir ou ocultar as mensagens de validação de senha e confirmação de senha
+    function togglePasswordValidationMessages() {
+      var password = document.getElementById("password").value;
+      var confirmPassword = document.getElementById("confirmPassword").value;
+      var passwordMatchMessage = document.getElementById("passwordMatchMessage");
+      var passwordStrength = document.getElementById("passwordStrength");
+
+      if (password === "") {
+        passwordStrength.innerHTML = "";
+      } else {
+        var strength = 0;
+
+        // Verificar o tamanho da senha
+        if (password.length >= 8) {
+          strength += 1;
+        }
+
+        // Verificar se a senha contém letras maiúsculas e minúsculas
+        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) {
+          strength += 1;
+        }
+
+        // Verificar se a senha contém números
+        if (password.match(/\d+/)) {
+          strength += 1;
+        }
+
+        // Verificar se a senha contém caracteres especiais
+        if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) {
+          strength += 1;
+        }
+
+        // Exibir a força da senha
+        switch (strength) {
+          case 0:
+            passwordStrength.innerHTML = "Senha Fraca";
+            break;
+          case 1:
+            passwordStrength.innerHTML = "Senha Moderada";
+            break;
+          case 2:
+          case 3:
+            passwordStrength.innerHTML = "Senha Forte";
+            break;
+          case 4:
+            passwordStrength.innerHTML = "Senha Muito Forte";
+            break;
+          default:
+            passwordStrength.innerHTML = "";
+            break;
+        }
+      }
+
+      if (password === "" && confirmPassword === "") {
+        passwordMatchMessage.innerHTML = "";
+      } else if (password === confirmPassword) {
+        passwordMatchMessage.innerHTML = "Senhas coincidem";
+        passwordMatchMessage.style.color = "green";
+      } else {
+        passwordMatchMessage.innerHTML = "Senhas não coincidem";
+        passwordMatchMessage.style.color = "red";
+      }
+    }
+
+    // Adicionamos um evento input para o campo de senha também
+    document.getElementById("password").addEventListener("input", function () {
+      togglePasswordValidationMessages();
+    });
+
+    // Chamamos a função inicialmente para garantir que as mensagens estejam corretas no início
+    togglePasswordValidationMessages();
+
+    function toggleSidebar() {
+      var sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+      var toggleBtn = document.querySelector('.toggle-btn');
+      toggleBtn.classList.toggle('active');
+    }
+  </script>
 
   <footer>
     <div class="footer">
