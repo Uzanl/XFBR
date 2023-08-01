@@ -1,227 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <title>Login</title>
-  <style>
-    /* Estilos gerais */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #333333;
-      color: #f2f2f2;
-    }
-
-    .container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      padding: 8px;
-      margin-bottom: 20px;
-    }
-
-    input[type="submit"] {
-      padding: 10px 20px;
-      background-color: #ffffff;
-      color: #000000; /* Letra preta */
-      border: none;
-      cursor: pointer;
-    }
-
-    .google-login {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #dd4b39;
-      color: #f2f2f2;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 10px; /* Adicionada a margem de 10 pixels */
-      cursor: pointer;
-    }
-
-    .google-login img {
-      width: 20px;
-      height: 20px;
-      margin-right: 10px;
-    }
-
-    .create-account {
-      text-align: center;
-    }
-
-    .create-account a {
-      color: #f2f2f2;
-      text-decoration: none;
-    }
-
-    .create-account a:hover {
-      text-decoration: underline;
-    }
-
-    header.navbar {
-      background-color: #333333;
-      border-bottom: 1px solid #999999;
-      margin: 0;
-    }
-
-    header nav ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    header nav ul li {
-      display: inline-block;
-      margin: 0 10px;
-    }
-
-    header nav ul li a {
-      display: block;
-      padding: 10px;
-      background-color: #333333;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-
-    header nav ul li a:hover {
-      background-color: #444444;
-      color: #fff;
-    }
-
-    .footer {
-      background-color: #333333;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      font-weight: bold;
-    }
-
-    footer button {
-      background-color: #333333;
-      border: none;
-      padding: 0;
-    }
-
-    footer button img {
-      height: 30px;
-    }
-
-    #sidebar {
-      display: none;
-    }
-
-    @media screen and (max-width: 768px) {
-      .navbar {
-        display: none;
-      }
-
-      #sidebar {
-        position: fixed;
-        display: block;
-        top: 0;
-        left: -200px;
-        width: 200px;
-        height: 100%;
-        background-color: #333333;
-        transition: left 0.4s;
-        z-index: 9999;
-      }
-
-      #sidebar ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      #sidebar ul li a {
-        font-size: 20px;
-        padding: 26px 24px;
-        color: #fff;
-        text-decoration: none;
-      }
-
-      .toggle-btn {
-        position: fixed;
-        top: 30px;
-        left: 0;
-        width: 40px;
-        height: 40px;
-        background: #333333;
-        color: #fff;
-        border-radius: 0;
-        font-size: 0;
-        text-align: center;
-        line-height: 40px;
-        cursor: pointer;
-        z-index: 9999;
-        transition: left 0.4s;
-      }
-
-      .toggle-btn span {
-        width: 80%;
-        height: 3px;
-        margin: 4px auto;
-        background: #fff;
-        display: block;
-        margin-top: 8px;
-        transition: transform 0.4s;
-      }
-
-      #sidebar.active {
-        left: 0;
-      }
-
-      #sidebar.active~.toggle-btn {
-        left: 195px;
-      }
-
-      .footer {
-        padding: 10px;
-      }
-
-      .footer button img {
-        height: 20px;
-      }
-
-     
-
-    }
-
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/login.css">
+ 
 </head>
 
 <body>
@@ -255,20 +40,20 @@
 
   <div class="container">
     <h1>Login</h1>
-    <form>
+    <form >
       <label for="email">Email:</label>
       <input type="text" id="email" name="email">
 
       <label for="password">Senha:</label>
       <input type="password" id="password" name="password">
 
-      <input type="submit" value="Entrar">
+      <input type="submit" value="Entrar" onclick="submitLoginForm()">
 
       <!-- Adicionei uma div para criar um espaço vertical entre os botões -->
       <div style="height: 10px;"></div>
 
-      <button class="google-login">
-        <img src="google-icon.png" alt="Google Icon">
+      <button class="google-login" type="button">
+        <img src="/rsc/google-icon.png" alt="Google Icon">
         Logar com o Google
       </button>
 
@@ -277,22 +62,13 @@
       </div>
     </form>
   </div>
-
-  <script>
-    function toggleSidebar() {
-      var sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('active');
-      var toggleBtn = document.querySelector('.toggle-btn');
-      toggleBtn.classList.toggle('active');
-    }
-  </script>
-
   <footer>
     <div class="footer">
-      <button><a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a></button>
+      <a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a>
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
+  <script src="/script/login.js"></script>
 </body>
 
 </html>

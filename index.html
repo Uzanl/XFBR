@@ -1,249 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <title>Informações</title>
-
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      transition: all 0.3s ease-in-out;
-    }
-
-    header.navbar {
-      background-color: #333333;
-      border-bottom: 1px solid #999999;
-      margin: 0;
-      overflow: auto;
-    }
-
-    header nav ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    header nav ul li {
-      display: inline-block;
-      margin: 0 10px;
-    }
-
-    header nav ul li a {
-      display: block;
-      padding: 10px;
-      background-color: #333333;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-
-    header nav ul li a:hover {
-      background-color: #444444;
-      color: #fff;
-    }
-
-    footer button {
-      background-color: #333333;
-      border: none;
-      padding: 0;
-    }
-
-    footer button img {
-      height: 30px;
-    }
-
-    .footer {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background-color: #333333;
-      color: #fff;
-      padding: 20px;
-      box-sizing: border-box;
-      font-weight: bold;
-    }
-
-    main {
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      min-height: 100vh;
-      text-align: center;
-      color: #f2f2f2;
-    }
-
-    #noticias {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    main p {
-      max-width: 600px;
-      margin: auto;
-      font-size: 1.2rem;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.5em;
-      font-weight: 300;
-    }
-
-    #pinfo {
-      max-width: 600px;
-      padding-left: 20px;
-      margin: 20px auto;
-      font-size: 1.2rem;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.8em;
-      text-align: justify;
-      font-weight: 300;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      padding-right: 20px;
-    }
-
-    #principal {
-      background-repeat: no-repeat;
-      background-position: center center;
-    }
-
-    .overlay::before {
-      display: flex;
-      content: '';
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.20);
-      opacity: 1;
-
-    }
-
-    .overlay.remove-overlay::before {
-      opacity: 0;
-    }
-
-    .discord-button {
-      background-color: #7289da;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .discord-button:hover {
-      background-color: #677bc4;
-    }
-
-    #info {
-      justify-content: center;
-      align-items: center;
-    }
-
-    #sidebar {
-      display: none;
-    }
-
-    @media screen and (max-width: 768px) {
-      .navbar {
-        display: none;
-      }
-
-      #sidebar {
-        position: fixed;
-        display: block;
-        top: 0;
-        left: -200px;
-        width: 200px;
-        height: 100%;
-        background-color: #333333;
-        transition: left 0.4s;
-        z-index: 9999;
-      }
-
-      #sidebar ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      #sidebar ul li a {
-        font-size: 20px;
-        padding: 26px 24px;
-        color: #fff;
-        text-decoration: none;
-      }
-
-      .toggle-btn {
-        position: fixed;
-        top: 30px;
-        left: 0;
-        width: 40px;
-        height: 40px;
-        background: #333333;
-        color: #fff;
-        border-radius: 0;
-        font-size: 0;
-        text-align: center;
-        line-height: 40px;
-        cursor: pointer;
-        z-index: 9999;
-        transition: left 0.4s;
-      }
-
-      .toggle-btn span {
-        width: 80%;
-        height: 3px;
-        margin: 4px auto;
-        background: #fff;
-        display: block;
-        margin-top: 8px;
-        transition: transform 0.4s;
-      }
-
-      #sidebar.active {
-        left: 0;
-      }
-
-      #sidebar.active~.toggle-btn {
-        left: 195px;
-      }
-
-      .footer {
-        padding: 10px;
-      }
-
-      .footer button img {
-        height: 20px;
-      }
-
-    }
-  </style>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/index.css">
 
 </head>
 
@@ -255,15 +17,13 @@
         <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
         <li><a href="video-clipes.html">Vídeo-clipes</a></li>
-        
+        <li class="publish-button"><a>Publicar</a></li>
         <li>
           <a href="login.html">
-            <img src="rsc/login.png" alt="Login" style="width: 40px;">
+           <img src="rsc/login.png" alt="Login" class="login-image">
+
           </a>
         </li>
-
-
-
       </ul>
     </nav>
   </header>
@@ -275,6 +35,8 @@
       <li><a href="notícias.html">Notícias</a></li>
       <li><a href="bate-papo.html">Bate-papo</a></li>
       <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+      <li class="publish-button"><a>Publicar</a></li>
+
     </ul>
   </div>
 
@@ -284,17 +46,16 @@
     <span></span>
   </div>
 
-  <main class="overlay" id="principal" style=" background-image: url(/rsc/resident.png);
-  background-size: cover;background-repeat: no-repeat; background-position: center center;">
+  <main class="overlay">
 
-    <div id="info" style="display: block; position: absolute; top: 50%; transform: translateY(-50%);">
+    <div class="info">
 
-      <p id="pinfo">O Xbox Family Br é um clube fundado em 2016 por PaulistinhaSccp e seu
+      <p>O Xbox Family Br é um clube fundado em 2016 por PaulistinhaSccp e seu
         amigo Uzann, que atualmente
         conta com uma
         comunidade de mais de 97 mil membros apaixonados pelo console da Microsoft.</p>
       <a href="https://discord.gg/RZF7K5BX">
-        <button class="discord-button">Entrar no Discord</button>
+        <button class="discord-button" type="button">Entrar no Discord</button>
       </a>
 
     </div>
@@ -303,20 +64,11 @@
 
   <footer>
     <div class="footer">
-      <button><a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a></button>
+      <a href="https://discord.gg/RZF7K5BX"><img src="/rsc/discord.png" alt="Botão do Discord"></a>
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
-
-  <script>
-    function toggleSidebar() {
-      var sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('active');
-      var toggleBtn = document.querySelector('.toggle-btn');
-      toggleBtn.classList.toggle('active');
-    }
-  </script>
-
+  <script src="/script/index.js"></script>
 </body>
 
 </html>

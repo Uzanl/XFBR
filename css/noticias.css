@@ -1,0 +1,269 @@
+ /* Estilos CSS existentes aqui... */
+
+    /* Estilos específicos para a página de notícias */
+
+    * {
+        margin: 0;
+        padding: 0;
+      }
+  
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        font-family: Arial, sans-serif;
+      }
+  
+      .botao-menu {
+        display: none;
+      }
+  
+      .footer {
+        background-color: #333333;
+        color: #fff;
+        padding: 20px;
+        box-sizing: border-box;
+        flex-direction: column;
+        margin-top: auto;
+        /* Adicionado para alinhar o footer ao final da página */
+        display: flex;
+        /* Adicionado para alinhar os elementos horizontalmente */
+        justify-content: center;
+        /* Adicionado para alinhar os elementos horizontalmente */
+        align-items: center;
+        /* Adicionado para alinhar os elementos verticalmente */
+        z-index: 2;
+        /* Certifique-se de que o rodapé esteja acima do container de paginação */
+        font-weight: bold;
+      }
+  
+      footer a {
+        background-color: #333333;
+        border: none;
+        padding: 0;
+      }
+  
+      footer a img {
+        height: 30px;
+      }
+  
+      header.navbar {
+        background-color: #333333;
+        border-bottom: 1px solid #999999;
+        margin: 0;
+      }
+  
+      header nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+      }
+  
+      header nav ul li {
+        display: inline-block;
+        margin: 0 10px;
+      }
+  
+      header nav ul li a {
+        display: block;
+        padding: 10px;
+        background-color: #333333;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+  
+      header nav ul li a:hover {
+        background-color: #444444;
+        color: #fff;
+      }
+  
+      .navbar {
+        display: block;
+      }
+  
+      #sidebar {
+        display: none;
+      }
+  
+      .article-container-wrapper {
+        margin-bottom: 100px;
+      }
+  
+      .article-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        /* Alterado para flex-start */
+        align-items: flex-start;
+        max-width: 1000px;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        /* Alterado para criar espaço entre o article-container e o footer */
+      }
+  
+      .article {
+        flex-basis: calc(33.33% - 20px);
+        /* Largura de 33.33% - 20px de margem */
+        margin: 10px;
+        padding: 10px;
+        background-color: #f2f2f2;
+        box-sizing: border-box;
+        text-align: center;
+      }
+  
+      .article h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+  
+      .article p {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+  
+      .pagination-container {
+  
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #f2f2f2;
+        padding: 10px 0;
+        display: flex;
+        justify-content: center;
+        z-index: 1;
+        /* Certifique-se de que a barra de paginação esteja abaixo do rodapé */
+      }
+  
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+  
+      .pagination a {
+        padding: 5px 10px;
+        margin: 0 5px;
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        color: #333333;
+        text-decoration: none;
+      }
+  
+      .pagination a.active {
+        background-color: #333333;
+        color: #fff;
+      }
+  
+      .pagination a:hover {
+        background-color: #ccc;
+      }
+  
+      @media screen and (max-width: 1200px) {
+  
+        .pagination-container {
+      padding: 20px 0;
+    }
+    
+    .pagination {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .pagination a {
+      padding: 5px 10px;
+      margin: 5px;
+    }
+        .article-container {
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 90%;
+          /* Centralizar verticalmente os artigos */
+        }
+  
+        .article {
+          flex-basis: 100%;
+  
+          width: 90%;
+          /* Definir uma largura máxima para os artigos */
+        }
+  
+        .navbar {
+          display: none;
+        }
+  
+        #sidebar {
+          position: fixed;
+          display: block;
+          top: 0;
+          left: -200px;
+          width: 200px;
+          height: 100%;
+          background-color: #333333;
+          transition: left 0.4s;
+          z-index: 9999;
+        }
+  
+        #sidebar ul {
+          list-style: none;
+          padding: 0;
+        }
+  
+        #sidebar ul li a {
+          font-size: 20px;
+          padding: 26px 24px;
+          color: #fff;
+          /* Adicionado */
+          text-decoration: none;
+        }
+  
+        .toggle-btn {
+          position: fixed;
+          top: 30px;
+          left: 0;
+          width: 40px;
+          height: 40px;
+          background: #333333;
+          color: #fff;
+          border-radius: 0;
+          font-size: 0;
+          text-align: center;
+          line-height: 40px;
+          cursor: pointer;
+          z-index: 9999;
+          transition: left 0.4s;
+        }
+  
+        .toggle-btn span {
+          width: 80%;
+          height: 3px;
+          /* Alterado para tornar as linhas mais finas */
+          margin: 4px auto;
+          /* Centralizar verticalmente */
+          background: #fff;
+          display: block;
+          margin-top: 8px;
+          transition: transform 0.4s;
+        }
+  
+        #sidebar.active {
+          left: 0;
+        }
+  
+        #sidebar.active~.toggle-btn {
+          left: 195px;
+        }
+  
+        .footer {
+          padding: 10px;
+          /* Reduzindo o padding para a versão de celular */
+        }
+  
+        .footer a img {
+          height: 20px;
+          /* Reduzindo o tamanho das imagens para a versão de celular */
+        }
+      }
