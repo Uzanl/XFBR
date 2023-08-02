@@ -8,6 +8,7 @@ function submitLoginForm() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
+    credentials: 'include', // Incluir cookies na solicitação
   })
     .then((response) => response.json())
     .then((data) => {

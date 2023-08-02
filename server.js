@@ -11,7 +11,14 @@ const port = 3000; // Change this to your desired port number
 
 
 
-app.use(cors());
+// Configuração do CORS
+app.use(
+  cors({
+    origin: 'http://127.0.0.1:5500',
+    credentials: true,
+  })
+);
+
 
 // Create a connection to the MySQL database
 const connection = mysql.createConnection({
