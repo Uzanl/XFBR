@@ -9,7 +9,7 @@ const port = 3000;
 const app = express();
 
 
-app.use(express.json());
+
 
 //app.use(cors({
  // origin: 'http://127.0.0.1:5500',
@@ -23,7 +23,7 @@ session({
   saveUninitialized: false,
 })
 );
-
+app.use(express.json());
 
 app.use('/css', express.static(path.join(__dirname, 'css')));
 
@@ -68,10 +68,10 @@ connection.connect((err) => {
 
 // ...
 
-app.post('/submit', bodyParser.urlencoded(), (req, res) => {
+app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   const missingFields = [];
-
+console.log(req.body)
   // Verificação de campos vazios
   if (!name) {
     missingFields.push('Nome');
@@ -91,15 +91,12 @@ app.post('/submit', bodyParser.urlencoded(), (req, res) => {
 
   if (missingFields.length > 0) {
     const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
-    const script = `<script>alert("${errorMessage}"); window.location.href = "/criarconta.html";</script>`;
-    return res.send(script);
+    return res.status(400).json({ error: errorMessage });
   }
 
   // Verificação se as senhas coincidem
   if (password !== confirmPassword) {
-    const errorMessage = 'As senhas não coincidem';
-    const script = `<script>alert("${errorMessage}"); window.location.href = "/criarconta.html";</script>`;
-    return res.send(script);
+    return res.status(400).json({ error: 'As senhas não coincidem' });
   }
 
   // Inserir dados no banco de dados MySQL
@@ -107,15 +104,14 @@ app.post('/submit', bodyParser.urlencoded(), (req, res) => {
   connection.query(sql, [0, name, email, password, 'escritor', 'ativo'], (err, result) => {
     if (err) {
       console.error('Erro ao inserir dados no banco de dados:', err);
-      const errorMessage = 'Erro ao inserir dados no banco de dados';
-      const script = `<script>alert("${errorMessage}"); window.location.href = "/criarconta.html";</script>`;
-      return res.send(script);
+      return res.status(500).json({ error: 'Erro ao inserir dados no banco de dados' });
     }
 
     console.log('Dados inseridos no banco de dados:', result);
-    res.redirect('/login.html');
+    return res.status(200).json({ success: true });
   });
 });
+
 
 
 

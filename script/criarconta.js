@@ -117,8 +117,35 @@
  
   
   
-
-
+  document.getElementById('signup-form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Evita o envio tradicional do formulário
+  
+    const formData = new FormData(this);
+  
+    // Imprime os dados do formulário no console (para depuração)
+    console.log('Dados do formulário:', Object.fromEntries(formData));
+  
+    // Enviar dados via AJAX
+    fetch('/submit', {
+      method: 'POST',
+      credentials: 'same-origin', // Mantém as credenciais no mesmo domínio
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(Object.fromEntries(formData)) // Envia os dados no formato JSON
+    })
+    .then(response => response.json()) // Espera uma resposta JSON do servidor
+    .then(data => {
+      if (data.error) {
+        document.getElementById('error-message').textContent = data.error;
+      } else {
+        window.location.href = '/login.html'; // Redireciona em caso de sucesso
+      }
+    });
+  });
+  
+  
+  
 
   // Adicionamos um evento input para o campo de senha também
   document.getElementById("password").addEventListener("input", function () {
