@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Editor de Notícias</title>
+  <script src="https://cdn.tiny.cloud/1/bjfo8zrpuri2l033ekmkidpsvm7qba94fcvobj9bzweizm4c/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+  <link rel="stylesheet" href="/css/editor.css">
+
+</head>
+<body>
+  <header class="navbar">
+    <nav>
+      <ul>
+        <li><a href="index.html">Informações</a></li>
+        <li><a href="notícias.html">Notícias</a></li>
+        <li><a href="bate-papo.html">Bate-papo</a></li>
+        <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div id="sidebar">
+    <!-- Conteúdo do menu lateral -->
+    <ul>
+      <li><a href="index.html">Informações</a></li>
+      <li><a href="notícias.html">Notícias</a></li>
+      <li><a href="bate-papo.html">Bate-papo</a></li>
+      <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+    </ul>
+  </div>
+
+  <div class="toggle-btn" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <div class="container">
+    <h1>Editor de Notícias</h1>
+    <form>
+      <label for="title">Título:</label>
+      <input type="text" id="title" name="title">
+
+      <label for="content">Conteúdo:</label>
+      <textarea id="editor" name="content"></textarea>
+
+      <input type="submit" value="Publicar">
+    </form>
+
+    <!-- Prévia em tempo real -->
+    <div id="preview">
+      
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer">
+      <button><a href="https://discord.gg/RZF7K5BX"><img src="/discord.png" alt="Botão do Discord"></a></button>
+      <p>© 2023 Xbox Family Br, Inc.</p>
+    </div>
+  </footer>
+  <script src="/script/editor.js"></script>
+  
+</body>
+</html>

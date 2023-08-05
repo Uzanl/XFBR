@@ -114,6 +114,12 @@
     }
   }
 
+ 
+  
+  
+
+
+
   // Adicionamos um evento input para o campo de senha também
   document.getElementById("password").addEventListener("input", function () {
     togglePasswordValidationMessages();
@@ -128,43 +134,3 @@
     var toggleBtn = document.querySelector('.toggle-btn');
     toggleBtn.classList.toggle('active');
   }  
-
-  function submitForm() {
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  // Crie um objeto para armazenar os dados do formulário
-  const formData = {
-    name: name,
-    email: email,
-    password: password,
-  };
-
-  console.log("Data to be sent:", formData);
-
-  // Crie uma requisição HTTP POST para enviar os dados do formulário ao servidor
-  fetch("http://localhost:3000/submit", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  })
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    return response.json();
-  })
-  .then((data) => {
-    console.log("Response from the server:", data);
-    // Aqui você pode fazer qualquer manipulação adicional ou exibir mensagens de sucesso
-    alert("Account created successfully");
-  })
-  .catch((error) => {
-    console.error("Error inserting data into the database:", error);
-    // Aqui você pode tratar o erro de acordo com suas necessidades
-    alert("Error creating account");
-  });
-}

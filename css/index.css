@@ -100,7 +100,7 @@
   }
 
   .overlay {
-    background-image: url(/rsc/resident.png);
+    background-image: url(/resident.png);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
