@@ -113,6 +113,59 @@ console.log(req.body)
 });
 
 
+// Rota para inserir uma nova notícia
+app.post('/insert-news', (req, res) => {
+  const content = req.body.content;
+  const publicationDate = new Date();
+  const userId = req.session.user.id_usu; // Captura o ID do usuário da sessão
+
+  const insertQuery = 'INSERT INTO artigo (conteudo, data_publicacao, id_usu) VALUES (?, ?, ?)';
+  connection.query(insertQuery, [content, publicationDate, userId], (err, result) => {
+    if (err) {
+      console.error('Erro ao inserir notícia:', err);
+      res.status(500).json({ error: 'Erro ao inserir a notícia' });
+    } else {
+      res.status(200).json({ message: 'Notícia inserida com sucesso' });
+    }
+  });
+});
+
+app.get('/get-articles', (req, res) => {
+  const itemsPerPage = 8; // Quantidade de notícias por página
+  const currentPage = req.query.page || 1; // Página atual (padrão é 1)
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  const sql = 'SELECT * FROM artigo ORDER BY data_publicacao DESC LIMIT ?, ?';
+  connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
+    if (err) {
+      console.error('Erro ao obter as notícias do banco de dados:', err);
+      return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+    }
+
+    const articles = results;
+    const hasNextPage = articles.length === itemsPerPage;
+    res.json({ articles, hasNextPage });
+  });
+});
+
+// Rota para obter a contagem total de artigos
+app.get('/get-article-count', (req, res) => {
+  const sql = 'SELECT COUNT(*) as count FROM artigo'; // Substitua 'artigo' pelo nome da sua tabela de artigos
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erro ao obter a contagem total de artigos:', err);
+      return res.status(500).json({ error: 'Erro ao obter a contagem total de artigos' });
+    }
+
+    const count = results[0].count;
+
+    console.log(count)
+    res.json({ count });
+  });
+});
+
+
+
 
 
 

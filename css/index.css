@@ -8,6 +8,16 @@
     /* adicione outros estilos aqui, se necessário */
   }
 
+  /* No seu arquivo de estilos CSS */
+.login-list-item {
+  display: none; /* Oculta o botão de login por padrão */
+}
+
+
+  .login-list-item.hidden {
+    display: none;
+  }
+
   body {
     display: flex;
     flex-direction: column;

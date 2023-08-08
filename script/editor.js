@@ -81,3 +81,40 @@ tinymce.init({
     var toggleBtn = document.querySelector('.toggle-btn');
     toggleBtn.classList.toggle('active');
   }
+
+  document.querySelector('form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Evita o envio tradicional do formulário
+    
+    const formData = new FormData(this);
+    const title = formData.get('title');
+    const content = tinymce.activeEditor.getContent(); // Obtém o conteúdo do editor
+    
+    // Imprime os dados do formulário no console (para depuração)
+    console.log('Título:', title);
+    console.log('Conteúdo:', content);
+    
+    // Enviar dados via AJAX
+    fetch('/insert-news', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title, content }) // Envia o título e o conteúdo no formato JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        alert("Notícia inserida com sucesso!");
+        window.location.reload();
+      }
+    })
+    .catch(error => {
+      console.error("Erro no envio do formulário:", error);
+    });
+  });
+  
+  
+  

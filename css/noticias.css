@@ -6,6 +6,10 @@
         margin: 0;
         padding: 0;
       }
+
+      .login-list-item {
+        display: none; /* Oculta o botão de login por padrão */
+      }
   
       body {
         display: flex;
@@ -17,23 +21,36 @@
       .botao-menu {
         display: none;
       }
-  
+
+      .container{
+        /*background-color: #333333;*/
+        min-height: 100vh;
+        /*width: 50%;*/
+      }
+
+      .article img {
+        width: 243.33px;
+        height: 193.95px;
+      }
+      
+      .login-image {
+        width: 30px;
+        /* adicione outros estilos aqui, se necessário */
+      }
+    
+      .login-list-item.hidden {
+        display: none;
+      }
       .footer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         background-color: #333333;
         color: #fff;
         padding: 20px;
         box-sizing: border-box;
-        flex-direction: column;
-        margin-top: auto;
-        /* Adicionado para alinhar o footer ao final da página */
-        display: flex;
-        /* Adicionado para alinhar os elementos horizontalmente */
-        justify-content: center;
-        /* Adicionado para alinhar os elementos horizontalmente */
-        align-items: center;
-        /* Adicionado para alinhar os elementos verticalmente */
-        z-index: 2;
-        /* Certifique-se de que o rodapé esteja acima do container de paginação */
         font-weight: bold;
       }
   
@@ -51,20 +68,24 @@
         background-color: #333333;
         border-bottom: 1px solid #999999;
         margin: 0;
+        overflow: auto;
       }
-  
+    
       header nav ul {
         list-style: none;
         margin: 0;
         padding: 0;
         text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
-  
+    
       header nav ul li {
         display: inline-block;
         margin: 0 10px;
       }
-  
+    
       header nav ul li a {
         display: block;
         padding: 10px;
@@ -73,12 +94,11 @@
         text-decoration: none;
         border-radius: 5px;
       }
-  
+    
       header nav ul li a:hover {
         background-color: #444444;
         color: #fff;
       }
-  
       .navbar {
         display: block;
       }
@@ -100,6 +120,7 @@
         max-width: 1000px;
         margin: 0 auto;
         margin-bottom: 20px;
+        margin-top: 20px;
         /* Alterado para criar espaço entre o article-container e o footer */
       }
   
@@ -113,7 +134,7 @@
         text-align: center;
       }
   
-      .article h2 {
+      .article h1 {
         font-size: 24px;
         margin-bottom: 10px;
       }
@@ -190,7 +211,15 @@
           width: 90%;
           /* Definir uma largura máxima para os artigos */
         }
+
+        .article img {
+          width: 90%; /* Largura desejada */
+          height: 90%; /* Altura desejada */
+      }
   
+
+
+     
         .navbar {
           display: none;
         }

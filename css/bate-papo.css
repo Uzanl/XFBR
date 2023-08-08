@@ -3,6 +3,19 @@
     padding: 0;
   }
 
+  .login-image {
+    width: 30px;
+    /* adicione outros estilos aqui, se necessário */
+  }
+
+  .login-list-item.hidden {
+    display: none;
+  }
+
+  .login-list-item {
+    display: none; /* Oculta o botão de login por padrão */
+  }
+
   header.navbar {
     background-color: #333333;
     border-bottom: 1px solid #999999;
@@ -15,6 +28,9 @@
     margin: 0;
     padding: 0;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   header nav ul li {
