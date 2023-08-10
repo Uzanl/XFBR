@@ -25,13 +25,6 @@ function submitLoginForm() {
     });
 }
 
-function toggleSidebar() {
-  var sidebar = document.getElementById('sidebar');
-  sidebar.classList.toggle('active');
-  var toggleBtn = document.querySelector('.toggle-btn');
-  toggleBtn.classList.toggle('active');
-}
-
 function redirectToArticlePage() {
   fetch("http://localhost:3000/checkLoginStatus", {
     method: "GET",
@@ -57,3 +50,5 @@ const publishButtons = document.querySelectorAll('.publish-button');
 publishButtons.forEach((button) => {
   button.addEventListener('click', redirectToArticlePage);
 });
+
+

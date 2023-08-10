@@ -5,9 +5,15 @@ function updateLoginButtonVisibility() {
     .then((response) => response.json())
     .then((data) => {
       console.log("Response from server:", data);
-      const loginButton = document.querySelector('.login-list-item');
-      if (!data.isLoggedIn) { // Exibir o botão somente se o usuário não estiver autenticado
-        loginButton.style.display = 'block';
+      const loginButton = document.querySelector('.login-list-item'); // Botão de login
+      const logoutButton = document.querySelector('.logout-button'); // Botão de logout
+      
+      if (data.isLoggedIn) {
+        //loginButton.style.display = 'none'; // Ocultar o botão de login se o usuário estiver autenticado
+        logoutButton.style.display = 'block'; // Exibir o botão de logout se o usuário estiver autenticado
+      } else {
+        loginButton.style.display = 'block'; // Exibir o botão de login se o usuário não estiver autenticado
+        //logoutButton.style.display = 'none'; // Ocultar o botão de logout se o usuário não estiver autenticado
       }
     })
     .catch((error) => {
@@ -21,3 +27,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export { updateLoginButtonVisibility };
+
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutButtonListItem = document.querySelector('.logout-button'); // Pegar o elemento <li> com a classe logout-button
+  
+  logoutButtonListItem.addEventListener('click', () => {
+    const shouldLogout = window.confirm("Tem certeza de que deseja sair?"); // Mostrar um alerta de confirmação
+    
+    if (shouldLogout) {
+      fetch("http://localhost:3000/logout")
+        .then((response) => response.json())
+        .then((data) => {
+          // Redirecionar o usuário para a página de login após o logout
+          window.location.href = "/login.html";
+        })
+        .catch((error) => {
+          console.error("Error logging out:", error);
+        });
+    }
+  });
+});

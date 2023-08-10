@@ -8,8 +8,17 @@
     /* adicione outros estilos aqui, se necessário */
   }
 
+  .logout-image {
+    width: 30px;
+    /* adicione outros estilos aqui, se necessário */
+  }
+
   /* No seu arquivo de estilos CSS */
 .login-list-item {
+  display: none; /* Oculta o botão de login por padrão */
+}
+
+.logout-button {
   display: none; /* Oculta o botão de login por padrão */
 }
 

@@ -75,12 +75,7 @@ tinymce.init({
     return iframe;
   }
 
-  function toggleSidebar() {
-    var sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('active');
-    var toggleBtn = document.querySelector('.toggle-btn');
-    toggleBtn.classList.toggle('active');
-  }
+ 
 
   document.querySelector('form').addEventListener('submit', function (event) {
     event.preventDefault(); // Evita o envio tradicional do formulário
@@ -115,6 +110,60 @@ tinymce.init({
       console.error("Erro no envio do formulário:", error);
     });
   });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const imageInput = document.getElementById("image");
+    const titleInput = document.getElementById("title");
+    const imagePreviewContainer = document.querySelector(".image-preview");
+    const titlePreview = document.querySelector(".title-preview h1");
+    const removeImageBtn = document.getElementById("removeImageBtn");
+    
+    imageInput.addEventListener("change", (event) => {
+      const selectedImage = event.target.files[0];
+    
+      if (selectedImage) {
+        const image = new Image();
+        image.src = URL.createObjectURL(selectedImage);
+    
+        image.onload = () => {
+          if (image.width >= 1280 && image.height >= 720) {
+            const imagePreview = new Image();
+            imagePreview.src = URL.createObjectURL(selectedImage);
+            imagePreview.style.width = "243.33px";
+            imagePreview.style.height = "193.95px";
+            imagePreviewContainer.innerHTML = ""; // Limpar o conteúdo anterior, se houver
+            imagePreviewContainer.appendChild(imagePreview);
+          } else {
+            alert("A imagem precisa ter no mínimo 1280x720 pixels de resolução.");
+            imageInput.value = ""; // Limpar a seleção de imagem
+            imagePreviewContainer.innerHTML = ""; // Limpar a prévia da imagem
+          }
+        };
+      }
+    });
+    
+    titleInput.addEventListener("input", (event) => {
+      const titleValue = event.target.value;
+      titlePreview.textContent = titleValue; // Atualiza o conteúdo do h1 na prévia
+    });
+
+    removeImageBtn.addEventListener("click", (event) => {
+      event.preventDefault(); // Evita que o evento de clique seja propagado para o formulário
+      imageInput.value = ""; // Limpar a seleção de imagem
+      imagePreviewContainer.innerHTML = ""; // Limpar o conteúdo da prévia da imagem
+      
+    });
+    
+  
+    // Evento para o envio do formulário
+    document.querySelector('form').addEventListener('submit', function (event) {
+      event.preventDefault(); // Evita o envio tradicional do formulário
+      // Restante do código de envio do formulário
+    });
+  });
+  
+  
+  
   
   
   

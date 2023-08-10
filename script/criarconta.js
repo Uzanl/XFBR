@@ -1,5 +1,15 @@
- // Código para medir a força da senha
- document.getElementById("password").addEventListener("input", function () {
+import { redirectToArticlePage } from './articleRedirect.js';
+
+const publishButtons = document.querySelectorAll('.publish-button');
+publishButtons.forEach((button) => {
+  button.addEventListener('click', redirectToArticlePage);
+});
+
+
+
+
+// Código para medir a força da senha
+document.getElementById("password").addEventListener("input", function () {
     var password = this.value;
     var passwordStrength = document.getElementById("passwordStrength");
     var strength = 0;
@@ -155,9 +165,4 @@
   // Chamamos a função inicialmente para garantir que as mensagens estejam corretas no início
   togglePasswordValidationMessages();
 
-  function toggleSidebar() {
-    var sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('active');
-    var toggleBtn = document.querySelector('.toggle-btn');
-    toggleBtn.classList.toggle('active');
-  }  
+ 

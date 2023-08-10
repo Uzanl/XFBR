@@ -3,13 +3,12 @@ import { updateLoginButtonVisibility } from './auth.js';
 // Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
 updateLoginButtonVisibility();
 
-function toggleSidebar() {
-  var sidebar = document.getElementById('sidebar');
-  var toggleBtn = document.querySelector('.toggle-btn');
+import { redirectToArticlePage } from './articleRedirect.js';
 
-  sidebar.classList.toggle('active');
-  toggleBtn.classList.toggle('active');
-}
+const publishButtons = document.querySelectorAll('.publish-button');
+publishButtons.forEach((button) => {
+  button.addEventListener('click', redirectToArticlePage);
+});
 
 class Article {
   constructor(id, content, data_publicacao) {

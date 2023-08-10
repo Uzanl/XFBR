@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>Editor de Notícias</title>
-  <script src="https://cdn.tiny.cloud/1/bjfo8zrpuri2l033ekmkidpsvm7qba94fcvobj9bzweizm4c/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+  <script src="https://cdn.tiny.cloud/1/bjfo8zrpuri2l033ekmkidpsvm7qba94fcvobj9bzweizm4c/tinymce/5/tinymce.min.js"
+    referrerpolicy="origin"></script>
   <link rel="stylesheet" href="/css/editor.css">
 
 </head>
+
 <body>
   <header class="navbar">
     <nav>
@@ -41,15 +44,29 @@
       <label for="title">Título:</label>
       <input type="text" id="title" name="title">
 
+      <label for="image">Imagem (16:9, PNG ou JPG):</label>
+      <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" />
+      <button id="removeImageBtn" class="remove-btn">X</button>
+      
+
       <label for="content">Conteúdo:</label>
       <textarea id="editor" name="content"></textarea>
 
       <input type="submit" value="Publicar">
     </form>
 
+    <div class="noticia-preview">
+      <div class="image-preview">
+        <!-- A imagem será colocada aqui -->
+      </div>
+      <div class="title-preview">
+        <h1></h1> <!-- O título será adicionado aqui -->
+      </div>
+    </div>
+
     <!-- Prévia em tempo real -->
     <div id="preview">
-      
+
     </div>
   </div>
 
@@ -60,6 +77,7 @@
     </div>
   </footer>
   <script src="/script/editor.js"></script>
-  
+  <script src="/script/utils.js"></script>
 </body>
+
 </html>

@@ -159,7 +159,7 @@ app.get('/get-article-count', (req, res) => {
 
     const count = results[0].count;
 
-    console.log(count)
+    //console.log(count)
     res.json({ count });
   });
 });
@@ -209,6 +209,18 @@ app.post('/login',bodyParser.urlencoded(),(req, res) => {
 //    res.send("Hello Session Tut")
 //});
 
+// Rota para fazer logout
+app.get('/logout', (req, res) => {
+  // Destruir a sessão
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json({ message: 'Logged out successfully' });
+  });
+});
+
 
 // Rota para verificar o status de login do usuário
 app.get('/checkLoginStatus', (req, res) => {
@@ -219,7 +231,7 @@ app.get('/checkLoginStatus', (req, res) => {
     res.json({ isLoggedIn: true });
   } else {
     // Usuário não está logado
-    console.log('User is not logged in');
+   console.log('User is not logged in');
     res.json({ isLoggedIn: false });
   }
 });
