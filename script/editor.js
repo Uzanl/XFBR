@@ -1,3 +1,8 @@
+import { updateLoginButtonVisibility } from './auth.js';
+
+// Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
+updateLoginButtonVisibility();
+
 tinymce.init({
     selector: '#editor',
     plugins: 'advlist autolink lists link image charmap print preview anchor',
@@ -54,6 +59,8 @@ tinymce.init({
     }
   });
 
+ 
+
   function updatePreview() {
     var content = tinymce.activeEditor.getContent();
     document.getElementById('preview').innerHTML = content;
@@ -79,44 +86,55 @@ tinymce.init({
 
   document.querySelector('form').addEventListener('submit', function (event) {
     event.preventDefault(); // Evita o envio tradicional do formulário
-    
+  
     const formData = new FormData(this);
-    const title = formData.get('title');
-    const content = tinymce.activeEditor.getContent(); // Obtém o conteúdo do editor
+   // console.log(formData);
+
     
+    const title = formData.get('title');
+    const image = formData.get('image');
+    const contentpreview = formData.get('content-preview');
+    const content = tinymce.activeEditor.getContent(); // Obtém o conteúdo do editor
+  
     // Imprime os dados do formulário no console (para depuração)
     console.log('Título:', title);
-    console.log('Conteúdo:', content);
-    
+    console.log('URL imagem:', image);
+    console.log('Preview Conteúdo:', contentpreview)
+    console.log('Conteúdo:', content)
+  
     // Enviar dados via AJAX
     fetch('/insert-news', {
       method: 'POST',
-      credentials: 'same-origin',
+      credentials: 'same-origin', // Mantém as credenciais no mesmo domínio
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ title, content }) // Envia o título e o conteúdo no formato JSON
+      body: JSON.stringify({ title, image, contentpreview, content }) // Envia o título e o conteúdo no formato JSON
     })
-    .then(response => response.json())
+    .then(response => response.json()) // Espera uma resposta JSON do servidor
     .then(data => {
       if (data.error) {
-        alert(data.error);
+        document.getElementById('error-message').textContent = data.error; // Exibe o erro na div error-message
       } else {
         alert("Notícia inserida com sucesso!");
-        window.location.reload();
+        window.location.reload(); // Recarrega a página em caso de sucesso
       }
     })
     .catch(error => {
       console.error("Erro no envio do formulário:", error);
     });
   });
+  
 
   document.addEventListener("DOMContentLoaded", () => {
     const imageInput = document.getElementById("image");
     const titleInput = document.getElementById("title");
+    const contentInput = document.getElementById("content-preview")
     const imagePreviewContainer = document.querySelector(".image-preview");
     const titlePreview = document.querySelector(".title-preview h1");
+    const contentPreview = document.querySelector(".title-preview p")
     const removeImageBtn = document.getElementById("removeImageBtn");
+   
     
     imageInput.addEventListener("change", (event) => {
       const selectedImage = event.target.files[0];
@@ -153,7 +171,12 @@ tinymce.init({
       imagePreviewContainer.innerHTML = ""; // Limpar o conteúdo da prévia da imagem
       
     });
-    
+
+    contentInput.addEventListener("input", (event) => {
+      const contentValue = event.target.value;
+      contentPreview.textContent = contentValue; // Atualiza o conteúdo do parágrafo na prévia
+    });
+  
   
     // Evento para o envio do formulário
     document.querySelector('form').addEventListener('submit', function (event) {

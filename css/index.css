@@ -3,15 +3,13 @@
     padding: 0;
   }
 
-  .login-image {
-    width: 30px;
-    /* adicione outros estilos aqui, se necessário */
-  }
-
+  .login-image,
   .logout-image {
     width: 30px;
-    /* adicione outros estilos aqui, se necessário */
+    height: 30px;
+    /* Adicione outros estilos aqui, se necessário */
   }
+  
 
   /* No seu arquivo de estilos CSS */
 .login-list-item {
@@ -20,6 +18,10 @@
 
 .logout-button {
   display: none; /* Oculta o botão de login por padrão */
+}
+
+li.publish-button{
+  cursor: pointer;
 }
 
 
@@ -32,7 +34,7 @@
     flex-direction: column;
     min-height: 100vh;
     font-family: Arial, sans-serif;
-    transition: all 0.3s ease-in-out;
+
   }
 
   header.navbar {
@@ -79,6 +81,7 @@
 
   footer a img {
     height: 30px;
+    width: 39.59px;
   }
 
   .footer {
@@ -119,7 +122,7 @@
   }
 
   .overlay {
-    background-image: url(/resident.png);
+    background-image: url(/resident.webp);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -136,10 +139,6 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.20);
     opacity: 1;
-  }
-
-  .overlay.remove-overlay::before {
-    opacity: 0;
   }
 
   .discord-button {
@@ -233,7 +232,8 @@
     }
 
     .footer a img {
-      height: 20px;
+      width: 30.95px;
+      height: 23.45px;
     }
 
   }

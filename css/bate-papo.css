@@ -16,6 +16,15 @@
     display: none; /* Oculta o botão de login por padrão */
   }
 
+  .logout-button {
+    display: none; /* Oculta o botão de login por padrão */
+  }
+
+  .logout-image {
+    width: 30px;
+    /* adicione outros estilos aqui, se necessário */
+  }
+
   header.navbar {
     background-color: #333333;
     border-bottom: 1px solid #999999;
@@ -105,6 +114,8 @@
 
   .wb-embed{
     width: 60%;
+    margin-top: 20px;
+    height: 500px;
   }
   #sidebar {
     display: none;

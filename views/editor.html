@@ -18,6 +18,13 @@
         <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
         <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+
+        <li class="logout-button">
+          <a href="#">
+           <img src="/logout.png" alt="Logout" class="logout-image">
+
+          </a>
+        </li>
       </ul>
     </nav>
   </header>
@@ -40,20 +47,31 @@
 
   <div class="container">
     <h1>Editor de Notícias</h1>
-    <form>
+    <form enctype="multipart/form-data">
       <label for="title">Título:</label>
       <input type="text" id="title" name="title">
 
       <label for="image">Imagem (16:9, PNG ou JPG):</label>
-      <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" />
-      <button id="removeImageBtn" class="remove-btn">X</button>
-      
+
+      <div class="file-input-container">
+        <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" />
+        <button type="button" id="removeImageBtn" class="remove-btn">X</button>
+      </div>
+
+      <label for="content">Conteúdo Prévia:</label>
+      <input type="text" id="content-preview" name="content-preview">
+
 
       <label for="content">Conteúdo:</label>
       <textarea id="editor" name="content"></textarea>
 
-      <input type="submit" value="Publicar">
+      <div class="inserir">
+        <input type="submit" value="Publicar">
+      </div>
+     
     </form>
+
+    <div id="error-message" style="color: red;"></div>
 
     <div class="noticia-preview">
       <div class="image-preview">
@@ -61,6 +79,7 @@
       </div>
       <div class="title-preview">
         <h1></h1> <!-- O título será adicionado aqui -->
+        <p></p>
       </div>
     </div>
 
@@ -76,7 +95,7 @@
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
-  <script src="/script/editor.js"></script>
+  <script type="module" src="/script/editor.js"></script>
   <script src="/script/utils.js"></script>
 </body>
 

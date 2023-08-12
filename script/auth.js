@@ -29,21 +29,26 @@ document.addEventListener("DOMContentLoaded", () => {
 export { updateLoginButtonVisibility };
 
 document.addEventListener("DOMContentLoaded", () => {
+  updateLoginButtonVisibility();
+
   const logoutButtonListItem = document.querySelector('.logout-button'); // Pegar o elemento <li> com a classe logout-button
   
-  logoutButtonListItem.addEventListener('click', () => {
-    const shouldLogout = window.confirm("Tem certeza de que deseja sair?"); // Mostrar um alerta de confirmação
+  if (logoutButtonListItem) { // Verificar se o elemento existe
+    logoutButtonListItem.addEventListener('click', () => {
+      const shouldLogout = window.confirm("Tem certeza de que deseja sair?"); // Mostrar um alerta de confirmação
     
-    if (shouldLogout) {
-      fetch("http://localhost:3000/logout")
-        .then((response) => response.json())
-        .then((data) => {
-          // Redirecionar o usuário para a página de login após o logout
-          window.location.href = "/login.html";
-        })
-        .catch((error) => {
-          console.error("Error logging out:", error);
-        });
-    }
-  });
+      if (shouldLogout) {
+        fetch("http://localhost:3000/logout")
+          .then((response) => response.json())
+          .then((data) => {
+            // Redirecionar o usuário para a página de login após o logout
+            window.location.href = "/login.html";
+          })
+          .catch((error) => {
+            console.error("Error logging out:", error);
+          });
+      }
+    });
+  }
 });
+

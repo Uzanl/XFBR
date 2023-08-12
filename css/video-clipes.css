@@ -83,15 +83,17 @@
     font-weight: bold;
   }
 
-  footer button {
+  footer a {
     background-color: #333333;
     border: none;
     padding: 0;
   }
 
-  footer button img {
+  footer a img {
     height: 30px;
   }
+
+
 
   main p {
     max-width: 600px;
@@ -105,6 +107,8 @@
 
   .wb-embed{
     width: 60%;
+    margin-top: 20px;
+    height: 500px;
   }
   #sidebar {
     display: none;

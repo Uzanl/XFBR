@@ -5,10 +5,19 @@ updateLoginButtonVisibility();
 
 import { redirectToArticlePage } from './articleRedirect.js';
 
-const publishButtons = document.querySelectorAll('.publish-button');
-publishButtons.forEach((button) => {
-  button.addEventListener('click', redirectToArticlePage);
-});
+
+const publishButton = document.getElementById("publish-link");
+
+// Adicione um ouvinte de evento para o botão de publicação
+publishButton.addEventListener('click', redirectToArticlePage);
+
+
+
+
+//const publishButtons = document.querySelectorAll('.publish-button');
+//publishButtons.forEach((button) => {
+//  button.addEventListener('click', redirectToArticlePage);
+//});
 
 
 

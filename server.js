@@ -1,6 +1,9 @@
 const express = require('express');
+const compression = require('compression');
 const session = require('express-session')
 const path = require('path');
+const fileUpload = require('express-fileupload');
+
 //const cors = require('cors');
 
 const mysql = require('mysql');
@@ -12,18 +15,23 @@ const app = express();
 
 
 //app.use(cors({
- // origin: 'http://127.0.0.1:5500',
- // credentials: true,
+// origin: 'http://127.0.0.1:5500',
+// credentials: true,
 //}));
 
 app.use(
-session({
-  secret:'key',
-  resave: false,
-  saveUninitialized: false,
-})
+  session({
+    secret: 'key',
+    resave: false,
+    saveUninitialized: false,
+  })
 );
+
+app.use(compression()); 
+
 app.use(express.json());
+
+app.use(fileUpload());
 
 app.use('/css', express.static(path.join(__dirname, 'css')));
 
@@ -40,12 +48,12 @@ app.get('/notícias.html', (req, res) => {
 
 
 
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
 
- // Create a connection to the MySQL database
+// Create a connection to the MySQL database
 const connection = mysql.createConnection({
   host: '127.0.0.1',
   user: 'root',
@@ -71,20 +79,20 @@ connection.connect((err) => {
 app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   const missingFields = [];
-console.log(req.body)
+  console.log(req.body)
   // Verificação de campos vazios
   if (!name) {
     missingFields.push('Nome');
   }
-  
+
   if (!email) {
     missingFields.push('Email');
   }
-  
+
   if (!password) {
     missingFields.push('Senha');
   }
-  
+
   if (!confirmPassword) {
     missingFields.push('Confirmar Senha');
   }
@@ -113,22 +121,60 @@ console.log(req.body)
 });
 
 
-// Rota para inserir uma nova notícia
 app.post('/insert-news', (req, res) => {
-  const content = req.body.content;
-  const publicationDate = new Date();
+  const { title, contentpreview, content } = req.body;
+  const image = req.files ? req.files.image : null; // Acessar o arquivo de imagem enviado
+
+  const missingFields = [];
+
+  // Verificação de campos vazios
+  if (!title) {
+    missingFields.push('Título');
+  }
+
+  if (!content) {
+    missingFields.push('Conteúdo');
+  }
+
+  if (!image) {
+    missingFields.push('URL da imagem');
+  }
+
+  if (!contentpreview) {
+    missingFields.push('Conteúdo da prévia');
+  }
+
+  if (missingFields.length > 0) {
+    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
+    return res.status(400).json({ error: errorMessage });
+  }
+
   const userId = req.session.user.id_usu; // Captura o ID do usuário da sessão
 
-  const insertQuery = 'INSERT INTO artigo (conteudo, data_publicacao, id_usu) VALUES (?, ?, ?)';
-  connection.query(insertQuery, [content, publicationDate, userId], (err, result) => {
+  const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, titulo_previa, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const publicationDate = new Date();
+
+  connection.query(insertQuery, [title, content, publicationDate, userId, image.name, contentpreview, content], (err, result) => {
     if (err) {
-      console.error('Erro ao inserir notícia:', err);
-      res.status(500).json({ error: 'Erro ao inserir a notícia' });
+      console.error('Erro ao inserir artigo:', err);
+      res.status(500).json({ error: 'Erro ao inserir o artigo' });
     } else {
-      res.status(200).json({ message: 'Notícia inserida com sucesso' });
+      // Use o método mv() para mover o arquivo para o diretório desejado
+      const uploadPath = __dirname + '/images-preview/' + image.name;
+      image.mv(uploadPath, (err) => {
+        if (err) {
+          console.error('Erro ao mover o arquivo:', err);
+          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+        } else {
+          res.status(200).json({ message: 'Artigo inserido com sucesso' });
+        }
+      });
     }
   });
 });
+
+
+
 
 app.get('/get-articles', (req, res) => {
   const itemsPerPage = 8; // Quantidade de notícias por página
@@ -170,7 +216,7 @@ app.get('/get-article-count', (req, res) => {
 
 
 
-app.post('/login',bodyParser.urlencoded(),(req, res) => {
+app.post('/login', bodyParser.urlencoded(), (req, res) => {
 
 
 
@@ -227,11 +273,11 @@ app.get('/checkLoginStatus', (req, res) => {
   // Verificar se o usuário está logado na sessão
   if (req.session.isAuth) {
     // Usuário está logado
-    console.log('User is logged in');
+    //console.log('User is logged in');
     res.json({ isLoggedIn: true });
   } else {
     // Usuário não está logado
-   console.log('User is not logged in');
+    //console.log('User is not logged in');
     res.json({ isLoggedIn: false });
   }
 });
