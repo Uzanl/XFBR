@@ -10,9 +10,11 @@ function updateLoginButtonVisibility() {
       
       if (data.isLoggedIn) {
         //loginButton.style.display = 'none'; // Ocultar o botão de login se o usuário estiver autenticado
-        logoutButton.style.display = 'block'; // Exibir o botão de logout se o usuário estiver autenticado
+        logoutButton.style.visibility = 'visible';
+        loginButton.style.display = 'none'; // Exibir o botão de logout se o usuário estiver autenticado
       } else {
-        loginButton.style.display = 'block'; // Exibir o botão de login se o usuário não estiver autenticado
+        loginButton.style.visibility = 'visible';
+        logoutButton.style.visibility = 'none' // Exibir o botão de login se o usuário não estiver autenticado
         //logoutButton.style.display = 'none'; // Ocultar o botão de logout se o usuário não estiver autenticado
       }
     })
