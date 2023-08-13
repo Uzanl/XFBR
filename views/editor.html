@@ -7,6 +7,7 @@
   <script src="https://cdn.tiny.cloud/1/bjfo8zrpuri2l033ekmkidpsvm7qba94fcvobj9bzweizm4c/tinymce/5/tinymce.min.js"
     referrerpolicy="origin"></script>
   <link rel="stylesheet" href="/css/editor.css">
+  <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
 
 </head>
 
@@ -18,7 +19,12 @@
         <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
         <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+        <li class="login-list-item">
+          <a href="login.html">
+           <img src="/login.png" alt="Login" class="login-image">
 
+          </a>
+        </li>
         <li class="logout-button">
           <a href="#">
            <img src="/logout.png" alt="Logout" class="logout-image">
@@ -29,7 +35,7 @@
     </nav>
   </header>
 
-  <div id="sidebar">
+  <div class="sidebar">
     <!-- Conteúdo do menu lateral -->
     <ul>
       <li><a href="index.html">Informações</a></li>
@@ -59,7 +65,7 @@
       </div>
 
       <label for="content">Conteúdo Prévia:</label>
-      <input type="text" id="content-preview" name="content-preview">
+      <input type="text" id="content-preview" name="contentpreview">
 
 
       <label for="content">Conteúdo:</label>

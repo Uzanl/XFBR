@@ -122,9 +122,10 @@ app.post('/submit', (req, res) => {
 
 
 app.post('/insert-news', (req, res) => {
+  console.log(req.body);
   const { title, contentpreview, content } = req.body;
   const image = req.files ? req.files.image : null; // Acessar o arquivo de imagem enviado
-
+ // console.log(image);
   const missingFields = [];
 
   // Verificação de campos vazios
@@ -151,10 +152,11 @@ app.post('/insert-news', (req, res) => {
 
   const userId = req.session.user.id_usu; // Captura o ID do usuário da sessão
 
-  const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, titulo_previa, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url,previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
   const publicationDate = new Date();
+  const imagePath = '/images-preview/' + image.name; 
 
-  connection.query(insertQuery, [title, content, publicationDate, userId, image.name, contentpreview, content], (err, result) => {
+  connection.query(insertQuery, [title, content, publicationDate, userId, imagePath, contentpreview], (err, result) => {
     if (err) {
       console.error('Erro ao inserir artigo:', err);
       res.status(500).json({ error: 'Erro ao inserir o artigo' });

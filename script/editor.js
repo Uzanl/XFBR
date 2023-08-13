@@ -93,7 +93,7 @@ tinymce.init({
     
     const title = formData.get('title');
     const image = formData.get('image');
-    const contentpreview = formData.get('content-preview');
+    const contentpreview = formData.get('contentpreview');
     const content = tinymce.activeEditor.getContent(); // Obtém o conteúdo do editor
   
     // Imprime os dados do formulário no console (para depuração)
@@ -106,10 +106,12 @@ tinymce.init({
     fetch('/insert-news', {
       method: 'POST',
       credentials: 'same-origin', // Mantém as credenciais no mesmo domínio
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ title, image, contentpreview, content }) // Envia o título e o conteúdo no formato JSON
+     // headers: {
+       // 'Content-Type': 'application/json'
+     // },
+      //body: JSON.stringify({ title, image, contentpreview, content }) // Envia o título e o conteúdo no formato JSON
+
+      body: formData
     })
     .then(response => response.json()) // Espera uma resposta JSON do servidor
     .then(data => {
