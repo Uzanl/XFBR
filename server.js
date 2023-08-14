@@ -37,6 +37,8 @@ app.use('/css', express.static(path.join(__dirname, 'css')));
 
 app.use(express.static(path.join(__dirname, 'rsc')));
 
+app.use(express.static(path.join(__dirname, 'images-preview')));
+
 app.use('/script', express.static(path.join(__dirname, 'script')));
 
 app.use(express.static(path.join(__dirname, 'views')));
@@ -70,11 +72,7 @@ connection.connect((err) => {
   console.log('Connected to the database!');
 });
 
-// ... código anterior ...
 
-
-
-// ...
 
 app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
@@ -154,9 +152,9 @@ app.post('/insert-news', (req, res) => {
 
   const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url,previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
   const publicationDate = new Date();
-  const imagePath = '/images-preview/' + image.name; 
+ // const imagePath = '/images-preview/' + image.name; 
 
-  connection.query(insertQuery, [title, content, publicationDate, userId, imagePath, contentpreview], (err, result) => {
+  connection.query(insertQuery, [title, content, publicationDate, userId, image.name, contentpreview], (err, result) => {
     if (err) {
       console.error('Erro ao inserir artigo:', err);
       res.status(500).json({ error: 'Erro ao inserir o artigo' });
@@ -218,13 +216,25 @@ app.get('/get-article-count', (req, res) => {
 
 
 
-app.post('/login', bodyParser.urlencoded(), (req, res) => {
-
-
-
+app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
   console.log('Received login request with email:', email);
+
+  const missingFields = [];
+
+  if (!email) {
+    missingFields.push('E-mail');
+  }
+
+  if (!password) {
+    missingFields.push('Senha');
+  }
+
+  if (missingFields.length > 0) {
+    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
+    return res.status(400).json({ error: errorMessage });
+  }
 
   const sql = 'SELECT * FROM usuario WHERE email = ? AND senha_usu = ?';
   connection.query(sql, [email, password], (err, result) => {
@@ -246,10 +256,34 @@ app.post('/login', bodyParser.urlencoded(), (req, res) => {
     req.session.user = result[0];
 
     // Redirecionar para a página de notícias
-    res.redirect('/notícias.html');
+    res.json({ success: true, redirect: '/notícias.html' });
     console.log('Login successful for user:', result[0]);
   });
 });
+
+
+
+app.get('/get-username/:userId', (req, res) => {
+  const userId = req.params.userId; // Correção: Atribuir o valor antes de usá-lo
+ 
+  // Consulta ao banco de dados para obter o login_usu com base no id_usu
+  const query = 'SELECT login_usu FROM usuario WHERE id_usu = ?';
+
+  connection.query(query, [userId], (err, result) => {
+    if (err) {
+      console.log('Erro ao obter nome de usuário:', err);
+      console.error('Erro ao obter nome de usuário:', err);
+      res.status(500).json({ error: 'Erro ao obter nome de usuário' });
+    } else {
+      if (result.length > 0) {
+        res.json({ username: result[0].login_usu });
+      } else {
+        res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+    }
+  });
+});
+
 
 //app.get("/",(req,res)=>{
 //    req.session.isAuth = true;

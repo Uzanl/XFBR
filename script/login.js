@@ -1,29 +1,37 @@
-function submitLoginForm() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
 
-  fetch("http://localhost:3000/login", {
+document.getElementById('login-form').addEventListener('submit', function (event) {
+  event.preventDefault(); // Evita o envio tradicional do formulário
+ 
+  
+  const formData = new FormData(this);
+  console.log('Dados do formulário:', Object.fromEntries(formData));
+
+  fetch("/login", {
     method: "POST",
+    credentials: 'include', 
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, password }),
-    credentials: 'include', // Incluir cookies na solicitação
+    body: JSON.stringify(Object.fromEntries(formData)) // Envia os dados no formato JSON
+    // Incluir cookies na solicitação
   })
-    .then((response) => response.json())
-    .then((data) => {
-      // Aqui você pode tratar a resposta do servidor após a autenticação
-      if (data.message === "Login successful") {
-        // Redirecionar para a página de notícias
-        window.location.href = data.redirect;
-      } else {
-        alert("Login falhou. Verifique seu email e senha.");
-      }
-    })
-    .catch((error) => {
-      console.error("Erro no envio do formulário:", error);
-    });
-}
+  .then(response => response.json()) // Espera uma resposta JSON do servidor
+  .then(data => {
+    if (data.error) {
+      document.getElementById('error-message').textContent = data.error;
+    } else if (data.success) {
+      console.log('Login bem-sucedido');
+      window.location.href = data.redirect; // Redireciona em caso de sucesso
+    } else {
+      console.log('Login falhou');
+      document.getElementById('error-message').textContent = 'Login falhou. Verifique seu email e senha.';
+    }
+  })
+  
+ 
+});
+
+
 
 function redirectToArticlePage() {
   fetch("http://localhost:3000/checkLoginStatus", {

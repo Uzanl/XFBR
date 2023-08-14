@@ -11,13 +11,17 @@ publishButtons.forEach((button) => {
 });
 
 class Article {
-  constructor(id, content, data_publicacao) {
-    this.id = id;
-    this.content = content;
+  constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo) {
+    this.id_artigo = id_artigo;
+    this.conteudo = conteudo;
+    this.titulo = titulo;
+    this.previa_conteudo = previa_conteudo;
     this.data_publicacao = data_publicacao;
+    this.id_usu = id_usu;
+    this.imagem_url = imagem_url;
   }
 
-  render() {
+  async render() {
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
     articleElement.setAttribute('data-id', this.id);
@@ -25,18 +29,55 @@ class Article {
       openArticle(this.id);
     });
 
-    const contentElement = document.createElement('div'); // Use div instead of p
-    contentElement.innerHTML = this.content; // Use innerHTML to render HTML content
+    const imageElement = document.createElement('img');
+    imageElement.src = this.imagem_url;
+    //imageElement.alt = this.titulo;
 
-    const dateElement = document.createElement('p');
-    dateElement.textContent = this.data_publicacao; // Use date from data_publicacao
+    const titleElement = document.createElement('h2');
+    titleElement.textContent = this.titulo;
 
-    articleElement.appendChild(contentElement);
-    articleElement.appendChild(dateElement);
+    const previewElement = document.createElement('p');
+    previewElement.textContent = this.previa_conteudo;
+
+    
+    const userName = await getUserName(this.id_usu);
+    const userInfoElement = document.createElement('p');
+    userInfoElement.textContent = `Postado por ${userName} em ${formatDate(this.data_publicacao)}`;
+
+    articleElement.appendChild(imageElement);
+    articleElement.appendChild(titleElement);
+    articleElement.appendChild(previewElement);
+    articleElement.appendChild(userInfoElement);
 
     return articleElement;
   }
 }
+
+
+async function getUserName(userId) {
+  console.log(userId);
+  try {
+    const response = await fetch(`/get-username/${userId}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.username;
+    } else {
+      throw new Error('Erro ao obter nome de usuário');
+    }
+  } catch (error) {
+    console.error('Erro ao obter nome de usuário:', error);
+    return "Nome de Usuário Desconhecido"; // Em caso de erro ou falta de resposta
+  }
+}
+
+
+function formatDate(dateString) {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+  const date = new Date(dateString);
+  return date.toLocaleDateString('pt-BR', options);
+}
+
+
 
 const articles = [];
 let currentPage = 1;
@@ -128,16 +169,19 @@ async function loadArticles(pageNumber) {
   clearArticleContainer();
   await fetchAndAppendArticles(pageNumber);
 
-  articles.forEach(articleData => {
-    const { id_artigo, conteudo, data_publicacao } = articleData;
-    const article = new Article(id_artigo, conteudo, data_publicacao);
-    const articleContainer = document.querySelector('.article-container');
-    articleContainer.appendChild(article.render());
-  });
+  const articleContainer = document.querySelector('.article-container');
+
+  for (const articleData of articles) {
+    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo } = articleData;
+    console.log(articleData);
+    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo);
+    articleContainer.appendChild(await article.render());
+  }
 
   currentPage = pageNumber;
   updatePageNumbers(totalPages);
 }
+
 
 
 

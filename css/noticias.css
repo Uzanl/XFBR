@@ -116,7 +116,7 @@
    flex-wrap: wrap;
    justify-content: flex-start;
    /* Alterado para flex-start */
-   align-items: flex-start;
+  /* align-items: flex-start;*/
    max-width: 1000px;
    margin: 0 auto;
    margin-bottom: 20px;
