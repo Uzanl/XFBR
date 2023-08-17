@@ -4,7 +4,7 @@ document.getElementById('login-form').addEventListener('submit', function (event
  
   
   const formData = new FormData(this);
-  console.log('Dados do formulário:', Object.fromEntries(formData));
+
 
   fetch("/login", {
     method: "POST",
@@ -26,9 +26,7 @@ document.getElementById('login-form').addEventListener('submit', function (event
       console.log('Login falhou');
       document.getElementById('error-message').textContent = 'Login falhou. Verifique seu email e senha.';
     }
-  })
-  
- 
+  }) 
 });
 
 

@@ -16,6 +16,10 @@
    /* Adicionando margens automáticas para centralizar o container */
  }
 
+ #error-message{
+  color: red;
+ }
+
  h1 {
    text-align: center;
    margin-bottom: 20px;
@@ -123,6 +127,7 @@
    bottom: 0;
    width: 100%;
    font-weight: bold;
+   box-sizing: border-box;
  }
 
  footer a {

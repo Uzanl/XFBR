@@ -1,9 +1,11 @@
 import { updateLoginButtonVisibility } from './auth.js';
 
+import { redirectToArticlePage } from './articleRedirect.js';
+
 // Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
 updateLoginButtonVisibility();
 
-import { redirectToArticlePage } from './articleRedirect.js';
+
 
 const publishButtons = document.querySelectorAll('.publish-button');
 publishButtons.forEach((button) => {
@@ -25,16 +27,22 @@ class Article {
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
     articleElement.setAttribute('data-id', this.id);
-    articleElement.addEventListener('click', () => {
-      openArticle(this.id);
-    });
+   // articleElement.addEventListener('click', () => {
+   //   openArticle(this.id);
+   // });
 
     const imageElement = document.createElement('img');
     imageElement.src = this.imagem_url;
-    //imageElement.alt = this.titulo;
+    imageElement.alt = this.titulo;
+    imageElement.addEventListener('click', () => {
+      openArticle(this.id, this.titulo, this.conteudo);
+    });
 
-    const titleElement = document.createElement('h2');
+    const titleElement = document.createElement('h1');
     titleElement.textContent = this.titulo;
+    titleElement.addEventListener('click', () => {
+      openArticle(this.id, this.titulo, this.conteudo);
+    });
 
     const previewElement = document.createElement('p');
     previewElement.textContent = this.previa_conteudo;
@@ -55,7 +63,7 @@ class Article {
 
 
 async function getUserName(userId) {
-  console.log(userId);
+  //console.log(userId);
   try {
     const response = await fetch(`/get-username/${userId}`);
     if (response.ok) {
@@ -89,7 +97,7 @@ async function fetchTotalArticleCount() {
     const response = await fetch('/get-article-count'); // Endpoint para obter a contagem total de artigos
     const data = await response.json();
     totalPages = Math.ceil(data.count / itemsPerPage); // Calcular o número total de páginas
-    console.log(totalPages);
+    //console.log(totalPages);
   } catch (error) {
     console.error('Error fetching total article count:', error);
   }
@@ -173,7 +181,7 @@ async function loadArticles(pageNumber) {
 
   for (const articleData of articles) {
     const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo } = articleData;
-    console.log(articleData);
+    //console.log(articleData);
     const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo);
     articleContainer.appendChild(await article.render());
   }
@@ -204,8 +212,10 @@ nextPageButton.addEventListener('click', event => {
 });
 // ... Resto do código ...
 
-function openArticle(id) {
-  window.location.href = `artigo.html?id=${id}`;
+function openArticle(id, titulo, conteudo) {
+  const encodedTitulo = encodeURIComponent(titulo);
+  const encodedConteudo = encodeURIComponent(conteudo);
+  window.location.href = `artigo.html?id=${id}&titulo=${encodedTitulo}&conteudo=${encodedConteudo}`;
 }
 
 fetchTotalArticleCount().then(() => {

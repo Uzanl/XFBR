@@ -5,11 +5,13 @@
   <meta charset="UTF-8">
   <title>Informações</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Xbox Family Br - Clube fundado em 2016 por PaulistinhaSccp e Uzann, com mais de 97 mil membros apaixonados pelo console da Microsoft. Entre no Discord e participe da comunidade.">
+  <meta name="description"
+    content="Xbox Family Br - Clube fundado em 2016 por PaulistinhaSccp e Uzann, com mais de 97 mil membros apaixonados pelo console da Microsoft. Entre no Discord e participe da comunidade.">
   <link rel="stylesheet" href="/css/index.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
-
-  
+  <link rel="modulepreload" href="/script/auth.js">
+  <link rel="modulepreload" href="/script/articleRedirect.js">
+  <link rel="modulepreload" href="/script/index.js">
 
 </head>
 
@@ -17,6 +19,15 @@
   <header class="navbar">
     <nav>
       <ul>
+        <li>
+          <input type="text" class="search-box" placeholder="Pesquisar">
+          <div class="suggestion-container">
+          <ul class="suggestion-list">
+
+          </ul>
+          </div>
+        </li>
+
         <li><a href="index.html">Informações</a></li>
         <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
@@ -24,22 +35,21 @@
         <li class="publish-button"><a id="publish-link">Publicar</a></li>
         <li class="login-list-item">
           <a href="login.html">
-           <img src="/login.png" alt="Login" class="login-image">
-
+            <img src="/login.png" alt="Login" class="login-image">
           </a>
         </li>
-
         <li class="logout-button">
           <a href="#">
-           <img src="/logout.png" alt="Logout" class="logout-image">
-
+            <img src="/logout.png" alt="Logout" class="logout-image">
           </a>
         </li>
-
-
-      </ul>
+      </ul>    
     </nav>
   </header>
+
+ 
+
+  
 
   <div class="sidebar">
     <!-- Conteúdo do menu lateral -->
@@ -59,8 +69,11 @@
     <span></span>
   </div>
 
-  <main class="overlay">
 
+  
+
+  <main class="overlay">
+    
     <div class="info">
 
       <p>O Xbox Family Br é um clube fundado em 2016 por PaulistinhaSccp e seu
@@ -75,6 +88,8 @@
 
   </main>
 
+ 
+
   <footer>
     <div class="footer">
       <a href="https://discord.gg/RZF7K5BX"><img src="/discord.png" alt="Botão do Discord"></a>
@@ -82,9 +97,10 @@
     </div>
   </footer>
 
-  <script type="module" src="/script/index.js"></script>
 
-  <script  src="/script/utils.js"></script>
+
+  <script type="module" src="/script/index.js"></script>
+  <script src="/script/utils.js" defer></script>
 </body>
 
 </html>
