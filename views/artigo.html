@@ -7,12 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/artigo.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
+  <link rel="stylesheet" href="/css/searchbar.css">
 </head>
 
 <body>
   <header class="navbar">
     <nav>
       <ul>
+        <li>
+          <input type="text" class="search-box" placeholder="Pesquisar">
+          <div class="suggestion-container">
+          <ul class="suggestion-list">
+
+          </ul>
+          </div>
+        </li>
         <li><a href="index.html">Informações</a></li>
         <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
@@ -58,8 +67,9 @@
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
-  <script src="/script/artigo.js"></script>
-  <script  src="/script/utils.js"></script>
+  <script src="/script/artigo.js" defer></script>
+  <script  src="/script/utils.js" defer></script>
+
 </body>
 
 </html>

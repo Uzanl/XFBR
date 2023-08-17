@@ -29,22 +29,6 @@ body {
 
 }
 
-.search-box {
-  width: 250px;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 15px;
-  color: #fff;
-  background-color: #444;
-  /* Cor ligeiramente mais clara */
-  transition: background-color 0.3s;
-  /* Efeito de transição */
-}
-
-.search-box:hover {
-  background-color: #555;
-  /* Cor um pouco mais escura no hover */
-}
 
 
 
@@ -161,41 +145,3 @@ footer a img {
   display: none;
 }
 
-.suggestion-container {
-  width: 270px;
-  max-height: 30vh;
-  position: absolute;
-  z-index: 1;
-  margin-top: 5px;
-  border-radius: 10px;
-  /* Adicione essa linha para ter bordas circulares */
-  background-color: #555555;
-  /* Cinza claro com contraste */
-  /* Cor de fundo escura com contraste */
-  display: none;
-}
-
-.suggestion-list {
-  padding: 0;
-  list-style-type: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.suggestion-item {
-  margin: 0;
-  padding: 10px;
-  cursor: pointer;
-  color: #fff;
-  width: 250px;
-  DISPLAY: flex;
-  align-items: flex-start;
-}
-
-.suggestion-item:hover {
-  background-color: #666666;
-}

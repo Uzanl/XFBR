@@ -11,6 +11,10 @@
   visibility: hidden;
 }
 
+.publish-button {
+  cursor: pointer;
+}
+
 
 header.navbar {
   background-color: #333333;

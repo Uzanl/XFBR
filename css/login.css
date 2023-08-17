@@ -120,6 +120,10 @@
     box-sizing: border-box;
   }
 
+  .publish-button {
+    cursor: pointer;
+  }
+
   #error-message{
      color: red;
   }

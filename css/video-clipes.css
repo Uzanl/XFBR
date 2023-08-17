@@ -16,6 +16,10 @@ header.navbar {
   overflow: auto;
 }
 
+.publish-button {
+  cursor: pointer;
+}
+
 header nav ul {
   list-style: none;
   margin: 0;
