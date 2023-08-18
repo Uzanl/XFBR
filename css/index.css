@@ -1,3 +1,7 @@
+
+
+
+
 .login-image,
 .logout-image {
   width: 30px;
@@ -5,7 +9,7 @@
 }
 
 .login-list-item,
-.logout-button {
+.submenu-profile {
   visibility: hidden;
 }
 
@@ -22,11 +26,106 @@ body {
   margin: 0;
 }
 
-header.navbar {
+.navbar {
   background-color: #333333;
   border-bottom: 1px solid #999999;
   overflow: auto;
+
 }
+
+
+.submenu-noticias:hover .noticias-container {
+  display: block;
+}
+
+.profile-container {
+  width: 270px;
+  max-height: 30vh;
+  position: absolute;
+  z-index: 1;
+  margin-top: 0px;
+  border-radius: 10px;
+  /* Adicione essa linha para ter bordas circulares */
+  background-color: #555555;
+  /* Cinza claro com contraste */
+  /* Cor de fundo escura com contraste */
+  display: none;
+}
+
+.profile-list {
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.submenu-profile:hover .profile-container {
+  display: block;
+}
+
+.comunidade-container {
+  width: 270px;
+  max-height: 30vh;
+  position: absolute;
+  z-index: 1;
+  margin-top: 0px;
+  border-radius: 10px;
+  /* Adicione essa linha para ter bordas circulares */
+  background-color: #555555;
+  /* Cinza claro com contraste */
+  /* Cor de fundo escura com contraste */
+  display: none;
+}
+
+.comunidade-list {
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.submenu:hover .comunidade-container {
+  display: block;
+}
+
+
+.submenu-noticias:hover .noticias-container {
+  display: block;
+}
+
+.noticias-container {
+  width: 270px;
+  max-height: 30vh;
+  position: absolute;
+  z-index: 1;
+  margin-top: 0px;
+  border-radius: 10px;
+  /* Adicione essa linha para ter bordas circulares */
+  background-color: #555555;
+  /* Cinza claro com contraste */
+  /* Cor de fundo escura com contraste */
+  display: none;
+}
+
+.noticias-list {
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 
 header nav ul {
   list-style: none;
@@ -34,6 +133,7 @@ header nav ul {
   display: flex;
   justify-content: center;
   align-items: center;
+  
 }
 
 header nav ul li {
@@ -139,3 +239,4 @@ footer a img {
 .sidebar {
   display: none;
 }
+
