@@ -12,21 +12,23 @@
 }
 
 
-header.navbar {
+.navbar {
   background-color: #333333;
   border-bottom: 1px solid #999999;
-  margin: 0;
   overflow: auto;
+
 }
+
+
+
 
 header nav ul {
   list-style: none;
-  margin: 0;
-  padding: 0;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+
 }
 
 header nav ul li {
@@ -47,6 +49,7 @@ header nav ul li a:hover {
   background-color: #444444;
   color: #fff;
 }
+
 
 body {
   display: flex;

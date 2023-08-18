@@ -48,7 +48,7 @@
     transition: background-color 0.3s;
     /* Efeito de transição */
   }
-  
+
   .search-box:hover {
     background-color: #555;
     /* Cor um pouco mais escura no hover */

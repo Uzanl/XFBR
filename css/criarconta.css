@@ -10,7 +10,7 @@
    align-items: center;
    justify-content: center;
    flex-direction: column;
-   height: 100vh;
+   height: 80vh;
    width: 100%;
    margin: 0 auto;
    /* Adicionando margens automáticas para centralizar o container */
@@ -35,8 +35,8 @@
    font-weight: bold;
  }
 
- input[type="text"],
- input[type="password"] {
+ .email,
+ .password,.name,.confirmPassword {
    padding: 8px;
    margin-bottom: 20px;
    width: 266.8px;
@@ -85,49 +85,53 @@
    text-decoration: underline;
  }
 
- header.navbar {
-   background-color: #333333;
-   border-bottom: 1px solid #999999;
-   margin: 0;
- }
+ .navbar {
+  background-color: #333333;
+  border-bottom: 1px solid #999999;
+  overflow: auto;
 
- header nav ul {
-   list-style: none;
-   margin: 0;
-   padding: 0;
-   text-align: center;
- }
+}
 
- header nav ul li {
-   display: inline-block;
-   margin: 0 10px;
- }
 
- header nav ul li a {
-   display: block;
-   padding: 10px;
-   background-color: #333333;
-   color: #fff;
-   text-decoration: none;
-   border-radius: 5px;
- }
 
- header nav ul li a:hover {
-   background-color: #444444;
-   color: #fff;
- }
+
+header nav ul {
+  list-style: none;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+header nav ul li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+header nav ul li a {
+  display: block;
+  padding: 10px;
+  background-color: #333333;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+header nav ul li a:hover {
+  background-color: #444444;
+  color: #fff;
+}
 
  .footer {
-   background-color: #333333;
-   color: #fff;
-   padding: 20px;
-   text-align: center;
-   position: fixed;
-   left: 0;
-   bottom: 0;
-   width: 100%;
-   font-weight: bold;
-   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #333333;
+  color: #fff;
+  padding: 20px;
+  font-weight: bold;
  }
 
  footer a {

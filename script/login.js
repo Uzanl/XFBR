@@ -1,4 +1,11 @@
 
+import { updateLoginButtonVisibility } from './auth.js';
+
+// Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
+updateLoginButtonVisibility();
+
+
+
 document.getElementById('login-form').addEventListener('submit', function (event) {
   event.preventDefault(); // Evita o envio tradicional do formulário
  
