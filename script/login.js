@@ -1,10 +1,17 @@
 
+import { updateLoginButtonVisibility } from './auth.js';
+
+// Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
+updateLoginButtonVisibility();
+
+
+
 document.getElementById('login-form').addEventListener('submit', function (event) {
   event.preventDefault(); // Evita o envio tradicional do formulário
  
   
   const formData = new FormData(this);
-  console.log('Dados do formulário:', Object.fromEntries(formData));
+
 
   fetch("/login", {
     method: "POST",
@@ -26,9 +33,7 @@ document.getElementById('login-form').addEventListener('submit', function (event
       console.log('Login falhou');
       document.getElementById('error-message').textContent = 'Login falhou. Verifique seu email e senha.';
     }
-  })
-  
- 
+  }) 
 });
 
 

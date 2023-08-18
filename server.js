@@ -1,4 +1,6 @@
 const express = require('express');
+const multer = require('multer');
+const sharp = require('sharp');
 const compression = require('compression');
 const session = require('express-session')
 const path = require('path');
@@ -119,11 +121,12 @@ app.post('/submit', (req, res) => {
 });
 
 
+
+
 app.post('/insert-news', (req, res) => {
   console.log(req.body);
   const { title, contentpreview, content } = req.body;
   const image = req.files ? req.files.image : null; // Acessar o arquivo de imagem enviado
- // console.log(image);
   const missingFields = [];
 
   // Verificação de campos vazios
@@ -150,28 +153,34 @@ app.post('/insert-news', (req, res) => {
 
   const userId = req.session.user.id_usu; // Captura o ID do usuário da sessão
 
-  const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url,previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
-  const publicationDate = new Date();
- // const imagePath = '/images-preview/' + image.name; 
+  // Use o sharp para comprimir e converter a imagem para WebP
+  const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp'; // Nome do arquivo com extensão .webp
+  sharp(image.data)
+    .webp({ quality: 80 })
+    .toFile(uploadPath, (err) => {
+      if (err) {
+        console.error('Erro ao comprimir e converter a imagem:', err);
+        return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+      } else {
+        // Após a conversão da imagem, continue com a inserção no banco de dados
+        const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp'; // Nome da imagem convertida para WebP
+        const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
+        const publicationDate = new Date();
+        const encodedContent = encodeURIComponent(content);
 
-  connection.query(insertQuery, [title, content, publicationDate, userId, image.name, contentpreview], (err, result) => {
-    if (err) {
-      console.error('Erro ao inserir artigo:', err);
-      res.status(500).json({ error: 'Erro ao inserir o artigo' });
-    } else {
-      // Use o método mv() para mover o arquivo para o diretório desejado
-      const uploadPath = __dirname + '/images-preview/' + image.name;
-      image.mv(uploadPath, (err) => {
-        if (err) {
-          console.error('Erro ao mover o arquivo:', err);
-          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-        } else {
-          res.status(200).json({ message: 'Artigo inserido com sucesso' });
-        }
-      });
-    }
-  });
+        connection.query(insertQuery, [title, encodedContent, publicationDate, userId, newImageName, contentpreview], (err, result) => {
+          if (err) {
+            console.error('Erro ao inserir artigo:', err);
+            res.status(500).json({ error: 'Erro ao inserir o artigo' });
+          } else {
+            res.status(200).json({ message: 'Artigo inserido com sucesso' });
+          }
+        });
+      }
+    });
 });
+
+
 
 
 

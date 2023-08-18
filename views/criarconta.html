@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/criarconta.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
-
+  <link rel="stylesheet" href="/css/searchbar.css">
 </head>
 
 <body>
@@ -15,6 +15,15 @@
   <header class="navbar">
     <nav>
       <ul>
+        <li>
+          <input type="text" class="search-box" placeholder="Pesquisar">
+          <div class="suggestion-container">
+          <ul class="suggestion-list">
+
+          </ul>
+          </div>
+        </li>
+
         <li><a href="index.html">Informações</a></li>
         <li><a href="notícias.html">Notícias</a></li>
         <li><a href="bate-papo.html">Bate-papo</a></li>
@@ -44,17 +53,17 @@
     <h1>Criar Conta</h1>
     <form id="signup-form">
       <label for="name">Nome:</label>
-      <input type="text" id="name" name="name">
+      <input class="name" type="text" id="name" name="name">
 
       <label for="email">Email:</label>
-      <input type="text" id="email" name="email">
+      <input class="email" type="text" id="email" name="email">
 
       <label for="password">Senha:</label>
-      <input type="password" id="password" name="password">
+      <input class="password" type="password" id="password" name="password">
 
        <!-- Novo campo de confirmação de senha -->
        <label for="confirmPassword">Confirmar Senha:</label>
-       <input type="password" id="confirmPassword" name="confirmPassword">
+       <input class="confirmPassword" type="password" id="confirmPassword" name="confirmPassword">
  
        <!-- Exibição da força da senha -->
        <div id="passwordStrength"></div>
@@ -76,7 +85,7 @@
         Já tem uma conta? <a href="login.html">Logar</a>
       </div>
     </form>
-    <div id="error-message" style="color: red;"></div>
+    <div id="error-message"></div>
   </div>
 
 
@@ -88,7 +97,8 @@
     </div>
   </footer>
   <script type = "module"src="/script/criarconta.js"></script>
-  <script  src="/script/utils.js"></script>
+  <script  src="/script/utils.js" defer></script>
+
 </body>
 
 </html>
