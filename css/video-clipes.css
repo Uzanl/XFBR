@@ -5,8 +5,10 @@
 }
 
 .login-list-item,
-.submenu-profile {
-  visibility: hidden;
+.logout-button , 
+.sidebar,
+ #item-profile{
+  display: none;
 }
 .publish-button {
   cursor: pointer;

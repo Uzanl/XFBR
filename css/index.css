@@ -1,17 +1,42 @@
 .login-image,
-.logout-image {
+.logout-image,
+.item-profile {
   width: 30px;
   height: 30px;
 }
 
-.sidebar {
+
+
+.login-list-item,
+.logout-button , 
+.sidebar,
+ #item-profile{
   display: none;
 }
 
-.login-list-item,
-.submenu-profile {
-  visibility: hidden;
+.navbar-index {
+  background-color: #333333;
+  border-bottom: 1px solid #999999;
+  display:flex;
+  flex-direction: row;
 }
+
+.banner{
+  width: 15%;
+}
+
+.middle{
+  justify-content: center;
+   width: 70%; 
+  align-items: center;
+  display: flex;
+}
+
+.end{
+  width: 15%;
+}
+
+
 
 body {
   display: flex;
@@ -72,6 +97,10 @@ footer a img {
   background-repeat: no-repeat;
   background-position: center center;
 }
+
+
+
+
 
 .overlay::before {
   min-height: 100vh;

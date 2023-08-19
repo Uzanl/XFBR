@@ -8,7 +8,7 @@
 
 .login-list-item,
 .logout-button {
-  visibility: hidden;
+  display: none;
 }
 
 .publish-button {
@@ -61,7 +61,7 @@ body {
 }
 
 
-.profile-container{
+.perfil-container{
   display: flex;
   justify-content: center;
   flex-direction: column;

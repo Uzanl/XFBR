@@ -1,5 +1,5 @@
 @media screen and (max-width: 768px) {
-    .navbar {
+    .navbar, .navbar-index {
       display: none;
     }
 

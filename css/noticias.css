@@ -5,10 +5,11 @@
  }
 
  .login-list-item,
- .submenu-profile {
-   visibility: hidden;
+ .logout-button , 
+ .sidebar,
+  #item-profile{
+   display: none;
  }
-
  body {
    display: flex;
    flex-direction: column;

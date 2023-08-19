@@ -6,8 +6,10 @@
 }
 
 .login-list-item,
-.submenu-profile {
-  visibility: hidden;
+.logout-button , 
+.sidebar,
+ #item-profile{
+  display: none;
 }
 
 body {
@@ -65,10 +67,6 @@ main p {
   width: 60%;
   margin-top: 20px;
   height: 500px;
-}
-
-.sidebar {
-  display: none;
 }
 
 .publish-button {
