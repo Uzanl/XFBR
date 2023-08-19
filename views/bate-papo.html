@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Explore discussões intensas e emocionantes sobre jogos e Xbox no Xbox Family Br. Junte-se à comunidade de jogadores, compartilhe conhecimentos e mergulhe no universo dos jogos. Conecte-se e aproveite as conversas sobre jogos neste espaço incrível.">
   <link rel="stylesheet" href="/css/bate-papo.css">
+  <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="stylesheet" href="/css/searchbar.css">
 
@@ -20,30 +21,49 @@
           <input type="text" class="search-box" placeholder="Pesquisar">
           <div class="suggestion-container">
           <ul class="suggestion-list">
-
           </ul>
           </div>
         </li>
-
         <li><a href="index.html">Informações</a></li>
-        <li><a href="notícias.html">Notícias</a></li>
-        <li><a href="bate-papo.html">Bate-papo</a></li>
-        <li><a href="video-clipes.html">Vídeo-clipes</a></li>
-        <li class="publish-button"><a>Publicar</a></li>
+        <li class="submenu-noticias">
+          <a>Artigos</a>
+          <div class="noticias-container">
+           <ul class="noticias-list">
+             <li><a href="notícias.html">Notícias</a></li>
+             <li class="publish-button"><a id="publish-link">Publicar</a></li>
+           </ul>
+           </div>
+       </li>
+        <li class="submenu">
+           <a>Comunidade</a>
+           <div class="comunidade-container">
+            <ul class="comunidade-list">
+              <li><a href="bate-papo.html">Bate-papo</a></li>
+              <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+            </ul>
+            </div>
+        </li>
         <li class="login-list-item">
           <a href="login.html">
-           <img src="/login.png" alt="Login" class="login-image">
-
+            <img src="/login.png" alt="Login" class="login-image">
           </a>
         </li>
-
-        <li class="logout-button">
-          <a href="#">
-           <img src="/logout.png" alt="Logout" class="logout-image">
-
+        <li class="submenu-profile">
+          <a>
+            <img src="/profile.png" alt="Logout" class="logout-image">
           </a>
-        </li>
-      </ul>
+          <div class="profile-container">
+           <ul class="profile-list">
+            <li class="logout-button">
+              <a href="#">
+                <img src="/logout.png" alt="Logout" class="logout-image">
+              </a>
+            </li>
+            <li><a href="perfil.html">perfil</a></li>
+           </ul>
+           </div>
+       </li>
+      </ul>    
     </nav>
   </header>
 

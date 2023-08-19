@@ -1,21 +1,16 @@
-
-
-
-
 .login-image,
 .logout-image {
   width: 30px;
   height: 30px;
 }
 
+.sidebar {
+  display: none;
+}
+
 .login-list-item,
 .submenu-profile {
   visibility: hidden;
-}
-
-
-.publish-button {
-  cursor: pointer;
 }
 
 body {
@@ -24,135 +19,6 @@ body {
   min-height: 100vh;
   font-family: Arial, sans-serif;
   margin: 0;
-}
-
-.navbar {
-  background-color: #333333;
-  border-bottom: 1px solid #999999;
-  overflow: auto;
-
-}
-
-
-.submenu-noticias:hover .noticias-container {
-  display: block;
-}
-
-.profile-container {
-  width: 270px;
-  max-height: 30vh;
-  position: absolute;
-  z-index: 1;
-  margin-top: 0px;
-  border-radius: 10px;
-  /* Adicione essa linha para ter bordas circulares */
-  background-color: #555555;
-  /* Cinza claro com contraste */
-  /* Cor de fundo escura com contraste */
-  display: none;
-}
-
-.profile-list {
-  padding: 0;
-  list-style-type: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.submenu-profile:hover .profile-container {
-  display: block;
-}
-
-.comunidade-container {
-  width: 270px;
-  max-height: 30vh;
-  position: absolute;
-  z-index: 1;
-  margin-top: 0px;
-  border-radius: 10px;
-  /* Adicione essa linha para ter bordas circulares */
-  background-color: #555555;
-  /* Cinza claro com contraste */
-  /* Cor de fundo escura com contraste */
-  display: none;
-}
-
-.comunidade-list {
-  padding: 0;
-  list-style-type: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.submenu:hover .comunidade-container {
-  display: block;
-}
-
-
-.submenu-noticias:hover .noticias-container {
-  display: block;
-}
-
-.noticias-container {
-  width: 270px;
-  max-height: 30vh;
-  position: absolute;
-  z-index: 1;
-  margin-top: 0px;
-  border-radius: 10px;
-  /* Adicione essa linha para ter bordas circulares */
-  background-color: #555555;
-  /* Cinza claro com contraste */
-  /* Cor de fundo escura com contraste */
-  display: none;
-}
-
-.noticias-list {
-  padding: 0;
-  list-style-type: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-
-header nav ul {
-  list-style: none;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  
-}
-
-header nav ul li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-header nav ul li a {
-  display: block;
-  padding: 10px;
-  background-color: #333333;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-}
-
-header nav ul li a:hover {
-  background-color: #444444;
-  color: #fff;
 }
 
 footer a {
@@ -235,8 +101,3 @@ footer a img {
 .discord-button:hover {
   background-color: #677bc4;
 }
-
-.sidebar {
-  display: none;
-}
-

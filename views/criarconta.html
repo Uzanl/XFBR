@@ -6,6 +6,7 @@
   <title>Criar Conta</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/css/criarconta.css">
+  <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="stylesheet" href="/css/searchbar.css">
 </head>
@@ -19,17 +20,30 @@
           <input type="text" class="search-box" placeholder="Pesquisar">
           <div class="suggestion-container">
           <ul class="suggestion-list">
-
           </ul>
           </div>
         </li>
-
         <li><a href="index.html">Informações</a></li>
-        <li><a href="notícias.html">Notícias</a></li>
-        <li><a href="bate-papo.html">Bate-papo</a></li>
-        <li><a href="video-clipes.html">Vídeo-clipes</a></li>
-        <li class="publish-button"><a>Publicar</a></li>
-      </ul>
+        <li class="submenu-noticias">
+          <a>Artigos</a>
+          <div class="noticias-container">
+           <ul class="noticias-list">
+             <li><a href="notícias.html">Notícias</a></li>
+             <li class="publish-button"><a id="publish-link">Publicar</a></li>
+           </ul>
+           </div>
+       </li>
+        <li class="submenu">
+           <a>Comunidade</a>
+           <div class="comunidade-container">
+            <ul class="comunidade-list">
+              <li><a href="bate-papo.html">Bate-papo</a></li>
+              <li><a href="video-clipes.html">Vídeo-clipes</a></li>
+            </ul>
+            </div>
+        </li>
+       
+      </ul>    
     </nav>
   </header>
 

@@ -12,8 +12,9 @@
         height: 30px;
       }
 
+
       .login-list-item,
-      .logout-button {
+      .submenu-profile {
         visibility: hidden;
       }
 
@@ -106,43 +107,7 @@
         height: 100%;
       }
 
-      .navbar {
-        background-color: #333333;
-        border-bottom: 1px solid #999999;
-        overflow: auto;
 
-      }
-
-
-
-
-      header nav ul {
-        list-style: none;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-      }
-
-      header nav ul li {
-        display: inline-block;
-        margin: 0 10px;
-      }
-
-      header nav ul li a {
-        display: block;
-        padding: 10px;
-        background-color: #333333;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-      }
-
-      header nav ul li a:hover {
-        background-color: #444444;
-        color: #fff;
-      }
 
       .sidebar {
         display: none;

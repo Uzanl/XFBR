@@ -124,6 +124,11 @@ app.post('/submit', (req, res) => {
 
 
 app.post('/insert-news', (req, res) => {
+
+  if (!req.session.user) {
+    // Se a sessão do usuário não estiver definida, redirecione para a tela de login
+    return res.status(401).json({  redirect: '/login.html' });
+  }
   console.log(req.body);
   const { title, contentpreview, content } = req.body;
   const image = req.files ? req.files.image : null; // Acessar o arquivo de imagem enviado

@@ -118,8 +118,12 @@ tinymce.init({
       if (data.error) {
         document.getElementById('error-message').textContent = data.error; // Exibe o erro na div error-message
       } else {
-        alert("Notícia inserida com sucesso!");
-        window.location.reload(); // Recarrega a página em caso de sucesso
+        if (data.redirect) {
+          window.location.href = data.redirect; // Redireciona para a URL fornecida pelo servidor
+        } else {
+          alert("Notícia inserida com sucesso!");
+          window.location.reload(); // Recarrega a página em caso de sucesso
+        }
       }
     })
     .catch(error => {
