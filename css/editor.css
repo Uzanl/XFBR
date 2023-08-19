@@ -2,13 +2,10 @@
     font-family: Arial, sans-serif;
     background-color: #333333;
     color: #f2f2f2;
-    /* padding-top: 80px;*/
-    /* Adicione padding superior para acomodar o header */
     padding-bottom: 100px;
-    /* Adicione padding inferior para acomodar o footer */
     overflow-y: scroll;
     margin: 0;
-    /* Adicionar scrollbar vertical quando o conteúdo ultrapassa a altura disponível */
+  
   }
 
   .login-image,
@@ -18,9 +15,10 @@
   }
   
   .login-list-item,
-  .logout-button {
+  .submenu-profile {
     visibility: hidden;
   }
+  
 
   .container {
     display: flex;
@@ -28,11 +26,11 @@
     justify-content: center;
     flex-direction: column;
     min-height: calc(100vh - 180px);
-    /* 80px para o header + 100px para o footer */
+ 
   }
 
   .noticia-preview {
-    /* Adicione estilos de dimensionamento e posicionamento para a prévia da notícia */
+
     width: 313.3px;
     height: 283.94px;
     background-color: #f2f2f2;
@@ -42,7 +40,6 @@
     justify-content: center;
     margin-top: 20px;
     margin-bottom: 20px;
-    /* Ajuste conforme necessário */
   }
 
   .noticia-preview h1 {
@@ -59,48 +56,10 @@
 
   }
 
-
   .inserir {
     margin-top: 20px;
     display: flex;
     justify-content: center;
-  }
-
-
-  header.navbar {
-    background-color: #333333;
-    border-bottom: 1px solid #999999;
-    margin: 0;
-    overflow: auto;
-  }
-
-  header nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  header nav ul li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-
-  header nav ul li a {
-    display: block;
-    padding: 10px;
-    background-color: #333333;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-  }
-
-  header nav ul li a:hover {
-    background-color: #444444;
-    color: #fff;
   }
 
   .footer {
@@ -132,21 +91,19 @@
     font-weight: bold;
   }
 
-  /* Estilo para a região que contém o botão de remover */
+  
   .file-input-container {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
     margin-top: 20px;
     padding: 8px;
-    /* Adicione outros estilos conforme necessário */
+   
   }
 
-  /* Estilo para o botão de remover */
+  
   .remove-btn {
-    /* Adicione os estilos específicos para o botão aqui */
-    margin-left: 10px;
-    /* Exemplo de margem esquerda */
+    margin-left: 10px;  
   }
 
 

@@ -85,44 +85,6 @@
    text-decoration: underline;
  }
 
- .navbar {
-  background-color: #333333;
-  border-bottom: 1px solid #999999;
-  overflow: auto;
-
-}
-
-
-
-
-header nav ul {
-  list-style: none;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-}
-
-header nav ul li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-header nav ul li a {
-  display: block;
-  padding: 10px;
-  background-color: #333333;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-}
-
-header nav ul li a:hover {
-  background-color: #444444;
-  color: #fff;
-}
-
  .footer {
   display: flex;
   flex-direction: column;
@@ -162,3 +124,7 @@ header nav ul li a:hover {
    color: green;
  }
 
+ .login-list-item,
+ .submenu-profile {
+   visibility: hidden;
+ }

@@ -2,54 +2,13 @@
 .logout-image {
   width: 30px;
   height: 30px;
-  /* adicione outros estilos aqui, se necessário */
-}
 
+}
 
 .login-list-item,
-.logout-button {
+.submenu-profile {
   visibility: hidden;
 }
-
-
-.navbar {
-  background-color: #333333;
-  border-bottom: 1px solid #999999;
-  overflow: auto;
-
-}
-
-
-
-
-header nav ul {
-  list-style: none;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-}
-
-header nav ul li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-header nav ul li a {
-  display: block;
-  padding: 10px;
-  background-color: #333333;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-}
-
-header nav ul li a:hover {
-  background-color: #444444;
-  color: #fff;
-}
-
 
 body {
   display: flex;
@@ -116,12 +75,8 @@ main p {
   cursor: pointer;
 }
 
-
-
 @media screen and (max-width: 768px) {
-  
   .wb-embed {
     width: 90%;
   }
-
 }
