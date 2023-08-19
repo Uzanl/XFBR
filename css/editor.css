@@ -13,10 +13,9 @@
     width: 30px;
     height: 30px;
   }
-  
   .login-list-item,
-  .submenu-profile {
-    visibility: hidden;
+  .logout-button {
+    display: none;
   }
   
 

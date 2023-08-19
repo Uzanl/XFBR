@@ -6,16 +6,18 @@ function updateLoginButtonVisibility() {
     .then((data) => {
       console.log("Response from server:", data);
       const loginButton = document.querySelector('.login-list-item'); // Botão de login
-      const profileButton = document.querySelector('.submenu-profile'); // Botão de logout
+      const logoutButton = document.querySelector('.logout-button'); // Botão de logout
+      const profileButton = document.getElementById('#item-profile');
       
       if (data.isLoggedIn) {
         //loginButton.style.display = 'none'; // Ocultar o botão de login se o usuário estiver autenticado
-        profileButton.style.visibility = 'visible';
-        loginButton.style.display = 'none'; // Exibir o botão de logout se o usuário estiver autenticado
+        logoutButton.style.display = 'flex';
+        loginButton.style.display = 'none';
+        profileButton.style.display = 'flex'; // Exibir o botão de logout se o usuário estiver autenticado
       } else {
-        loginButton.style.visibility = 'visible';
-        profileButton.style.visibility = 'none' // Exibir o botão de login se o usuário não estiver autenticado
-        //logoutButton.style.display = 'none'; // Ocultar o botão de logout se o usuário não estiver autenticado
+        loginButton.style.display = 'flex';
+        logoutButton.style.display = 'none' // Exibir o botão de login se o usuário não estiver autenticado
+      //  profileButton.style.display = 'none';//logoutButton.style.display = 'none'; // Ocultar o botão de logout se o usuário não estiver autenticado
       }
     })
     .catch((error) => {
