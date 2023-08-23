@@ -1,23 +1,31 @@
 // auth.js
 
+//import Cookies from 'js-cookie';
+
+// auth.js
+
 function updateLoginButtonVisibility() {
   fetch("http://localhost:3000/checkLoginStatus")
     .then((response) => response.json())
     .then((data) => {
       console.log("Response from server:", data);
-      const loginButton = document.querySelector('.login-list-item'); // Botão de login
-      const logoutButton = document.querySelector('.logout-button'); // Botão de logout
-      const profileButton = document.getElementById('#item-profile');
+      const loginButton = document.querySelector('.login-list-item');
+      const logoutButton = document.querySelector('.logout-button');
+      const profileButton = document.getElementById('item-profile');
       
       if (data.isLoggedIn) {
-        //loginButton.style.display = 'none'; // Ocultar o botão de login se o usuário estiver autenticado
         logoutButton.style.display = 'flex';
         loginButton.style.display = 'none';
-        profileButton.style.display = 'flex'; // Exibir o botão de logout se o usuário estiver autenticado
-      } else {
-        loginButton.style.display = 'flex';
-        logoutButton.style.display = 'none' // Exibir o botão de login se o usuário não estiver autenticado
-      //  profileButton.style.display = 'none';//logoutButton.style.display = 'none'; // Ocultar o botão de logout se o usuário não estiver autenticado
+        profileButton.style.display = 'flex';
+        localStorage.setItem('isLoggedIn', 'true');
+      } else if(loginButton || logoutButton){
+        
+          loginButton.style.display = 'flex';
+        
+       
+        logoutButton.style.display = 'none';
+       // profileButton.style.display = 'none';
+        localStorage.setItem('isLoggedIn', 'false');
       }
     })
     .catch((error) => {
@@ -25,20 +33,15 @@ function updateLoginButtonVisibility() {
     });
 }
 
-// Mostrar o botão após o carregamento completo da página
-document.addEventListener("DOMContentLoaded", () => {
-  updateLoginButtonVisibility();
-});
+
 
 export { updateLoginButtonVisibility };
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateLoginButtonVisibility();
+const logoutButtonListItem = document.querySelector('.logout-button'); // Pegar o elemento <li> com a classe logout-button
 
-  const logoutButtonListItem = document.querySelector('.logout-button'); // Pegar o elemento <li> com a classe logout-button
+if (logoutButtonListItem) { // Verificar se o elemento existe
+  logoutButtonListItem.addEventListener('click', () => {
   
-  if (logoutButtonListItem) { // Verificar se o elemento existe
-    logoutButtonListItem.addEventListener('click', () => {
       const shouldLogout = window.confirm("Tem certeza de que deseja sair?"); // Mostrar um alerta de confirmação
     
       if (shouldLogout) {
@@ -52,7 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error logging out:", error);
           });
       }
-    });
-  }
-});
+    
+  });
+}
+
 

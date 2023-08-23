@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="modulepreload" href="/script/auth.js">
   <link rel="modulepreload" href="/script/articleRedirect.js">
+  <link rel="modulepreload" href="/script/perfil.js">
  
 </head>
 
@@ -25,7 +26,6 @@
           </ul>
           </div>
         </li>
-       
         <li class="submenu-noticias">
           <a>Artigos</a>
           <div class="noticias-container">
@@ -45,29 +45,21 @@
             </ul>
             </div>
         </li>
-     
         <li class="submenu-profile">
-          <a>
+          <a class="menu-item">
             <img src="/profile.png" alt="Logout" class="logout-image">
           </a>
           <div class="profile-container">
            <ul class="profile-list">
-
-            <li class="login-list-item">
-              <a class="item-login" href="login.html">Login</a>
-            </li>
-
-            <li class="logout-button">
-              <a class="item-sair" href="#">Sair</a>
-            </li>
-            <li class="item"><a class="item"  href="perfil.html">Perfil</a></li>
+            <li class="login-list-item"><a href="login.html">Login</a></li>
+            <li class="logout-button"><a href="#">Sair</a></li>
+            <li class="item" id="item-profile"><a  href="perfil.html">Perfil</a></li>
            </ul>
            </div>
        </li>
       </ul>    
     </nav>
   </header>
-
   <div class="sidebar">
     <!-- Conteúdo do menu lateral -->
     <ul>
@@ -93,14 +85,14 @@
         <!-- ... Outro conteúdo do HTML ... -->
 
 <div class="profile-image">
-  <img src="/caminho/para/imagem-do-perfil.jpg" alt="Imagem do Perfil">
+  <img src="/profile-st.webp" alt="Imagem do Perfil">
   <label for="image-input" class="image-edit-icon">
     <i class="fas fa-camera"></i> <!-- Ícone da câmera, use uma biblioteca de ícones ou SVG aqui -->
   </label>
 </div>
 
 <div class="profile-description">
-  <h2>Descrição do Perfil</h2>
+  <h1>Descrição do Perfil</h1>
   <p>Sua descrição atual do perfil vai aqui.</p>
   <textarea id="description-input" rows="4" placeholder="Atualize sua descrição"></textarea>
   <button id="update-description-button">Atualizar Descrição</button>
@@ -126,9 +118,10 @@
     </div>
   </footer>
   
-  <script type="module" src="/script/noticias.js" ></script>
+  <script type="module" src="/script/perfil.js"></script>
   <script src="/script/utils.js" defer></script>
-  
+  <script src="/script/articleRedirect.js" defer></script>
+
 </body>
 
 </html>

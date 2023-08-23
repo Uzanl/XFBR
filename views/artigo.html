@@ -3,16 +3,12 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Minha Página</title>
+  <title>Artigo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preload" href="/css/artigo.css" as="style">
   <link rel="stylesheet" href="/css/artigo.css">
-  <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
-  <link rel="stylesheet" href="/css/searchbar.css">
-  <link rel="modulepreload" href="/script/auth.js">
-  <link rel="modulepreload" href="/script/articleRedirect.js">
-
-
+  <link rel="modulepreload" href="/script/artigo.js">
 </head>
 
 <body>
@@ -22,58 +18,46 @@
         <li>
           <input type="text" class="search-box" placeholder="Pesquisar">
           <div class="suggestion-container">
-          <ul class="suggestion-list">
-          </ul>
+            <ul class="suggestion-list">
+            </ul>
           </div>
         </li>
-       
         <li class="submenu-noticias">
           <a class="menu-item">Artigos</a>
           <div class="noticias-container">
-           <ul class="noticias-list">
-
-             <li class="item"><a href="notícias.html">Notícias</a></li>
-             <li class="publish-button"><a id="publish-link">Publicar</a></li>
-
-
-           </ul>
-           </div>
-       </li>
+            <ul class="noticias-list">
+              <li class="item"><a href="notícias.html">Notícias</a></li>
+              <li class="publish-button"><a id="publish-link">Publicar</a></li>
+            </ul>
+          </div>
+        </li>
         <li class="submenu">
-           <a class="menu-item">Comunidade</a>
-           <div class="comunidade-container">
+          <a class="menu-item">Comunidade</a>
+          <div class="comunidade-container">
             <ul class="comunidade-list">
-
-
               <li class="item"><a href="index.html">Informações</a></li>
               <li class="item"><a href="bate-papo.html">Bate-papo</a></li>
-              <li class="item" ><a href="video-clipes.html">Vídeo-clipes</a></li>
-
-
+              <li class="item"><a href="video-clipes.html">Vídeo-clipes</a></li>
             </ul>
-            </div>
+          </div>
         </li>
-     
         <li class="submenu-profile">
           <a class="menu-item">
             <img src="/profile.png" alt="Logout" class="logout-image">
           </a>
           <div class="profile-container">
-           <ul class="profile-list">
-
-            <li class="login-list-item"><a href="login.html">Login</a></li>
-            <li class="logout-button"><a href="#">Sair</a></li>
-            <li class="item" id="item-profile"><a  href="perfil.html">Perfil</a></li>
-
-           </ul>
-           </div>
-       </li>
-      </ul>        
+            <ul class="profile-list">
+              <li class="login-list-item"><a href="login.html">Login</a></li>
+              <li class="logout-button"><a href="#">Sair</a></li>
+              <li class="item" id="item-profile"><a href="perfil.html">Perfil</a></li>
+            </ul>
+          </div>
+        </li>
+      </ul>
     </nav>
   </header>
 
   <div class="sidebar">
-    <!-- Conteúdo do menu lateral -->
     <ul>
       <li><a href="index.html">Informações</a></li>
       <li><a href="notícias.html">Notícias</a></li>
@@ -82,26 +66,24 @@
       <li class="publish-button"><a>Publicar</a></li>
     </ul>
   </div>
-
   <div class="toggle-btn" onclick="toggleSidebar()">
     <span></span>
     <span></span>
     <span></span>
   </div>
-
   <div class="noticia-container">
     <div class="noticia">
-      <h1 class="noticia-titulo">Título do Artigo</h1>
-      <p class="noticia-conteudo">Conteúdo do Artigo...</p>
-    
-     
+      <h1 class="noticia-titulo"></h1>
+      <p class="noticia-conteudo"></p>
+      
+      
+
       <div class="autor">
-        <img src="/uzan.jpg" alt="Imagem do Autor">
-        <p>Nascido em 2000 Lucas Uzan da Cunha "Uzann" sempre foi fã de videogame. Mas as coisas mudaram quando ele conheceu o xbox em meados de 2010. A partir daí ele nunca mais trocou de plataforma. </p>
+        <img width="100px" class="imagem_perfil" height="100px" src="" alt="Imagem do Autor" >
+        <p class="descricao_perfil"></p>
       </div>
     </div>
   </div>
-
   <footer>
     <div class="footer">
       <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord"></a>
@@ -109,9 +91,8 @@
     </div>
   </footer>
   <script type="module" src="/script/artigo.js"></script>
-
-  <script  src="/script/utils.js" defer></script>
-
+  <script src="/script/utils.js" defer></script>
+  <script src="/script/articleRedirect.js" defer></script>
 </body>
 
 </html>

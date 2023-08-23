@@ -1,3 +1,14 @@
+
+/* styles.css */
+
+/* Importe os estilos de outros arquivos CSS */
+
+@import url('searchbar.css');
+@import url('navbar.css');
+
+
+
+
 .login-image,
 .logout-image,
 .item-profile {

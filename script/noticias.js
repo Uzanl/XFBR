@@ -1,16 +1,13 @@
 import { updateLoginButtonVisibility } from './auth.js';
 
-import { redirectToArticlePage } from './articleRedirect.js';
+
 
 // Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
 updateLoginButtonVisibility();
 
 
 
-const publishButtons = document.querySelectorAll('.publish-button');
-publishButtons.forEach((button) => {
-  button.addEventListener('click', redirectToArticlePage);
-});
+
 
 class Article {
   constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo) {
@@ -26,28 +23,24 @@ class Article {
   async render() {
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
-    articleElement.setAttribute('data-id', this.id);
-   // articleElement.addEventListener('click', () => {
-   //   openArticle(this.id);
-   // });
+    articleElement.setAttribute('data-id', this.id_artigo);
 
     const imageElement = document.createElement('img');
     imageElement.src = this.imagem_url;
     imageElement.alt = this.titulo;
     imageElement.addEventListener('click', () => {
-      openArticle(this.id, this.titulo, this.conteudo);
+      openArticle(this.id_artigo);
     });
 
     const titleElement = document.createElement('h1');
     titleElement.textContent = this.titulo;
     titleElement.addEventListener('click', () => {
-      openArticle(this.id, this.titulo, this.conteudo);
+      openArticle(this.id_artigo);
     });
 
     const previewElement = document.createElement('p');
     previewElement.textContent = this.previa_conteudo;
 
-    
     const userName = await getUserName(this.id_usu);
     const userInfoElement = document.createElement('p');
     userInfoElement.textContent = `Postado por ${userName} em ${formatDate(this.data_publicacao)}`;
@@ -85,8 +78,6 @@ function formatDate(dateString) {
   return date.toLocaleDateString('pt-BR', options);
 }
 
-
-
 const articles = [];
 let currentPage = 1;
 let itemsPerPage = 8;
@@ -102,6 +93,10 @@ async function fetchTotalArticleCount() {
     console.error('Error fetching total article count:', error);
   }
 }
+
+
+
+
 
 function updatePageNumbers(totalPages) {
   const pageNumbersContainer = document.querySelector('.page-numbers');
@@ -154,6 +149,10 @@ function updatePageNumbers(totalPages) {
   } else {
     nextPageButton.style.display = 'none';
   }
+
+  if(currentPage== totalPages){
+    console.log("teste");
+  }
 }
 
 async function fetchAndAppendArticles(pageNumber) {
@@ -181,7 +180,6 @@ async function loadArticles(pageNumber) {
 
   for (const articleData of articles) {
     const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo } = articleData;
-    //console.log(articleData);
     const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo);
     articleContainer.appendChild(await article.render());
   }
@@ -210,13 +208,11 @@ nextPageButton.addEventListener('click', event => {
     loadArticles(currentPage + 1);
   }
 });
-// ... Resto do código ...
 
-function openArticle(id, titulo, conteudo) {
-  const encodedTitulo = encodeURIComponent(titulo);
-  const encodedConteudo = encodeURIComponent(conteudo);
-  window.location.href = `artigo.html?id=${id}&titulo=${encodedTitulo}&conteudo=${encodedConteudo}`;
+function openArticle(id) {
+  window.location.href = `artigo.html?id=${id}`;
 }
+
 
 fetchTotalArticleCount().then(() => {
   updatePageNumbers(totalPages);
