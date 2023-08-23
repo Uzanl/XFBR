@@ -1,3 +1,7 @@
+
+@import url('searchbar.css');
+@import url('navbar.css');
+ 
  .login-image,
  .logout-image {
    width: 30px;
@@ -27,8 +31,8 @@
  }
 
  .article img {
-   width: 243.33px;
-   height: 193.95px;
+   width: 320px;
+   height: 180px;
    cursor: pointer;
  }
 
@@ -68,10 +72,11 @@
    display: flex;
    flex-wrap: wrap;
    justify-content: flex-start;
-   max-width: 1000px;
+   max-width: 1100px;
    margin: 0 auto;
    margin-bottom: 20px;
    margin-top: 20px;
+   
  }
 
  .teste {
@@ -154,7 +159,7 @@
    background-color: #ccc;
  }
 
- @media screen and (max-width: 1231px) {
+ @media screen and (max-width: 1559px) {
 
 
    .end,
@@ -193,7 +198,7 @@
      width: 90%;
    }
    .article img {
-     width: 90%;
-     height: 90%;
+     width: 70%;
+     height: 70%;
    }
  }

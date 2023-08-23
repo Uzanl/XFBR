@@ -153,8 +153,8 @@ tinymce.init({
           if (image.width >= 1280 && image.height >= 720) {
             const imagePreview = new Image();
             imagePreview.src = URL.createObjectURL(selectedImage);
-            imagePreview.style.width = "243.33px";
-            imagePreview.style.height = "193.95px";
+            imagePreview.style.width = "320px";
+            imagePreview.style.height = "180px";
             imagePreviewContainer.innerHTML = ""; // Limpar o conteúdo anterior, se houver
             imagePreviewContainer.appendChild(imagePreview);
           } else {

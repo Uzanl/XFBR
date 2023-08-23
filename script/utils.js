@@ -5,6 +5,8 @@ function toggleSidebar() {
     toggleBtn.classList.toggle('active');
 }
 
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchBox = document.querySelector('.search-box');
     const suggestionContainer = document.querySelector('.suggestion-container');

@@ -6,20 +6,11 @@ const session = require('express-session')
 const path = require('path');
 const fileUpload = require('express-fileupload');
 
-//const cors = require('cors');
+
 
 const mysql = require('mysql');
-const bodyParser = require('body-parser');
 const port = 3000;
 const app = express();
-
-
-
-
-//app.use(cors({
-// origin: 'http://127.0.0.1:5500',
-// credentials: true,
-//}));
 
 app.use(
   session({
@@ -40,6 +31,7 @@ app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use(express.static(path.join(__dirname, 'rsc')));
 
 app.use(express.static(path.join(__dirname, 'images-preview')));
+
 
 app.use('/script', express.static(path.join(__dirname, 'script')));
 
@@ -129,6 +121,7 @@ app.post('/insert-news', (req, res) => {
     // Se a sessão do usuário não estiver definida, redirecione para a tela de login
     return res.status(401).json({  redirect: '/login.html' });
   }
+ 
   console.log(req.body);
   const { title, contentpreview, content } = req.body;
   const image = req.files ? req.files.image : null; // Acessar o arquivo de imagem enviado
@@ -160,8 +153,12 @@ app.post('/insert-news', (req, res) => {
 
   // Use o sharp para comprimir e converter a imagem para WebP
   const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp'; // Nome do arquivo com extensão .webp
+
+
+  
   sharp(image.data)
-    .webp({ quality: 80 })
+  .resize(640,360)
+    .webp({ quality: 100 })
     .toFile(uploadPath, (err) => {
       if (err) {
         console.error('Erro ao comprimir e converter a imagem:', err);
@@ -171,9 +168,9 @@ app.post('/insert-news', (req, res) => {
         const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp'; // Nome da imagem convertida para WebP
         const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
         const publicationDate = new Date();
-        const encodedContent = encodeURIComponent(content);
+       // const encodedContent = encodeURIComponent(content);
 
-        connection.query(insertQuery, [title, encodedContent, publicationDate, userId, newImageName, contentpreview], (err, result) => {
+        connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
           if (err) {
             console.error('Erro ao inserir artigo:', err);
             res.status(500).json({ error: 'Erro ao inserir o artigo' });
@@ -207,6 +204,36 @@ app.get('/get-articles', (req, res) => {
     res.json({ articles, hasNextPage });
   });
 });
+
+// Rota para obter detalhes do artigo pelo ID
+app.get('/get-article-by-id/:id', (req, res) => {
+  const id = req.params.id;
+
+  const sql = `
+    SELECT artigo.titulo, artigo.conteudo, usuario.descricao, usuario.imagem_url
+    FROM artigo
+    INNER JOIN usuario ON artigo.id_usu = usuario.id_usu
+    WHERE artigo.id_artigo = ?
+  `;
+
+  connection.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao obter o artigo do banco de dados:', err);
+      return res.status(500).json({ error: 'Erro ao obter o artigo do banco de dados' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Artigo não encontrado' });
+    }
+
+    const article = results[0];
+    res.json(article);
+  });
+});
+
+
+
+
 
 // Rota para obter a contagem total de artigos
 app.get('/get-article-count', (req, res) => {
@@ -331,6 +358,55 @@ app.get('/checkLoginStatus', (req, res) => {
     res.json({ isLoggedIn: false });
   }
 });
+
+app.get('/get-user-info', (req, res) => {
+  const userId = req.session.user.id_usu; // ID do usuário da sessão
+  const selectQuery = 'SELECT descricao, imagem_url FROM usuario WHERE id_usu = ?';
+  connection.query(selectQuery, [userId], (err, result) => {
+    if (err) {
+      console.error('Erro ao buscar informações do usuário:', err);
+      res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
+    } else {
+      if (result.length > 0) {
+        const userDescription = result[0].descricao;
+        const userImageUrl = result[0].imagem_url;
+
+        res.status(200).json({ description: userDescription, imageUrl: userImageUrl });
+      } else {
+        console.error('Usuário não encontrado');
+        res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+    }
+  });
+});
+
+// Rota para atualizar a descrição do usuário
+app.post('/update-description', (req, res) => {
+  const newDescription = req.body.description;
+
+  // Recupere o ID do usuário a partir de suas credenciais ou da sessão (dependendo de como você implementou)
+  const userId = req.session.user.id_usu;
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Usuário não autenticado' });
+  }
+
+  const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
+
+  connection.query(sql, [newDescription, userId], (err, result) => {
+    if (err) {
+      console.error('Erro ao atualizar descrição:', err);
+      return res.status(500).json({ error: 'Erro ao atualizar a descrição' });
+    }
+
+    if (result.affectedRows === 1) {
+      return res.json({ success: true });
+    } else {
+      return res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+    }
+  });
+});
+
 
 
 app.listen(port, () => {
