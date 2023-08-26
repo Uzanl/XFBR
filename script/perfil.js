@@ -11,11 +11,6 @@ function updateProfileDescription() {
     const descriptionTextarea = document.getElementById('description-input'); // Textarea da descrição
     const updateButton = document.getElementById('update-description-button'); // Botão de atualização
     
-    // Função para exibir aviso quando a descrição estiver vazia
-    function showEmptyDescriptionWarning() {
-     // descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
-      //descriptionParagraph.style.color = "red"; // Define a cor do aviso
-    }
     
     // Função para atualizar a descrição no servidor
     function updateDescriptionOnServer(newDescription) {
@@ -43,7 +38,7 @@ function updateProfileDescription() {
     
     // Verifica se a descrição está vazia e exibe o aviso se necessário
     if (descriptionTextarea.value.trim() === "") {
-      showEmptyDescriptionWarning();
+   //   showEmptyDescriptionWarning();
     }
     
     // Define um ouvinte de evento para o botão de atualização
@@ -51,18 +46,78 @@ function updateProfileDescription() {
       const updatedDescription = descriptionTextarea.value.trim();
       
       if (updatedDescription === "") {
-        showEmptyDescriptionWarning(); // Exibe o aviso se a descrição estiver vazia
+       // showEmptyDescriptionWarning(); // Exibe o aviso se a descrição estiver vazia
       } else {
         updateDescriptionOnServer(updatedDescription); // Atualiza a descrição no servidor
       }
     });
   }
+
+
+  
+  function updateProfileImage() {
+    const profileImage = document.querySelector('.imagem-perfil');
+    const cameraIcon = document.querySelector('.image-edit-icon');
+    const imageInput = document.getElementById('image-input');
+  
+   
+  
+      imageInput.addEventListener('change', (event) => {
+        const selectedImage = event.target.files[0];
+  
+        if (selectedImage) {
+          const reader = new FileReader();
+  
+          reader.onload = () => {
+            profileImage.src = reader.result; // Atualiza a imagem na página
+  
+            // Enviar a imagem para o servidor como JSON
+            const imageData = {
+              image: reader.result, // URL de dados da imagem
+              imageName: selectedImage.name, // Nome da imagem
+            };
+  
+            fetch('/upload', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(imageData), // Enviar como JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data.message);
+            })
+            .catch(error => {
+              console.error('Erro ao enviar a imagem:', error);
+            });
+          };
+  
+          reader.readAsDataURL(selectedImage); // Lê a imagem como um URL de dados
+        }
+      });
+    
+  }
+  
+  
+  
+  
+
+
+
+
+  
+ 
+
+
   
 // Chama a função quando a página estiver carregada
 document.addEventListener('DOMContentLoaded', () => {
-  updateProfileDescription();
-  
   // Fetch para obter informações do usuário
+
+  updateProfileDescription();
+  updateProfileImage();
+
   fetch('/get-user-info', {
     method: 'GET',
     credentials: 'same-origin' // Mantém as credenciais no mesmo domínio
@@ -73,19 +128,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return response.json();
   })
-  .then(data => {
-    const descriptionParagraph = document.querySelector('.profile-description p');
-    
-    if (data.description) {
-      descriptionParagraph.textContent = data.description;
-    } else {
-      descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
-      descriptionParagraph.style.color = "red"; // Define a cor do aviso
-    }
-  })
-  .catch(error => {
-    console.error("Erro na solicitação de informações do usuário:", error);
-  });
+  // ...
+.then(data => {
+  const descriptionParagraph = document.querySelector('.profile-description p');
+  const profileImage = document.querySelector('.imagem-perfil');
+
+  if (data.description) {
+    descriptionParagraph.textContent = data.description;
+  } else {
+    descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
+    descriptionParagraph.style.color = "red"; // Define a cor do aviso
+  }
+
+  if (data.imageUrl) {
+    profileImage.src = data.imageUrl; // Atualiza o atributo src da imagem com a URL da imagem
+  }
+})
+.catch(error => {
+  console.error("Erro na solicitação de informações do usuário:", error);
+});
+
+
+
+
+ 
 });
 
 

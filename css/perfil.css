@@ -17,6 +17,44 @@
   cursor: pointer;
 }
 
+.imagem-perfil {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%; /* Define um raio de 50% para criar um círculo */
+  object-fit: cover; /* Mantém a proporção da imagem e preenche o círculo */
+  overflow: hidden; /* Garante que a imagem não exceda os limites do círculo */
+}
+
+
+
+.profile-image {
+  position: relative;
+  display: inline-block;
+
+}
+
+.image-edit-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 50%;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 16px; /* Ajuste o tamanho do ícone aqui */
+  display: none;
+}
+
+.profile-image:hover .image-edit-icon {
+  display: block;
+}
+
+
+
+
+
 
 
 

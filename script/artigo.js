@@ -17,13 +17,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tituloElement = document.querySelector('.noticia-titulo');
         const conteudoElement = document.querySelector('.noticia-conteudo');
         const descricaoPerfilElement = document.querySelector('.descricao_perfil');
-        const imagemPerfilElement = document.querySelector('.imagem_perfil');
+     //   const imagemPerfilElement = document.querySelector('.imagem_perfil');
 
         tituloElement.textContent = titulo;
         conteudoElement.innerHTML = conteudo;
         descricaoPerfilElement.textContent = descricao;
-        imagemPerfilElement.src = imagem_url;
-        imagemPerfilElement.alt = `Imagem`; // Defina uma descrição adequada para a imagem
+    //    imagemPerfilElement.src = imagem_url;
+    //    imagemPerfilElement.alt = `Imagem`; // Defina uma descrição adequada para a imagem
       } else {
         throw new Error('Erro ao obter detalhes do artigo');
       }
