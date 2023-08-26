@@ -20,6 +20,8 @@ app.use(
   })
 );
 
+app.use(express.json({ limit: '200mb' }));
+
 app.use(compression()); 
 
 app.use(express.json());
@@ -32,6 +34,7 @@ app.use(express.static(path.join(__dirname, 'rsc')));
 
 app.use(express.static(path.join(__dirname, 'images-preview')));
 
+app.use(express.static(path.join(__dirname, 'profile-images')));
 
 app.use('/script', express.static(path.join(__dirname, 'script')));
 
@@ -179,6 +182,45 @@ app.post('/insert-news', (req, res) => {
           }
         });
       }
+    });
+});
+
+app.post('/upload', (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ redirect: '/login.html' });
+  }
+
+  const userId = req.session.user.id_usu;
+  const imageData = req.body; // Receber os dados da imagem do corpo da requisição
+
+  if (!imageData.image) {
+    return res.status(400).json({ error: 'Nenhuma imagem foi fornecida' });
+  }
+
+  const imageBuffer = Buffer.from(imageData.image.split(',')[1], 'base64'); // Remover o prefixo 'data:image/png;base64,'
+
+  const uploadPath = __dirname + '/profile-images/' + userId + '.webp';
+
+  sharp(imageBuffer)
+    .resize(100, 100)
+    .webp({ quality: 100 })
+    .toFile(uploadPath, (err) => {
+      if (err) {
+        console.error('Erro ao comprimir e converter a imagem:', err);
+        return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+      }
+
+      const imageUrl = userId + '.webp';
+
+      const updateQuery = 'UPDATE usuario SET imagem_url = ? WHERE id_usu = ?';
+      connection.query(updateQuery, [imageUrl, userId], (err, result) => {
+        if (err) {
+          console.error('Erro ao atualizar a imagem do usuário:', err);
+          res.status(500).json({ error: 'Erro ao atualizar a imagem do usuário' });
+        } else {
+          res.status(200).json({ message: 'Imagem do usuário atualizada com sucesso' });
+        }
+      });
     });
 });
 

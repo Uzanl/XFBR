@@ -1,4 +1,6 @@
-
+  @import url('searchbar.css');
+  @import url('navbar.css');
+  
   body {
     font-family: Arial, sans-serif;
     background-color: #333333;
