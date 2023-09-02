@@ -5,13 +5,11 @@
   <meta charset="UTF-8">
   <title>Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Faça o login na plataforma Xbox Family Br e tenha acesso a todas as novidades, notícias, artigos e interações da comunidade. Entre com seu email e senha ou faça login com sua conta do Google. Não tem uma conta? Crie uma agora mesmo!">
   <link rel="preload" href="/css/login.css" as="style">
   <link rel="stylesheet" href="/css/login.css">
- 
-  <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
- 
+  <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)"> 
   <link rel="modulepreload" href="/script/auth.js">
-  
 </head>
 
 <body>
@@ -31,7 +29,7 @@
           <div class="noticias-container">
            <ul class="noticias-list">
              <li class="item"><a class="item" href="notícias.html">Notícias</a></li>
-             <li class="publish-button"><a class="item" id="publish-link">Publicar</a></li>
+             <li class="publish-button"><a class="item" href="#" id="publish-link">Publicar</a></li>
            </ul>
            </div>
        </li>
@@ -57,7 +55,7 @@
       <li><a href="notícias.html">Notícias</a></li>
       <li><a href="bate-papo.html">Bate-papo</a></li>
       <li><a href="video-clipes.html">Vídeo-clipes</a></li>
-      <li ><a>Publicar</a></li>
+      <li ><a href="#">Publicar</a></li>
     </ul>
   </div>
 
@@ -68,8 +66,9 @@
   </div>
 
   <div class="container">
-    <h1>Login</h1>
+  
     <form id="login-form">
+      <h1>Login</h1>
       <label for="email">Email:</label>
       <input class="email" type="text" id="email" name="email">
 
@@ -81,10 +80,11 @@
       <!-- Adicionei uma div para criar um espaço vertical entre os botões -->
       <div style="height: 10px;"></div>
 
-      <button class="google-login" type="button">
-        <img src="/google-icon.png" alt="Google Icon">
-        Logar com o Google
-      </button>
+      
+      <button class="xbox-login" type="button">
+        <img src="/xboxlogo.webp" alt="Xbox Icon">
+        Login with Xbox Account
+      </button> 
 
       <div class="create-account">
         Não tem uma conta? <a href="criarconta.html">Criar uma conta</a>

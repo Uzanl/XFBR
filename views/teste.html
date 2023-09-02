@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Xbox Gamerscore</title>
+</head>
+<body>
+  <h1>Xbox Gamerscore</h1>
+  <button id="authButton">Link with Xbox Account</button>
+  <div id="gamerscore"></div>
+
+  <script>
+    const authButton = document.getElementById('authButton');
+    const gamerscoreDiv = document.getElementById('gamerscore');
+  
+    authButton.addEventListener('click', () => {
+      // Redirect to the authentication page
+      window.location.href = '/auth';
+      
+    });
+  
+    // After successful authentication, the user will be redirected to the callback URL
+    // where you can extract the access token from the URL fragment and use it for API calls.
+  </script>
+  
+</body>
+</html>

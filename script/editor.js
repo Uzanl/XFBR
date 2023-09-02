@@ -79,6 +79,7 @@ tinymce.init({
     iframe.setAttribute('src', 'https://www.youtube.com/embed/' + videoId);
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('title','Vídeo do Youtube');
     return iframe;
   }
 

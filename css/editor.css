@@ -47,7 +47,16 @@
     box-sizing: border-box;
     text-align: center;
     min-width: 346.63px;
+    min-height: 340.08px;
+    border-radius: 10px;
   }
+
+  .noticia-preview img{
+    border-radius:10px;
+  }
+   
+
+  
 
   .noticia-preview h1 {
     color: black;
@@ -140,8 +149,10 @@
     color: #333333;
     width: 60%;
     display: flex;
-   /* align-items: center;*/
     flex-direction: column;
+    min-height: 100vh;
+    border-radius: 10px;
+    margin-bottom: 40px;
   }
 
   /* Estilo do video-container */
