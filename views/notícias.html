@@ -5,14 +5,12 @@
   <meta charset="UTF-8">
   <title>Notícias</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
+  <meta name="description"
+    content="Acompanhe as últimas notícias sobre games, tecnologia e entretenimento no Xbox Family Br. Fique por dentro de artigos informativos, análises e novidades da comunidade.">
   <link rel="preload" href="/css/noticias.css" as="style">
   <link rel="stylesheet" href="/css/noticias.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
-
   <link rel="modulepreload" href="/script/noticias.js">
-
 </head>
 
 <body>
@@ -26,16 +24,12 @@
             </ul>
           </div>
         </li>
-
         <li class="submenu-noticias">
           <a href="#" class="menu-item">Artigos</a>
           <div class="noticias-container">
             <ul class="noticias-list">
-
               <li class="item"><a href="notícias.html">Notícias</a></li>
               <li class="publish-button"><a href="#" id="publish-link">Publicar</a></li>
-
-
             </ul>
           </div>
         </li>
@@ -43,80 +37,53 @@
           <a href="#" class="menu-item">Comunidade</a>
           <div class="comunidade-container">
             <ul class="comunidade-list">
-
-
               <li class="item"><a href="index.html">Informações</a></li>
               <li class="item"><a href="bate-papo.html">Bate-papo</a></li>
               <li class="item"><a href="video-clipes.html">Vídeo-clipes</a></li>
-
-
             </ul>
           </div>
         </li>
-
         <li class="submenu-profile">
           <a href="#" class="menu-item">
             <img src="/profile.png" alt="Logout" class="logout-image">
           </a>
           <div class="profile-container">
             <ul class="profile-list">
-
               <li class="login-list-item"><a href="login.html">Login</a></li>
               <li class="logout-button"><a href="#">Sair</a></li>
-              <li class="item" id="item-profile"><a  href="perfil.html">Perfil</a></li>
-
+              <li class="item" id="item-profile"><a href="perfil.html">Perfil</a></li>
             </ul>
           </div>
         </li>
       </ul>
     </nav>
   </header>
-
   <div class="sidebar">
-    <!-- Conteúdo do menu lateral -->
     <ul>
       <li><a href="index.html">Informações</a></li>
       <li><a href="notícias.html">Notícias</a></li>
       <li><a href="bate-papo.html">Bate-papo</a></li>
       <li><a href="video-clipes.html">Vídeo-clipes</a></li>
-      <li ><a>Publicar</a></li>
-
+      <li><a href="#">Publicar</a></li>
     </ul>
   </div>
-
   <div class="toggle-btn" onclick="toggleSidebar()">
     <span></span>
     <span></span>
     <span></span>
   </div>
-
-
-
-
-
   <div class="teste">
-
     <div class="start">
-
     </div>
-
     <div class="middle">
       <div class="container">
-
         <div class="article-container">
-
         </div>
       </div>
     </div>
-
     <div class="end">
-
     </div>
-
   </div>
-
-
-
   <div class="pagination-container">
     <div class="pagination">
       <a href="#" class="prev-page">Anterior</a>
@@ -133,18 +100,15 @@
       <a href="#" class="next-page">Próxima</a>
     </div>
   </div>
-
   <footer>
     <div class="footer">
       <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord"></a>
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
-
   <script type="module" src="/script/noticias.js"></script>
   <script src="/script/utils.js" defer></script>
   <script src="/script/articleRedirect.js" defer></script>
-
 </body>
 
 </html>
