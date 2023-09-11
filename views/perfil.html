@@ -12,6 +12,8 @@
   <link rel="modulepreload" href="/script/auth.js">
   <link rel="modulepreload" href="/script/articleRedirect.js">
   <link rel="modulepreload" href="/script/perfil.js">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+
 
 </head>
 
@@ -80,25 +82,59 @@
 
 
   <div class="perfil-container">
+    <div class="links">
+      <button class="downloadButton">
+        <img src="/baixar.webp">
+      </button>
+    </div>
     <div class="profile">
+     
+
+      <!-- Adicione este botão à sua página -->
+    
+
+
+
       <div class="autor">
         <!-- ... Outro conteúdo do HTML ... -->
 
-     
-          <div class="profile-image">
-            <img class="imagem-perfil" src="/profile-st.webp" alt="Imagem do Perfil" width="96" height="96">
-            <label for="image-input" class="image-edit-icon">&#x1F4F7;</label>
-            <input type="file" name="image" id="image-input" style="display: none;">
+        
+        <div class="hole-container">
+          <div class="hole">
+  
           </div>
-      
-     
+        </div>
+       
+        <div class="profile-image">
+          <img class="imagem-perfil" src="/profile-st.webp" alt="Imagem do Perfil" width="96" height="96">
+          <label for="image-input" class="image-edit-icon">&#x1F4F7;</label>
+          <input type="file" name="image" id="image-input" style="display: none;">
+        </div>
+
+
 
         <div class="profile-description">
-          <h1>Descrição do Perfil</h1>
-          <p>Sua descrição atual do perfil vai aqui.</p>
+
+          <p class="gamertag"></p>
+
+          <div class="gs-container">
+
+            <div class="circle">
+              <div class="letter">G</div>
+          </div>
+
+
+            <p class="gamerscore"> <span class="gamerscore-value"></span>
+            </p>
+          </div>
+
+         
+
+          <p class="desc-profile">Sua descrição atual do perfil vai aqui.</p>
           <textarea id="description-input" rows="4" placeholder="Atualize sua descrição"></textarea>
           <button id="update-description-button">Atualizar Descrição</button>
         </div>
+
 
         <!-- ... Outro conteúdo do HTML ... -->
 
@@ -125,7 +161,7 @@
   <script src="/script/articleRedirect.js" defer></script>
 
 
-  
+
 
 </body>
 

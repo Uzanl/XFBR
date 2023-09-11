@@ -99,18 +99,6 @@ function updateProfileDescription() {
     
   }
   
-  
-  
-  
-
-
-
-
-  
- 
-
-
-  
 // Chama a função quando a página estiver carregada
 document.addEventListener('DOMContentLoaded', () => {
   // Fetch para obter informações do usuário
@@ -132,27 +120,70 @@ document.addEventListener('DOMContentLoaded', () => {
 .then(data => {
   const descriptionParagraph = document.querySelector('.profile-description p');
   const profileImage = document.querySelector('.imagem-perfil');
+  const gamertag = document.querySelector('.gamertag');
+  const gamerscoreValue = document.querySelector('.gamerscore-value');
+  const descProfile = document.querySelector('.desc-profile');
+  const largeTextBox = document.getElementById('description-input');
+  const BtnUpdateDescription = document.getElementById('update-description-button');
+  const ImgEditIcon = document.querySelector('.image-edit-icon');
 
-  if (data.description) {
-    descriptionParagraph.textContent = data.description;
-  } else {
-    descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
-    descriptionParagraph.style.color = "red"; // Define a cor do aviso
+
+  if(data.gamertag){
+   gamertag.textContent = `Gamertag: ${data.gamertag}`;
+   gamerscoreValue.textContent = data.gamerscore;
+   profileImage.src = data.profilepic;
+   descProfile.style.display= 'none';
+   largeTextBox.style.display = 'none';
+   BtnUpdateDescription.style.display = 'none';
+   ImgEditIcon.style.display = 'none';
+  
+
+
+  }else{
+    if (data.description) {
+      descriptionParagraph.textContent = data.description;
+    } else {
+      descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
+      descriptionParagraph.style.color = "red"; // Define a cor do aviso
+    }
+  
+    if (data.imageUrl) {
+      profileImage.src = data.imageUrl; // Atualiza o atributo src da imagem com a URL da imagem
+    }
   }
 
-  if (data.imageUrl) {
-    profileImage.src = data.imageUrl; // Atualiza o atributo src da imagem com a URL da imagem
-  }
+
+
+
 })
 .catch(error => {
   console.error("Erro na solicitação de informações do usuário:", error);
 });
 
+  // Suponha que você tem um elemento com o ID 'gamercard' que contém o gamercard.
+  const gamercardElement = document.querySelector('.profile');
 
+  // Adicione um evento de clique ao botão para capturar o gamercard como uma imagem
+  document.querySelector('.downloadButton').addEventListener('click', function () {
+    html2canvas(gamercardElement).then(function (canvas) {
+      // Converta o canvas em uma URL de imagem em formato PNG
+      const imgData = canvas.toDataURL('image/png');
+  
+      // Crie um link temporário para o download da imagem
+      const link = document.createElement('a');
+      link.href = imgData;
+  
+      // Defina o atributo 'download' para o nome do arquivo desejado com a extensão .png
+      link.download = 'gamercard.png';
+  
+      // Simule um clique no link para iniciar o download
+      link.click();
+    });
+  });
 
 
  
 });
 
 
-  
+
