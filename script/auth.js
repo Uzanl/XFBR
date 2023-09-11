@@ -45,6 +45,7 @@ if (logoutButtonListItem) { // Verificar se o elemento existe
       const shouldLogout = window.confirm("Tem certeza de que deseja sair?"); // Mostrar um alerta de confirmação
     
       if (shouldLogout) {
+        localStorage.removeItem('isLoggedIn');
         fetch("http://localhost:3000/logout")
           .then((response) => response.json())
           .then((data) => {

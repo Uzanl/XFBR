@@ -6,7 +6,7 @@ const session = require('express-session')
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
-
+const axios = require('axios');
 
 
 
@@ -389,16 +389,37 @@ app.get('/get-username/:userId', (req, res) => {
 
 // Rota para fazer logout
 app.get('/logout', (req, res) => {
-  // Destruir a sessão
+  
+  // Revogue o token de acesso na Microsoft
+  const microsoftAccessToken = client.getAccessToken();
+
+  console.log(microsoftAccessToken);
+
+  if (microsoftAccessToken) {
+    // Chame a função de revogação do token de acesso, se disponível
+    //client.revokeAccessToken(microsoftAccessToken);
+
+    console.log(microsoftAccessToken);
+  }
+
+  // Destrua a sessão
   authData = null;
+  res.clearCookie('connect.sid');
+
+  //localStorage.removeItem('isLoggedIn');
+
+
   req.session.destroy((err) => {
     if (err) {
       console.error("Error destroying session:", err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
+
     res.json({ message: 'Logged out successfully' });
   });
 });
+
+
 
 
 // Rota para verificar o status de login do usuário
@@ -439,12 +460,17 @@ app.get('/get-user-info', (req, res) => {
   } else if (req.session.profileData) {
     // Aqui, você pode acessar os detalhes do perfil do Xbox Live
     const data = req.session.profileData;
-
-    const gamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
-    console.log('Gamertag:', gamertag);
-
-    const gamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
-    console.log('Gamerscore:', gamerscore);
+  
+    const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
+    //console.log('Gamertag:', userGamertag);
+  
+    const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
+    // console.log('Gamerscore:', userGamerscore);
+  
+    const userProfilePic = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
+    //console.log('User Profile Picture URL:', userProfilePic);
+  
+    res.status(200).json({ gamertag: userGamertag, gamerscore: userGamerscore, profilepic: userProfilePic });
   } else {
     // Caso nenhum dos dois esteja definido
     console.error('Usuário não autenticado ou dados de perfil do Xbox Live ausentes');
@@ -499,7 +525,7 @@ app.get('/auth', (req, res) => {
     res.redirect(url);
   }
 
-  res.send('Authentication started. Check console for details.');
+ // res.send('Authentication started. Check console for details.');
 });
 
 // Rota para obter as conquistas recentes do usuário autenticado
@@ -512,25 +538,11 @@ app.get('/profile', (req, res) => {
     client.getProvider('profile').getUserProfile().then(result => {
       console.log('Profile:', result);
 
-
-      
-
-//      const data = result; // Não é necessário JSON.parse() aqui
-
-      // Acessar a gamertag
-      //const gamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
-
-      
-
-
-      //console.log('Gamertag:', gamertag);
-
       req.session.isAuth = true;
 
       req.session.profileData = result;
 
-
-      //res.json(result);
+      //res.send(result);
 
       res.redirect('/notícias.html')
 
