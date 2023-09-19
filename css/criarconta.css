@@ -10,9 +10,8 @@
    align-items: center;
    justify-content: center;
    flex-direction: column;
-   height: 80vh;
    width: 100%;
-   margin: 0 auto;
+   min-height: 80vh;
    /* Adicionando margens automáticas para centralizar o container */
  }
 
@@ -32,6 +31,8 @@
    border-radius: 10px;
    box-shadow: 0 5px 10px rgba(0,0,0,0.9);
    background-color: #444;
+  /* margin-top: 20px;*/
+
  }
 
  label {

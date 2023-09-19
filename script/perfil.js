@@ -6,6 +6,7 @@ updateLoginButtonVisibility();
 
 
 
+
 function updateProfileDescription() {
     const descriptionParagraph = document.querySelector('.profile-description p'); // Parágrafo da descrição
     const descriptionTextarea = document.getElementById('description-input'); // Textarea da descrição
@@ -160,29 +161,36 @@ document.addEventListener('DOMContentLoaded', () => {
   console.error("Erro na solicitação de informações do usuário:", error);
 });
 
-  // Suponha que você tem um elemento com o ID 'gamercard' que contém o gamercard.
+   //Suponha que você tem um elemento com o ID 'gamercard' que contém o gamercard.
   const gamercardElement = document.querySelector('.profile');
 
   // Adicione um evento de clique ao botão para capturar o gamercard como uma imagem
   document.querySelector('.downloadButton').addEventListener('click', function () {
     html2canvas(gamercardElement).then(function (canvas) {
       // Converta o canvas em uma URL de imagem em formato PNG
-      const imgData = canvas.toDataURL('image/png');
+     const imgData = canvas.toDataURL('image/png');
   
       // Crie um link temporário para o download da imagem
       const link = document.createElement('a');
-      link.href = imgData;
+     link.href = imgData;
   
-      // Defina o atributo 'download' para o nome do arquivo desejado com a extensão .png
-      link.download = 'gamercard.png';
+       //Defina o atributo 'download' para o nome do arquivo desejado com a extensão .png
+    link.download = 'gamercard.png';
   
       // Simule um clique no link para iniciar o download
       link.click();
-    });
-  });
+   });
+ });
 
 
- 
+
+
+
+
+
+
+
+
 });
 
 

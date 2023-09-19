@@ -86,7 +86,7 @@ body {
   padding: 20px;
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
  /* background-size: 400% 400%;*/
-  animation: metallicEffect 6s linear infinite;
+ /* animation: metallicEffect 6s linear infinite;*/
   border: 1px solid #999;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
