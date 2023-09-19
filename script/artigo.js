@@ -6,7 +6,7 @@ updateLoginButtonVisibility();
 document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
-
+  console.log(id);
   if (id) {
     try {
       const response = await fetch(`/get-article-by-id/${id}`);

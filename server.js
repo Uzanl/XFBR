@@ -7,7 +7,7 @@ const path = require('path');
 const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
 const axios = require('axios');
-
+const puppeteer = require('puppeteer');
 
 
 
@@ -84,6 +84,9 @@ connection.connect((err) => {
 
 
 
+
+
+
 app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   const missingFields = [];
@@ -133,12 +136,40 @@ app.post('/submit', (req, res) => {
 
 app.post('/insert-news', (req, res) => {
 
-  if (!req.session.user) {
-    // Se a sessão do usuário não estiver definida, redirecione para a tela de login
-    return res.status(401).json({ redirect: '/login.html' });
-  }
+  // if (!req.session.user) {
+  // Se a sessão do usuário não estiver definida, redirecione para a tela de login
+  // return res.status(401).json({ redirect: '/login.html' });
+  // }
+  let userId;
 
-  console.log(req.body);
+if (req.session.user) {
+  userId = req.session.user.id_usu;
+} else if (req.session.profileData) {
+  const XboxUserId = req.session.profileData.profileUsers[0].id;
+  
+  // Agora você pode usar XboxUserId para fazer a query e obter o userId
+  const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+
+  connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+    if (err) {
+      console.error('Erro ao obter userId:', err);
+      return res.status(500).json({ error: 'Erro ao obter userId' });
+    }
+
+    if (result.length > 0) {
+      userId = result[0].id_usu;
+      // Continue com o código de inserção aqui
+    } else {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+  });
+} else {
+  return res.status(401).json({ redirect: '/login.html' });
+}
+
+
+
+  //console.log(req.body);
   const { title, contentpreview, content } = req.body;
   const image = req.files ? req.files.image : null; // Acessar o arquivo de imagem enviado
   const missingFields = [];
@@ -165,7 +196,8 @@ app.post('/insert-news', (req, res) => {
     return res.status(400).json({ error: errorMessage });
   }
 
-  const userId = req.session.user.id_usu; // Captura o ID do usuário da sessão
+
+  // Captura o ID do usuário da sessão
 
   // Use o sharp para comprimir e converter a imagem para WebP
   const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp'; // Nome do arquivo com extensão .webp
@@ -237,11 +269,6 @@ app.post('/upload', (req, res) => {
     });
 });
 
-
-
-
-
-
 app.get('/get-articles', (req, res) => {
   const itemsPerPage = 8; // Quantidade de notícias por página
   const currentPage = req.query.page || 1; // Página atual (padrão é 1)
@@ -267,7 +294,7 @@ app.get('/get-article-by-id/:id', (req, res) => {
   const sql = `
     SELECT artigo.titulo, artigo.conteudo, usuario.descricao, usuario.imagem_url
     FROM artigo
-    INNER JOIN usuario ON artigo.id_usu = usuario.id_usu
+    LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
     WHERE artigo.id_artigo = ?
   `;
 
@@ -305,12 +332,6 @@ app.get('/get-article-count', (req, res) => {
     res.json({ count });
   });
 });
-
-
-
-
-
-
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -353,32 +374,41 @@ app.post('/login', (req, res) => {
 
     // Redirecionar para a página de notícias
     res.json({ success: true, redirect: '/notícias.html' });
-    console.log('Login successful for user:', result[0]);
+    // console.log('Login successful for user:', result[0]);
   });
 });
 
 
 
 app.get('/get-username/:userId', (req, res) => {
-  const userId = req.params.userId; // Correção: Atribuir o valor antes de usá-lo
+  const userId = req.params.userId;
 
-  // Consulta ao banco de dados para obter o login_usu com base no id_usu
-  const query = 'SELECT login_usu FROM usuario WHERE id_usu = ?';
+  const query = `
+    SELECT u.login_usu, ux.gamertag 
+    FROM usuario u 
+    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
+    WHERE u.id_usu_xbox = ? OR u.id_usu = ?;
+  `;
 
-  connection.query(query, [userId], (err, result) => {
+  connection.query(query, [userId, userId], (err, result) => {
     if (err) {
-      console.log('Erro ao obter nome de usuário:', err);
-      console.error('Erro ao obter nome de usuário:', err);
-      res.status(500).json({ error: 'Erro ao obter nome de usuário' });
+      console.error('Erro ao obter nome de usuário e gamertag:', err);
+      res.status(500).json({ error: 'Erro ao obter nome de usuário e gamertag' });
     } else {
       if (result.length > 0) {
-        res.json({ username: result[0].login_usu });
+        const username = result[0].login_usu || result[0].gamertag;
+
+        res.json({ 
+          username: username,
+          gamertag: result[0].gamertag
+        });
       } else {
         res.status(404).json({ error: 'Usuário não encontrado' });
       }
     }
   });
 });
+
 
 
 //app.get("/",(req,res)=>{
@@ -389,21 +419,28 @@ app.get('/get-username/:userId', (req, res) => {
 
 // Rota para fazer logout
 app.get('/logout', (req, res) => {
-  
+
   // Revogue o token de acesso na Microsoft
   const microsoftAccessToken = client.getAccessToken();
 
-  console.log(microsoftAccessToken);
+
 
   if (microsoftAccessToken) {
-    // Chame a função de revogação do token de acesso, se disponível
-    //client.revokeAccessToken(microsoftAccessToken);
 
-    console.log(microsoftAccessToken);
+    //console.log(microsoftAccessToken.access_token);
+    // Chame a função de revogação do token de acesso, se disponível
+    console.log(microsoftAccessToken.access_token);
+    // client.revokeAccessToken(microsoftAccessToken.access_token);
+    authData = null;
+    client.clearTokens();
+    res.clearCookie('connect.sid');
+    // console.log(microsoftAccessToken);
   }
 
+
   // Destrua a sessão
-  authData = null;
+
+
   res.clearCookie('connect.sid');
 
   //localStorage.removeItem('isLoggedIn');
@@ -460,16 +497,16 @@ app.get('/get-user-info', (req, res) => {
   } else if (req.session.profileData) {
     // Aqui, você pode acessar os detalhes do perfil do Xbox Live
     const data = req.session.profileData;
-  
+
     const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
     //console.log('Gamertag:', userGamertag);
-  
+
     const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
     // console.log('Gamerscore:', userGamerscore);
-  
+
     const userProfilePic = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
     //console.log('User Profile Picture URL:', userProfilePic);
-  
+
     res.status(200).json({ gamertag: userGamertag, gamerscore: userGamerscore, profilepic: userProfilePic });
   } else {
     // Caso nenhum dos dois esteja definido
@@ -525,13 +562,10 @@ app.get('/auth', (req, res) => {
     res.redirect(url);
   }
 
- // res.send('Authentication started. Check console for details.');
+  // res.send('Authentication started. Check console for details.');
 });
 
-// Rota para obter as conquistas recentes do usuário autenticado
 app.get('/profile', (req, res) => {
-
-
   client.isAuthenticated().then(() => {
     console.log('User is authenticated.');
 
@@ -539,31 +573,36 @@ app.get('/profile', (req, res) => {
       console.log('Profile:', result);
 
       req.session.isAuth = true;
-
       req.session.profileData = result;
 
-      //res.send(result);
+      const data = req.session.profileData;
+      const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
+      const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
+      const id = result.profileUsers[0].id;
 
-      res.redirect('/notícias.html')
+      const insertQuery = `
+        INSERT IGNORE INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore) VALUES (?, ?, ?);
+      `;
+
+      connection.query(insertQuery, [id, userGamertag, userGamerscore], (error, results) => {
+        if (error) {
+          console.error('Erro ao inserir dados:', error);
+          res.status(500).json({ error: 'Erro ao inserir dados' });
+          return;
+        }
+        res.redirect('/notícias.html');
+      });
 
     }).catch(error => {
       console.log('Error getting recent achievements:', error);
       res.status(500).json({ error: 'Error getting recent achievements' });
     });
 
-
-
-
-    
-
   }).catch(error => {
     console.log('User is not authenticated.', error);
     res.status(401).json({ error: 'User is not authenticated' });
   });
-
 });
-
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
