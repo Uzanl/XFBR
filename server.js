@@ -8,8 +8,8 @@ const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
 const axios = require('axios');
 const puppeteer = require('puppeteer');
-
-
+const fs = require('fs');
+const https = require('https');
 
 const mysql = require('mysql2');
 //const { callbackify } = require('util');
@@ -48,6 +48,8 @@ app.use(express.static(path.join(__dirname, 'rsc')));
 app.use(express.static(path.join(__dirname, 'images-preview')));
 
 app.use(express.static(path.join(__dirname, 'profile-images')));
+
+app.use(express.static(path.join(__dirname, 'profile-xbox-images')));
 
 app.use('/script', express.static(path.join(__dirname, 'script')));
 
@@ -142,30 +144,30 @@ app.post('/insert-news', (req, res) => {
   // }
   let userId;
 
-if (req.session.user) {
-  userId = req.session.user.id_usu;
-} else if (req.session.profileData) {
-  const XboxUserId = req.session.profileData.profileUsers[0].id;
-  
-  // Agora você pode usar XboxUserId para fazer a query e obter o userId
-  const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+  if (req.session.user) {
+    userId = req.session.user.id_usu;
+  } else if (req.session.profileData) {
+    const XboxUserId = req.session.profileData.profileUsers[0].id;
 
-  connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-    if (err) {
-      console.error('Erro ao obter userId:', err);
-      return res.status(500).json({ error: 'Erro ao obter userId' });
-    }
+    // Agora você pode usar XboxUserId para fazer a query e obter o userId
+    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
 
-    if (result.length > 0) {
-      userId = result[0].id_usu;
-      // Continue com o código de inserção aqui
-    } else {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
-  });
-} else {
-  return res.status(401).json({ redirect: '/login.html' });
-}
+    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+      if (err) {
+        console.error('Erro ao obter userId:', err);
+        return res.status(500).json({ error: 'Erro ao obter userId' });
+      }
+
+      if (result.length > 0) {
+        userId = result[0].id_usu;
+        // Continue com o código de inserção aqui
+      } else {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+    });
+  } else {
+    return res.status(401).json({ redirect: '/login.html' });
+  }
 
 
 
@@ -292,9 +294,10 @@ app.get('/get-article-by-id/:id', (req, res) => {
   const id = req.params.id;
 
   const sql = `
-    SELECT artigo.titulo, artigo.conteudo, usuario.descricao, usuario.imagem_url
+    SELECT artigo.titulo, artigo.conteudo, usuario.login_usu, usuario.descricao, usuario.imagem_url , ux.gamertag, ux.gamerscore, ux.imagem_url as imagem_url_xbox
     FROM artigo
     LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
     WHERE artigo.id_artigo = ?
   `;
 
@@ -398,7 +401,7 @@ app.get('/get-username/:userId', (req, res) => {
       if (result.length > 0) {
         const username = result[0].login_usu || result[0].gamertag;
 
-        res.json({ 
+        res.json({
           username: username,
           gamertag: result[0].gamertag
         });
@@ -565,6 +568,8 @@ app.get('/auth', (req, res) => {
   // res.send('Authentication started. Check console for details.');
 });
 
+// ...
+
 app.get('/profile', (req, res) => {
   client.isAuthenticated().then(() => {
     console.log('User is authenticated.');
@@ -580,18 +585,50 @@ app.get('/profile', (req, res) => {
       const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
       const id = result.profileUsers[0].id;
 
-      const insertQuery = `
-        INSERT IGNORE INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore) VALUES (?, ?, ?);
-      `;
+      // Faz o download da imagem do perfil
+      const profileImageURL = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
+      const imagePath = __dirname + '/profile-xbox-images/' + id + '.webp';
 
-      connection.query(insertQuery, [id, userGamertag, userGamerscore], (error, results) => {
-        if (error) {
-          console.error('Erro ao inserir dados:', error);
-          res.status(500).json({ error: 'Erro ao inserir dados' });
-          return;
-        }
-        res.redirect('/notícias.html');
+      // ...
+
+      const download = https.get(profileImageURL, (response) => {
+        const chunks = [];
+        response
+          .on('data', (chunk) => chunks.push(chunk))
+          .on('end', () => {
+            // Redimensiona a imagem para 96x96 e a converte para WebP
+            sharp(Buffer.concat(chunks))
+              .resize(96, 96)
+              .webp()
+              .toFile(imagePath, (err) => {
+                if (err) {
+                  console.error('Erro ao redimensionar e converter a imagem:', err);
+                  return;
+                }
+
+
+                 const newImageName = id + '.webp';
+                // Insere a imagem redimensionada e convertida no banco de dados
+                const insertImageQuery = `
+            INSERT IGNORE INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) VALUES (?, ?, ?, ?);
+          `;
+
+                connection.query(insertImageQuery, [id, userGamertag, userGamerscore, newImageName], (err, result) => {
+                  if (err) {
+                    console.error('Erro ao inserir a imagem no banco de dados:', err);
+                    return;
+                  }
+
+                  console.log('Imagem inserida com sucesso no banco de dados!');
+                });
+              });
+          });
       });
+
+      // ...
+
+
+      res.redirect('/notícias.html');
 
     }).catch(error => {
       console.log('Error getting recent achievements:', error);
@@ -603,6 +640,7 @@ app.get('/profile', (req, res) => {
     res.status(401).json({ error: 'User is not authenticated' });
   });
 });
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
