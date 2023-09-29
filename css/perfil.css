@@ -12,6 +12,24 @@
   display: none;
 }
 
+
+.perfil-posts {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+
+.start,
+.end {
+  width: 15%;
+}
+
+.middle {
+  width: 70%;
+  box-shadow: -1px 2px 6px rgba(0,0,0,.25);
+}
+
 .publish-button {
   cursor: pointer;
 }
@@ -68,11 +86,15 @@ body {
 
 .perfil-container{
   display: flex;
-  justify-content: center;
+ /* justify-content: center;*/
   flex-direction: column;
   align-items: center;
-  height: 90vh;
+ /* height: 90vh;*/
  
+}
+
+.perfil-posts{
+   height: 90vh;
 }
 
 .profile{
