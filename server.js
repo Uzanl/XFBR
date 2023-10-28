@@ -207,7 +207,7 @@ app.post('/insert-news', (req, res) => {
 
 
   sharp(image.data)
-    .resize(640, 360)
+    .resize(256, 144)
     .webp({ quality: 100 })
     .toFile(uploadPath, (err) => {
       if (err) {
@@ -288,6 +288,65 @@ app.get('/get-articles', (req, res) => {
     res.json({ articles, hasNextPage });
   });
 });
+
+app.get('/get-articles-profile', (req, res) => {
+  let userId;
+
+  if (req.session.user) {
+    userId = req.session.user.id_usu;
+    processArticlesQuery(userId);
+  } else if (req.session.profileData) {
+    const XboxUserId = req.session.profileData.profileUsers[0].id;
+    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+
+    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+      if (err) {
+        console.error('Erro ao obter userId:', err);
+        return res.status(500).json({ error: 'Erro ao obter userId' });
+      }
+
+      if (result.length > 0) {
+        userId = result[0].id_usu;
+        processArticlesQuery(userId);
+      } else {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+    });
+  } else {
+    return res.status(401).json({ redirect: '/login.html' });
+  }
+
+  function processArticlesQuery(userId) {
+    const itemsPerPage = 8;
+    const currentPage = req.query.page || 1;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    const sql = `
+     SELECT 
+     artigo.*, 
+     IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+     FROM artigo
+     LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+     WHERE artigo.id_usu = ?
+     ORDER BY artigo.data_publicacao DESC
+     LIMIT ?, ?  
+    `;
+
+    connection.query(sql, [userId, startIndex, itemsPerPage], (err, results) => {
+      if (err) {
+        console.error('Erro ao obter as notícias do banco de dados:', err);
+        return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+      }
+
+      const articles = results;
+      const hasNextPage = articles.length === itemsPerPage;
+      res.json({ articles, hasNextPage });
+    });
+  }
+});
+
+
 
 // Rota para obter detalhes do artigo pelo ID
 app.get('/get-article-by-id/:id', (req, res) => {
@@ -607,7 +666,7 @@ app.get('/profile', (req, res) => {
                 }
 
 
-                 const newImageName = id + '.webp';
+                const newImageName = id + '.webp';
                 // Insere a imagem redimensionada e convertida no banco de dados
                 const insertImageQuery = `
             INSERT IGNORE INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) VALUES (?, ?, ?, ?);

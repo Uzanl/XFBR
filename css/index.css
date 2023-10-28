@@ -103,10 +103,6 @@ footer a img {
   background-position: center center;
 }
 
-
-
-
-
 .overlay::before {
   min-height: 100vh;
   text-align: center;
