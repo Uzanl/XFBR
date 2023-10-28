@@ -28,14 +28,21 @@
 
  .container {
    min-height: 100vh;
+   /*width: 70%;*/
+   box-shadow: -1px 2px 6px rgba(0,0,0,.25);
  }
 
  .article img {
-   width: 320px;
-   height: 180px;
+   width: 256px;
+   height: 144px;
    cursor: pointer;
    border-radius: 10px;
  }
+ 
+ .article:first-child {
+  flex-basis: calc(100% - 20px);
+  /*flex-grow: 2;*/
+}
 
  .footer {
    width: 100%;
@@ -73,10 +80,11 @@
    display: flex;
    flex-wrap: wrap;
    justify-content: flex-start;
-   max-width: 1100px;
+   width: 900px;
    margin: 0 auto;
    margin-bottom: 20px;
    margin-top: 20px;
+
    
  }
 
@@ -88,12 +96,12 @@
 
  .start,
  .end {
-   width: 15%;
+  /* width: 15%;*/
+  flex-grow: 1;
  }
 
  .middle {
-   width: 70%;
-   box-shadow: -1px 2px 6px rgba(0,0,0,.25);
+
  }
 
  .article {
@@ -162,46 +170,208 @@
    background-color: #ccc;
  }
 
- @media screen and (max-width: 1559px) {
+/* Estilos para dispositivos móveis (até 480 pixels) */
+@media screen and (max-width: 480px) {
+ 
+  .end,
+  .start {
+    display: none;
+  }
+
+  .middle {
+    width: 100%;
+  }
+
+  .pagination-container {
+    padding: 20px 0;
+  }
+
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination a {
+    padding: 5px 10px;
+    margin: 5px;
+  }
+
+  .article-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+  }
+
+  .article {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  .article img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Adicione outros estilos conforme necessário */
+}
+
+/* Estilos para dispositivos pequenos (de 481 a 767 pixels) */
+@media screen and (min-width: 481px) and (max-width: 767px) {
+ 
+  .end,
+  .start {
+    display: none;
+  }
+
+  .middle {
+    width: 100%;
+  }
+
+  .pagination-container {
+    padding: 20px 0;
+  }
+
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination a {
+    padding: 5px 10px;
+    margin: 5px;
+  }
+
+  .article-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+  }
+
+  .article {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  .article img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Adicione outros estilos conforme necessário */
+}
+
+/* Estilos para tablets pequenos (de 768 a 991 pixels) */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+
+  .end,
+  .start {
+    display: none;
+  }
+
+  .middle {
+    width: 100%;
+  }
+
+  .pagination-container {
+    padding: 20px 0;
+  }
+
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination a {
+    padding: 5px 10px;
+    margin: 5px;
+  }
+
+  .article-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+  }
+
+  .article {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  .article img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Adicione outros estilos conforme necessário */
+}
+
+/* Estilos para tablets maiores e laptops (de 992 a 1199 pixels) */
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+
+  .end,
+  .start {
+    display: none;
+  }
+
+  .middle {
+    width: 100%;
+  }
+
+  .pagination-container {
+    padding: 20px 0;
+  }
+
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination a {
+    padding: 5px 10px;
+    margin: 5px;
+  }
+
+  .article-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+  }
+
+  .article {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  .article img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Adicione outros estilos conforme necessário */
+}
+
+/* Estilos para desktops (de 1200 a 1919 pixels) */
+@media screen and (min-width: 1200px) and (max-width: 1919px) {
+ 
+  
+  /* Adicione outros estilos conforme necessário */
+}
+
+/* Estilos para telas muito grandes (1920 pixels ou mais) */
+@media screen and (min-width: 1920px) {
+ 
+
+  /* Adicione outros estilos conforme necessário */
+}
 
 
-   .end,
-   .start {
-     display: none;
-   }
 
-   .middle {
-     width: 100%;
-   }
 
-   .pagination-container {
-     padding: 20px 0;
-   }
 
-   .pagination {
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: center;
-   }
 
-   .pagination a {
-     padding: 5px 10px;
-     margin: 5px;
-   }
 
-   .article-container {
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-     width: 90%;
-   }
 
-   .article {
-     flex-basis: 100%;
-     width: 90%;
-   }
-   .article img {
-     width: 70%;
-     height: 70%;
-   }
- }
