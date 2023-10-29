@@ -69,7 +69,7 @@ let totalPages = 0;
 
 async function fetchTotalArticleCount() {
   try {
-    const response = await fetch('/get-article-count'); // Endpoint para obter a contagem total de artigos
+    const response = await fetch('/get-article-count-profile'); // Endpoint para obter a contagem total de artigos
     const data = await response.json();
     totalPages = Math.ceil(data.count / itemsPerPage); // Calcular o número total de páginas
     //console.log(totalPages);
