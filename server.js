@@ -395,6 +395,54 @@ app.get('/get-article-count', (req, res) => {
   });
 });
 
+// Rota para obter a contagem total de artigos por perfil
+app.get('/get-article-count-profile', (req, res) => {
+
+  let userId;
+
+  if (req.session.user) {
+    userId = req.session.user.id_usu;
+    processArticlesQuery(userId);
+  } else if (req.session.profileData) {
+    const XboxUserId = req.session.profileData.profileUsers[0].id;
+    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+
+    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+      if (err) {
+        console.error('Erro ao obter userId:', err);
+        return res.status(500).json({ error: 'Erro ao obter userId' });
+      }
+
+      if (result.length > 0) {
+        userId = result[0].id_usu;
+        processArticlesQuery(userId);
+      } else {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+    });
+  } else {
+    return res.status(401).json({ redirect: '/login.html' });
+  }
+  
+  function processArticlesQuery(userId) {
+    const sql = 'SELECT COUNT(*) as count FROM artigo WHERE id_usu = ?'; 
+    connection.query(sql, [userId], (err, results) => {
+      if (err) {
+        console.error('Erro ao obter a contagem total de artigos:', err);
+        return res.status(500).json({ error: 'Erro ao obter a contagem total de artigos' });
+      }
+
+      const count = results[0].count;
+
+      //console.log(count)
+      res.json({ count });
+    });
+  }
+
+});
+
+
+
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
