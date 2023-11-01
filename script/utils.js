@@ -8,41 +8,66 @@ function toggleSidebar() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    const searchBox = document.querySelector('.search-box');
-    const suggestionContainer = document.querySelector('.suggestion-container');
-    const suggestionList = document.querySelector('.suggestion-list');
-  
-    // Sugestões de exemplo
-    const suggestions = ['Sugestão 1', 'Sugestão 2', 'Sugestão 3', 'Sugestão 4'];
-  
-    searchBox.addEventListener('input', function() {
-      const inputText = searchBox.value.toLowerCase();
-      const filteredSuggestions = suggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(inputText)
-      );
-  
-      suggestionList.innerHTML = '';
-  
-      filteredSuggestions.forEach(suggestion => {
-        const suggestionItem = document.createElement('li');
-        suggestionItem.classList.add('suggestion-item');
-        suggestionItem.textContent = suggestion;
-        suggestionList.appendChild(suggestionItem);
+  const searchBox = document.querySelector('.search-box');
+  const suggestionContainer = document.querySelector('.suggestion-container');
+  const suggestionList = document.querySelector('.suggestion-list');
+
+  searchBox.addEventListener('input', function() {
+    const inputText = searchBox.value.trim().toLowerCase();
+
+    if (inputText === '') {
+      suggestionContainer.style.display = 'none';
+      return;
+    }
+
+    // Enviar uma solicitação ao servidor
+    fetch(`/search?term=${inputText}`)
+      .then(response => response.json())
+      .then(data => {
+        const suggestions = data.results;
+
+        suggestionList.innerHTML = '';
+
+        suggestions.forEach(suggestion => {
+          const suggestionItem = document.createElement('li');
+          suggestionItem.classList.add('suggestion-item');
+
+          // Adicionar o prefixo dependendo do tipo (usuário ou artigo)
+          if (suggestion.tipo === 'usuário') {
+            suggestionItem.textContent = `Usuário: ${suggestion.resultado}`;
+          } else if (suggestion.tipo === 'artigo') {
+            suggestionItem.textContent = `Artigo: ${suggestion.resultado}`;
+          }
+
+          suggestionItem.addEventListener('click', function() {
+            // Lógica para lidar com o clique em uma sugestão
+            // Por exemplo, redirecionar para a página do usuário ou do artigo
+            if (suggestion.tipo === 'usuário') {
+              window.location.href = `perfil.html?id=${suggestion.id}`;
+            } else if (suggestion.tipo === 'artigo') {
+              window.location.href = `artigo.html?id=${suggestion.id}`;
+            }
+          });
+
+          suggestionList.appendChild(suggestionItem);
+        });
+
+        if (suggestions.length > 0) {
+          suggestionContainer.style.display = 'block';
+        } else {
+          suggestionContainer.style.display = 'none';
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao obter sugestões do servidor:', error);
       });
-  
-      if (inputText.trim() === '') {
-        suggestionContainer.style.display = 'none';
-      } else if (filteredSuggestions.length > 0) {
-        suggestionContainer.style.display = 'block';
-      } else {
-        suggestionContainer.style.display = 'none';
-      }
-    });
-  
-    // Fechar a lista de sugestões quando clicar fora dela
-    document.addEventListener('click', function(event) {
-      if (!event.target.closest('.suggestion-container')) {
-        suggestionContainer.style.display = 'none';
-      }
-    });
   });
+
+  // Fechar a lista de sugestões quando clicar fora dela
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('.suggestion-container')) {
+      suggestionContainer.style.display = 'none';
+    }
+  });
+});
+

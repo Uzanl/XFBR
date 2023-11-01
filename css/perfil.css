@@ -7,6 +7,12 @@
   height: 30px;
 }
 
+p2 {
+  color: #cccccc;
+  font-style: italic;
+  font-size: smaller;
+}
+
 .login-list-item,
 .logout-button,
 .sidebar,
@@ -33,6 +39,8 @@ body {
   border-radius: 10px;
   margin-top: 20px;
   margin-bottom: 20px;
+  background-color: #555555;
+  color: #f2f2f2;
 }
 
 .article img {
@@ -97,12 +105,14 @@ footer a img {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  background-color: #333333;
 }
 
 .start,
 .end {
   /* width: 15%;*/
   flex-grow: 1;
+  background-color: #333333;
 }
 
 .middle {
@@ -119,7 +129,10 @@ footer a img {
   box-sizing: border-box;
   text-align: center;
   border-radius: 10px;
+  background-color: #555555;
 }
+
+
 
 .publish-button {
   cursor: pointer;
@@ -139,6 +152,7 @@ footer a img {
 .article p {
   font-size: 16px;
   margin-bottom: 20px;
+  color: #ececec;
 }
 
 .pagination-container {
@@ -224,6 +238,7 @@ footer a img {
  /* justify-content: center;*/
   flex-direction: column;
   align-items: center;
+  background-color: #333333;
  /* height: 90vh;*/
  
 }
@@ -238,12 +253,10 @@ footer a img {
   justify-items: center;
   flex-direction: column;
   text-align: center;
-  max-width: 25%;
-  background-color: #f2f2f2;
+  /*max-width: 25%;*/
+  /*background-color: #f2f2f2;*/
   padding: 20px;
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
- /* background-size: 400% 400%;*/
- /* animation: metallicEffect 6s linear infinite;*/
   border: 1px solid #999;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
@@ -563,7 +576,10 @@ footer a img {
 
 /* Estilos para desktops (de 1200 a 1919 pixels) */
 @media screen and (min-width: 1200px) and (max-width: 1919px) {
-
+  .article:first-child img {
+    width: 860px;
+    height: 483px;
+   }
 
   /* Adicione outros estilos conforme necessário */
 }
@@ -571,6 +587,9 @@ footer a img {
 /* Estilos para telas muito grandes (1920 pixels ou mais) */
 @media screen and (min-width: 1920px) {
 
-
+  .article:first-child img {
+    width: 860px;
+    height: 483px;
+   }
   /* Adicione outros estilos conforme necessário */
 }

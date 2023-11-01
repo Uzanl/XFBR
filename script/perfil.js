@@ -3,10 +3,10 @@ import { updateLoginButtonVisibility } from './auth.js';
 // Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
 updateLoginButtonVisibility();
 
-
+let i = 0;
 
 class Article {
-  constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo,login_usu) {
+  constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo,login_usu,isFirstArticle) {
     this.id_artigo = id_artigo;
     this.conteudo = conteudo;
     this.titulo = titulo;
@@ -15,16 +15,37 @@ class Article {
     this.id_usu = id_usu;
     this.imagem_url = imagem_url;
     this.login_usu  = login_usu;
+    this.isFirstArticle = isFirstArticle;
   }
 
   async render() {
+
+  
+
+   
+   // console.log(i);
+
+    
+
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
     articleElement.setAttribute('data-id', this.id_artigo);
 
+ 
+
     const imageElement = document.createElement('img');
-    imageElement.src = this.imagem_url;
+   // imageElement.src = this.imagem_url;
     imageElement.alt = this.titulo;
+    if (i==0) {
+      i++
+      imageElement.src = this.imagem_url.replace('.webp', '_firstchild.webp');
+     
+    } else {
+      imageElement.src = this.imagem_url;
+    }
+    
+
+
     imageElement.addEventListener('click', () => {
       openArticle(this.id_artigo);
     });
@@ -40,7 +61,7 @@ class Article {
 
    // const userName = await getUserName(this.id_usu);
    
-    const userInfoElement = document.createElement('p');
+    const userInfoElement = document.createElement('p2');
     userInfoElement.textContent = `Postado por ${this.login_usu} em ${formatDate(this.data_publicacao)}`;
 
     articleElement.appendChild(imageElement);
@@ -48,8 +69,11 @@ class Article {
     articleElement.appendChild(previewElement);
     articleElement.appendChild(userInfoElement);
 
+   
     return articleElement;
   }
+
+ 
 }
 
 
@@ -139,9 +163,9 @@ function updatePageNumbers(totalPages) {
   }
 }
 
-async function fetchAndAppendArticles(pageNumber) {
+async function fetchAndAppendArticles(pageNumber, id) {
   try {
-    const response = await fetch(`/get-articles-profile?page=${pageNumber}`);
+    const response = await fetch(`/get-articles-profile?page=${pageNumber}&id=${id}`);
     const data = await response.json();
     console.log(data);
     const newArticles = data.articles;
@@ -155,17 +179,22 @@ function clearArticleContainer() {
   const articleContainer = document.querySelector('.article-container');
   articleContainer.innerHTML = '';
   articles.length = 0;
+  i = 0;
 }
 
 async function loadArticles(pageNumber) {
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+
   clearArticleContainer();
-  await fetchAndAppendArticles(pageNumber);
+  await fetchAndAppendArticles(pageNumber,id);
 
   const articleContainer = document.querySelector('.article-container');
 
   for (const articleData of articles) {
-    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu} = articleData;
-    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu);
+    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu,isFirstArticle} = articleData;
+    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu,isFirstArticle);
     console.log(article);
     articleContainer.appendChild(await article.render());
   }
@@ -204,13 +233,6 @@ fetchTotalArticleCount().then(() => {
   updatePageNumbers(totalPages);
   loadArticles(currentPage);
 });
-
-
-
-
-
-
-
 
 function updateProfileDescription() {
     const descriptionParagraph = document.querySelector('.profile-description p'); // Parágrafo da descrição
@@ -308,6 +330,8 @@ function updateProfileDescription() {
 // Chama a função quando a página estiver carregada
 document.addEventListener('DOMContentLoaded', () => {
   // Fetch para obter informações do usuário
+
+ 
 
   updateProfileDescription();
   updateProfileImage();

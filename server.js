@@ -138,10 +138,6 @@ app.post('/submit', (req, res) => {
 
 app.post('/insert-news', (req, res) => {
 
-  // if (!req.session.user) {
-  // Se a sessão do usuário não estiver definida, redirecione para a tela de login
-  // return res.status(401).json({ redirect: '/login.html' });
-  // }
   let userId;
 
   if (req.session.user) {
@@ -149,7 +145,6 @@ app.post('/insert-news', (req, res) => {
   } else if (req.session.profileData) {
     const XboxUserId = req.session.profileData.profileUsers[0].id;
 
-    // Agora você pode usar XboxUserId para fazer a query e obter o userId
     const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
 
     connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
@@ -160,7 +155,7 @@ app.post('/insert-news', (req, res) => {
 
       if (result.length > 0) {
         userId = result[0].id_usu;
-        // Continue com o código de inserção aqui
+        processInsert();
       } else {
         return res.status(404).json({ error: 'Usuário não encontrado' });
       }
@@ -169,67 +164,68 @@ app.post('/insert-news', (req, res) => {
     return res.status(401).json({ redirect: '/login.html' });
   }
 
+  function processInsert() {
+    const { title, contentpreview, content } = req.body;
+    const image = req.files ? req.files.image : null;
+    const missingFields = [];
 
+    if (!title) {
+      missingFields.push('Título');
+    }
 
-  //console.log(req.body);
-  const { title, contentpreview, content } = req.body;
-  const image = req.files ? req.files.image : null; // Acessar o arquivo de imagem enviado
-  const missingFields = [];
+    if (!content) {
+      missingFields.push('Conteúdo');
+    }
 
-  // Verificação de campos vazios
-  if (!title) {
-    missingFields.push('Título');
+    if (!image) {
+      missingFields.push('URL da imagem');
+    }
+
+    if (!contentpreview) {
+      missingFields.push('Conteúdo da prévia');
+    }
+
+    if (missingFields.length > 0) {
+      const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
+      return res.status(400).json({ error: errorMessage });
+    }
+
+    const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
+
+    sharp(image.data)
+      .resize(256, 144)
+      .webp({ quality: 100 })
+      .toFile(uploadPath, (err) => {
+        if (err) {
+          console.error('Erro ao comprimir e converter a imagem:', err);
+          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+        } else {
+          const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
+          const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
+          const publicationDate = new Date();
+
+          connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
+            if (err) {
+              console.error('Erro ao inserir artigo:', err);
+              res.status(500).json({ error: 'Erro ao inserir o artigo' });
+            } else {
+              // Salvando a versão em resolução maior
+              const uploadPathFirstChild = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_firstchild.webp';
+              sharp(image.data)
+                .resize(860, 483)
+                .webp({ quality: 100 })
+                .toFile(uploadPathFirstChild, (err) => {
+                  if (err) {
+                    console.error('Erro ao salvar imagem de resolução maior:', err);
+                  }
+                });
+
+              res.status(200).json({ message: 'Artigo inserido com sucesso' });
+            }
+          });
+        }
+      });
   }
-
-  if (!content) {
-    missingFields.push('Conteúdo');
-  }
-
-  if (!image) {
-    missingFields.push('URL da imagem');
-  }
-
-  if (!contentpreview) {
-    missingFields.push('Conteúdo da prévia');
-  }
-
-  if (missingFields.length > 0) {
-    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
-    return res.status(400).json({ error: errorMessage });
-  }
-
-
-  // Captura o ID do usuário da sessão
-
-  // Use o sharp para comprimir e converter a imagem para WebP
-  const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp'; // Nome do arquivo com extensão .webp
-
-
-
-  sharp(image.data)
-    .resize(256, 144)
-    .webp({ quality: 100 })
-    .toFile(uploadPath, (err) => {
-      if (err) {
-        console.error('Erro ao comprimir e converter a imagem:', err);
-        return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-      } else {
-        // Após a conversão da imagem, continue com a inserção no banco de dados
-        const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp'; // Nome da imagem convertida para WebP
-        const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
-        const publicationDate = new Date();
-        // const encodedContent = encodeURIComponent(content);
-
-        connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
-          if (err) {
-            console.error('Erro ao inserir artigo:', err);
-            res.status(500).json({ error: 'Erro ao inserir o artigo' });
-          } else {
-            res.status(200).json({ message: 'Artigo inserido com sucesso' });
-          }
-        });
-      }
-    });
 });
 
 app.post('/upload', (req, res) => {
@@ -292,29 +288,38 @@ app.get('/get-articles', (req, res) => {
 app.get('/get-articles-profile', (req, res) => {
   let userId;
 
-  if (req.session.user) {
-    userId = req.session.user.id_usu;
+  console.log(req.query.id);
+
+  if(req.query.id!=null){
+    userId = req.query.id;
     processArticlesQuery(userId);
-  } else if (req.session.profileData) {
-    const XboxUserId = req.session.profileData.profileUsers[0].id;
-    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
-
-    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-      if (err) {
-        console.error('Erro ao obter userId:', err);
-        return res.status(500).json({ error: 'Erro ao obter userId' });
-      }
-
-      if (result.length > 0) {
-        userId = result[0].id_usu;
-        processArticlesQuery(userId);
-      } else {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
-      }
-    });
-  } else {
-    return res.status(401).json({ redirect: '/login.html' });
+  }else{
+    if (req.session.user) {
+      userId = req.session.user.id_usu;
+      processArticlesQuery(userId);
+    } else if (req.session.profileData) {
+      const XboxUserId = req.session.profileData.profileUsers[0].id;
+      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+  
+      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+        if (err) {
+          console.error('Erro ao obter userId:', err);
+          return res.status(500).json({ error: 'Erro ao obter userId' });
+        }
+  
+        if (result.length > 0) {
+          userId = result[0].id_usu;
+          processArticlesQuery(userId);
+        } else {
+          return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+      });
+    } else {
+      return res.status(401).json({ redirect: '/login.html' });
+    }
   }
+
+  
 
   function processArticlesQuery(userId) {
     const itemsPerPage = 8;
@@ -324,7 +329,8 @@ app.get('/get-articles-profile', (req, res) => {
     const sql = `
      SELECT 
      artigo.*, 
-     IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+     IFNULL(usuario.login_usu, ux.gamertag) AS login_usu,
+     IF(artigo.id_artigo = (SELECT MAX(id_artigo) FROM artigo  WHERE artigo.id_usu = ? ORDER BY artigo.data_publicacao DESC LIMIT 1), 1, 0) AS isFirstArticle
      FROM artigo
      LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
      LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
@@ -333,7 +339,7 @@ app.get('/get-articles-profile', (req, res) => {
      LIMIT ?, ?  
     `;
 
-    connection.query(sql, [userId, startIndex, itemsPerPage], (err, results) => {
+    connection.query(sql, [userId,userId, startIndex, itemsPerPage], (err, results) => {
       if (err) {
         console.error('Erro ao obter as notícias do banco de dados:', err);
         return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
@@ -345,6 +351,7 @@ app.get('/get-articles-profile', (req, res) => {
     });
   }
 });
+
 
 
 
@@ -399,6 +406,7 @@ app.get('/get-article-count', (req, res) => {
 app.get('/get-article-count-profile', (req, res) => {
 
   let userId;
+  
 
   if (req.session.user) {
     userId = req.session.user.id_usu;
@@ -747,6 +755,42 @@ app.get('/profile', (req, res) => {
     res.status(401).json({ error: 'User is not authenticated' });
   });
 });
+
+
+app.get('/search', (req, res) => {
+  const searchTerm = req.query.term; // Recebe o termo de busca da query string
+
+  const sql = `
+    -- Busca usuários que começam com uma determinada letra
+    SELECT 
+      IFNULL(u.login_usu, ux.gamertag) AS resultado,
+      'usuário' AS tipo, u.id_usu AS id
+    FROM usuario u 
+    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
+    WHERE IFNULL(u.login_usu, ux.gamertag) LIKE ?
+
+    UNION
+
+    -- Busca artigos cujos títulos começam com uma determinada letra
+    SELECT 
+      titulo AS resultado,
+      'artigo' AS tipo, a.id_artigo AS id
+    FROM artigo a
+    WHERE titulo LIKE ?
+  `;
+
+  const searchTermWithWildcard = searchTerm + '%';
+
+  connection.query(sql, [searchTermWithWildcard, searchTermWithWildcard], (err, results) => {
+    if (err) {
+      console.error('Erro ao realizar a busca:', err);
+      return res.status(500).json({ error: 'Erro ao realizar a busca' });
+    }
+
+    res.json({ results });
+  });
+});
+
 
 
 app.listen(port, () => {
