@@ -7,7 +7,7 @@ updateLoginButtonVisibility();
 
 
 
-
+let i = 0;
 
 class Article {
   constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo) {
@@ -18,6 +18,7 @@ class Article {
     this.data_publicacao = data_publicacao;
     this.id_usu = id_usu;
     this.imagem_url = imagem_url;
+  
   }
 
   async render() {
@@ -26,8 +27,18 @@ class Article {
     articleElement.setAttribute('data-id', this.id_artigo);
 
     const imageElement = document.createElement('img');
-    imageElement.src = this.imagem_url;
+    //imageElement.src = this.imagem_url;
     imageElement.alt = this.titulo;
+     // imageElement.src = this.imagem_url;
+     if (i==0) {
+       i++
+       imageElement.src = this.imagem_url.replace('.webp', '_firstchild.webp');
+      
+     } else {
+       imageElement.src = this.imagem_url;
+     }
+     
+
     imageElement.addEventListener('click', () => {
       openArticle(this.id_artigo);
     });
@@ -42,7 +53,7 @@ class Article {
     previewElement.textContent = this.previa_conteudo;
 
     const userName = await getUserName(this.id_usu);
-    const userInfoElement = document.createElement('p');
+    const userInfoElement = document.createElement('p2');
     userInfoElement.textContent = `Postado por ${userName} em ${formatDate(this.data_publicacao)}`;
 
     articleElement.appendChild(imageElement);
@@ -170,6 +181,7 @@ function clearArticleContainer() {
   const articleContainer = document.querySelector('.article-container');
   articleContainer.innerHTML = '';
   articles.length = 0;
+  i = 0;
 }
 
 async function loadArticles(pageNumber) {
@@ -179,7 +191,7 @@ async function loadArticles(pageNumber) {
   const articleContainer = document.querySelector('.article-container');
 
   for (const articleData of articles) {
-    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo } = articleData;
+    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo} = articleData;
     const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo);
     articleContainer.appendChild(await article.render());
   }

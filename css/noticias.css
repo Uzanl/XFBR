@@ -8,6 +8,14 @@
    height: 30px;
  }
 
+ p2 {
+  color: #cccccc;
+  font-style: italic;
+  font-size: smaller;
+}
+
+
+
  .login-list-item,
  .logout-button , 
  .sidebar,
@@ -30,6 +38,7 @@
    min-height: 100vh;
    /*width: 70%;*/
    box-shadow: -1px 2px 6px rgba(0,0,0,.25);
+   background-color: #555555;
  }
 
  .article img {
@@ -42,6 +51,11 @@
  .article:first-child {
   flex-basis: calc(100% - 20px);
   /*flex-grow: 2;*/
+}
+
+.article:first-child img {
+ /*width: 860px;
+ height: 483px;*/
 }
 
  .footer {
@@ -92,16 +106,15 @@
    display: flex;
    flex-direction: row;
    justify-content: center;
+   color: #f2f2f2;
+   background-color: #333333;
  }
 
  .start,
  .end {
   /* width: 15%;*/
   flex-grow: 1;
- }
-
- .middle {
-
+  
  }
 
  .article {
@@ -113,6 +126,7 @@
    box-sizing: border-box;
    text-align: center;
    border-radius: 10px;
+   background-color: #555555;
  }
 
  .publish-button {
@@ -133,6 +147,7 @@
  .article p {
    font-size: 16px;
    margin-bottom: 20px;
+   color: #ececec;
  }
 
  .pagination-container {
@@ -356,15 +371,21 @@
 
 /* Estilos para desktops (de 1200 a 1919 pixels) */
 @media screen and (min-width: 1200px) and (max-width: 1919px) {
- 
-  
+  .article:first-child img {
+    width: 860px;
+    height: 483px;
+   }
+
   /* Adicione outros estilos conforme necessário */
 }
 
 /* Estilos para telas muito grandes (1920 pixels ou mais) */
 @media screen and (min-width: 1920px) {
- 
 
+  .article:first-child img {
+    width: 860px;
+    height: 483px;
+   }
   /* Adicione outros estilos conforme necessário */
 }
 
