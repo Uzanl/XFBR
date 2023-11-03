@@ -1,6 +1,6 @@
 .suggestion-container {
     width: 270px;
-    max-height: 30vh;
+   /* max-height: 30vh;*/
     position: absolute;
     z-index: 1;
     margin-top: 5px;

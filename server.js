@@ -810,23 +810,24 @@ app.get('/search', (req, res) => {
   const searchTerm = req.query.term; // Recebe o termo de busca da query string
 
   const sql = `
-    -- Busca usuários que começam com uma determinada letra
-    SELECT 
-      IFNULL(u.login_usu, ux.gamertag) AS resultado,
-      'usuário' AS tipo, u.id_usu AS id
-    FROM usuario u 
-    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
-    WHERE IFNULL(u.login_usu, ux.gamertag) LIKE ?
+  SELECT 
+    IFNULL(u.login_usu, ux.gamertag) AS resultado,
+    'usuário' AS tipo, u.id_usu AS id
+  FROM usuario u 
+  LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
+  WHERE IFNULL(u.login_usu, ux.gamertag) LIKE ?
 
-    UNION
+  UNION
 
-    -- Busca artigos cujos títulos começam com uma determinada letra
-    SELECT 
-      titulo AS resultado,
-      'artigo' AS tipo, a.id_artigo AS id
-    FROM artigo a
-    WHERE titulo LIKE ?
-  `;
+  SELECT 
+    titulo AS resultado,
+    'artigo' AS tipo, a.id_artigo AS id
+  FROM artigo a
+  WHERE titulo LIKE ?
+
+  LIMIT 7;
+`;
+
 
   const searchTermWithWildcard = searchTerm + '%';
 
