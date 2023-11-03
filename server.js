@@ -288,25 +288,28 @@ app.get('/get-articles', (req, res) => {
 app.get('/get-articles-profile', (req, res) => {
   let userId;
 
-  console.log(req.query.id);
+  //console.log(req.query.id);
+  const id = parseInt(req.query.id);
 
-  if(req.query.id!=null){
-    userId = req.query.id;
+  if (!isNaN(id) && id > 1) {
+    //console.log("chegou aqui")
+    userId = id;
     processArticlesQuery(userId);
-  }else{
+  } else {
+
     if (req.session.user) {
       userId = req.session.user.id_usu;
       processArticlesQuery(userId);
     } else if (req.session.profileData) {
       const XboxUserId = req.session.profileData.profileUsers[0].id;
       const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
-  
+
       connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
         if (err) {
           console.error('Erro ao obter userId:', err);
           return res.status(500).json({ error: 'Erro ao obter userId' });
         }
-  
+
         if (result.length > 0) {
           userId = result[0].id_usu;
           processArticlesQuery(userId);
@@ -319,7 +322,7 @@ app.get('/get-articles-profile', (req, res) => {
     }
   }
 
-  
+
 
   function processArticlesQuery(userId) {
     const itemsPerPage = 8;
@@ -339,7 +342,7 @@ app.get('/get-articles-profile', (req, res) => {
      LIMIT ?, ?  
     `;
 
-    connection.query(sql, [userId,userId, startIndex, itemsPerPage], (err, results) => {
+    connection.query(sql, [userId, userId, startIndex, itemsPerPage], (err, results) => {
       if (err) {
         console.error('Erro ao obter as notícias do banco de dados:', err);
         return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
@@ -406,7 +409,7 @@ app.get('/get-article-count', (req, res) => {
 app.get('/get-article-count-profile', (req, res) => {
 
   let userId;
-  
+
 
   if (req.session.user) {
     userId = req.session.user.id_usu;
@@ -431,9 +434,9 @@ app.get('/get-article-count-profile', (req, res) => {
   } else {
     return res.status(401).json({ redirect: '/login.html' });
   }
-  
+
   function processArticlesQuery(userId) {
-    const sql = 'SELECT COUNT(*) as count FROM artigo WHERE id_usu = ?'; 
+    const sql = 'SELECT COUNT(*) as count FROM artigo WHERE id_usu = ?';
     connection.query(sql, [userId], (err, results) => {
       if (err) {
         console.error('Erro ao obter a contagem total de artigos:', err);
@@ -593,6 +596,11 @@ app.get('/checkLoginStatus', (req, res) => {
 
 app.get('/get-user-info', (req, res) => {
   // Verificar se req.session.user está definido
+
+
+
+
+
   if (req.session.user && req.session.user.id_usu) {
     const userId = req.session.user.id_usu;
     const selectQuery = 'SELECT descricao, imagem_url FROM usuario WHERE id_usu = ?';
@@ -630,6 +638,47 @@ app.get('/get-user-info', (req, res) => {
     // Caso nenhum dos dois esteja definido
     console.error('Usuário não autenticado ou dados de perfil do Xbox Live ausentes');
     res.status(401).json({ error: 'Usuário não autenticado ou dados de perfil do Xbox Live ausentes' });
+  }
+});
+
+app.get('/get-user-info/:id', (req, res) => {
+  // Verificar se req.session.user está definido
+
+  const userId = req.params.id;
+
+  if (userId) {
+  
+
+
+    const selectQuery = `
+    SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+    IFNULL(u.descricao, "") AS descricao,
+    IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
+    IFNULL(ux.gamerscore, 0) AS gamerscore
+    FROM usuario u
+    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+    WHERE u.id_usu = ?;
+  `;
+
+
+    connection.query(selectQuery, [userId], (err, result) => {
+      if (err) {
+        console.error('Erro ao buscar informações do usuário:', err);
+        res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
+      } else {
+        if (result.length > 0) {
+          const userGamertag = result[0].login_usu;
+          const userDescription = result[0].descricao;
+          const userImageUrl = result[0].imagem_url;
+          const userGamerscore = result[0].gamerscore;
+
+          res.status(200).json({ description: userDescription, imageUrl: userImageUrl, gamertag: userGamertag, gamerscore: userGamerscore });
+        } else {
+          console.error('Usuário não encontrado');
+          res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+      }
+    });
   }
 });
 

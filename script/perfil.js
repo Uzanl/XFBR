@@ -6,7 +6,7 @@ updateLoginButtonVisibility();
 let i = 0;
 
 class Article {
-  constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo,login_usu,isFirstArticle) {
+  constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo,login_usu) {
     this.id_artigo = id_artigo;
     this.conteudo = conteudo;
     this.titulo = titulo;
@@ -15,7 +15,7 @@ class Article {
     this.id_usu = id_usu;
     this.imagem_url = imagem_url;
     this.login_usu  = login_usu;
-    this.isFirstArticle = isFirstArticle;
+   // this.isFirstArticle = isFirstArticle;
   }
 
   async render() {
@@ -193,8 +193,8 @@ async function loadArticles(pageNumber) {
   const articleContainer = document.querySelector('.article-container');
 
   for (const articleData of articles) {
-    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu,isFirstArticle} = articleData;
-    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu,isFirstArticle);
+    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu} = articleData;
+    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu);
     console.log(article);
     articleContainer.appendChild(await article.render());
   }
@@ -336,73 +336,133 @@ document.addEventListener('DOMContentLoaded', () => {
   updateProfileDescription();
   updateProfileImage();
 
-  fetch('/get-user-info', {
-    method: 'GET',
-    credentials: 'same-origin' // Mantém as credenciais no mesmo domínio
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Erro ao obter informações do usuário');
-    }
-    return response.json();
-  })
-  // ...
-.then(data => {
-  const descriptionParagraph = document.querySelector('.profile-description p');
-  const profileImage = document.querySelector('.imagem-perfil');
-  const gamertag = document.querySelector('.gamertag');
-  const gamerscoreValue = document.querySelector('.gamerscore-value');
-  const descProfile = document.querySelector('.desc-profile');
-  const largeTextBox = document.getElementById('description-input');
-  const BtnUpdateDescription = document.getElementById('update-description-button');
-  const ImgEditIcon = document.querySelector('.image-edit-icon');
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
 
+  console.log(id)
 
-  if(data.gamertag){
-   gamertag.textContent = `Gamertag: ${data.gamertag}`;
-   gamerscoreValue.textContent = data.gamerscore;
-   profileImage.src = data.profilepic;
-   descProfile.style.display= 'none';
-   largeTextBox.style.display = 'none';
-   BtnUpdateDescription.style.display = 'none';
-   ImgEditIcon.style.display = 'none';
-  }else{
-    if (data.description) {
-      descriptionParagraph.textContent = data.description;
-    } else {
-      descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
-      descriptionParagraph.style.color = "red"; // Define a cor do aviso
-    }
+   if(id){
+    fetch(`/get-user-info/${id}`, {
+      method: 'GET',
+      credentials: 'same-origin' // Mantém as credenciais no mesmo domínio
+    })    
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao obter informações do usuário');
+      }
+      return response.json();
+    })
+    // ...
+  .then(data => {
+    const descriptionParagraph = document.querySelector('.profile-description p');
+    const profileImage = document.querySelector('.imagem-perfil');
+    const gamertag = document.querySelector('.gamertag');
+    const gamerscoreValue = document.querySelector('.gamerscore-value');
+    const descProfile = document.querySelector('.desc-profile');
+    const largeTextBox = document.getElementById('description-input');
+    const BtnUpdateDescription = document.getElementById('update-description-button');
+    const ImgEditIcon = document.querySelector('.image-edit-icon');
   
-    if (data.imageUrl) {
-      profileImage.src = data.imageUrl; // Atualiza o atributo src da imagem com a URL da imagem
+  
+    if(data.gamertag){
+     gamertag.textContent = `Gamertag: ${data.gamertag}`;
+     gamerscoreValue.textContent = data.gamerscore;
+     profileImage.src = data.imageUrl;
+     descProfile.style.display= 'none';
+     largeTextBox.style.display = 'none';
+     BtnUpdateDescription.style.display = 'none';
+     ImgEditIcon.style.display = 'none';
+    }else{
+      if (data.description) {
+        descriptionParagraph.textContent = data.description;
+      } else {
+        descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
+        descriptionParagraph.style.color = "red"; // Define a cor do aviso
+      }
+    
+      if (data.imageUrl) {
+        profileImage.src = data.imageUrl; // Atualiza o atributo src da imagem com a URL da imagem
+      }
     }
-  }
-})
-.catch(error => {
-  console.error("Erro na solicitação de informações do usuário:", error);
-});
+  })
+  .catch(error => {
+    console.error("Erro na solicitação de informações do usuário:", error);
+  });
+
+
+   }else{
+    
+    fetch('/get-user-info', {
+      method: 'GET',
+      credentials: 'same-origin' // Mantém as credenciais no mesmo domínio
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro ao obter informações do usuário');
+      }
+      return response.json();
+    })
+    // ...
+  .then(data => {
+    const descriptionParagraph = document.querySelector('.profile-description p');
+    const profileImage = document.querySelector('.imagem-perfil');
+    const gamertag = document.querySelector('.gamertag');
+    const gamerscoreValue = document.querySelector('.gamerscore-value');
+    const descProfile = document.querySelector('.desc-profile');
+    const largeTextBox = document.getElementById('description-input');
+    const BtnUpdateDescription = document.getElementById('update-description-button');
+    const ImgEditIcon = document.querySelector('.image-edit-icon');
+  
+  
+    if(data.gamertag){
+     gamertag.textContent = `Gamertag: ${data.gamertag}`;
+     gamerscoreValue.textContent = data.gamerscore;
+     profileImage.src = data.profilepic;
+     descProfile.style.display= 'none';
+     largeTextBox.style.display = 'none';
+     BtnUpdateDescription.style.display = 'none';
+     ImgEditIcon.style.display = 'none';
+    }else{
+      if (data.description) {
+        descriptionParagraph.textContent = data.description;
+      } else {
+        descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
+        descriptionParagraph.style.color = "red"; // Define a cor do aviso
+      }
+    
+      if (data.imageUrl) {
+        profileImage.src = data.imageUrl; // Atualiza o atributo src da imagem com a URL da imagem
+      }
+    }
+  })
+  .catch(error => {
+    console.error("Erro na solicitação de informações do usuário:", error);
+  });
+   }
+  
+
+  
 
    //Suponha que você tem um elemento com o ID 'gamercard' que contém o gamercard.
-  const gamercardElement = document.querySelector('.profile');
+  //const gamercardElement = document.querySelector('.profile');
 
   // Adicione um evento de clique ao botão para capturar o gamercard como uma imagem
-  document.querySelector('.downloadButton').addEventListener('click', function () {
-    html2canvas(gamercardElement).then(function (canvas) {
+  //document.querySelector('.downloadButton').addEventListener('click', function () {
+   // html2canvas(gamercardElement).then(function (canvas) {
       // Converta o canvas em uma URL de imagem em formato PNG
-     const imgData = canvas.toDataURL('image/png');
+   //  const imgData = canvas.toDataURL('image/png');
   
       // Crie um link temporário para o download da imagem
-      const link = document.createElement('a');
-     link.href = imgData;
+   //   const link = document.createElement('a');
+   //  link.href = imgData;
   
        //Defina o atributo 'download' para o nome do arquivo desejado com a extensão .png
-    link.download = 'gamercard.png';
+  //  link.download = 'gamercard.png';
   
       // Simule um clique no link para iniciar o download
-      link.click();
-   });
- });
+ ///     link.click();
+ //  });
+ //});
 });
 
 
