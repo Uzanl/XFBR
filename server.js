@@ -1,15 +1,16 @@
 const express = require('express');
-const multer = require('multer');
+//const multer = require('multer');
 const sharp = require('sharp');
 const compression = require('compression');
 const session = require('express-session')
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
-const axios = require('axios');
-const puppeteer = require('puppeteer');
-const fs = require('fs');
+//const axios = require('axios');
+//const puppeteer = require('puppeteer');
+//const fs = require('fs');
 const https = require('https');
+const RSS = require('rss');
 
 const mysql = require('mysql2');
 //const { callbackify } = require('util');
@@ -84,7 +85,38 @@ connection.connect((err) => {
   console.log('Connected to the database!');
 });
 
+app.get('/feed.xml', (req, res) => {
+  const feed = new RSS({
+    title: 'Feed de Notícias',
+    feed_url: 'http://localhost:3000/feed.xml',
+    site_url: 'http://localhost:3000',
+    description: 'Notícias do Meu Site'
+  });
 
+  const query = 'SELECT * FROM artigo ORDER BY data_publicacao DESC';
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Erro ao obter os artigos do banco de dados:', err);
+      res.status(500).send('Erro ao obter os artigos do banco de dados');
+      return;
+    }
+
+    results.forEach(row => {
+      feed.item({
+        title: row.titulo,
+        url: `http://localhost:3000/artigo/${row.id_artigo}`,
+        description: row.previa_conteudo,
+        date: row.data_publicacao,
+        enclosure: { url: row.imagem_url, type: 'image/webp' } 
+      });
+    });
+
+    const xml = feed.xml({ indent: true });
+    res.type('application/rss+xml');
+    res.send(xml);
+  });
+});
 
 
 
@@ -410,29 +442,38 @@ app.get('/get-article-count-profile', (req, res) => {
 
   let userId;
 
+  //console.log(req.query.id);
+  const id = parseInt(req.query.id);
 
-  if (req.session.user) {
-    userId = req.session.user.id_usu;
+  if (!isNaN(id) && id > 1) {
+    //console.log("chegou aqui")
+    userId = id;
     processArticlesQuery(userId);
-  } else if (req.session.profileData) {
-    const XboxUserId = req.session.profileData.profileUsers[0].id;
-    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
-
-    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-      if (err) {
-        console.error('Erro ao obter userId:', err);
-        return res.status(500).json({ error: 'Erro ao obter userId' });
-      }
-
-      if (result.length > 0) {
-        userId = result[0].id_usu;
-        processArticlesQuery(userId);
-      } else {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
-      }
-    });
   } else {
-    return res.status(401).json({ redirect: '/login.html' });
+
+    if (req.session.user) {
+      userId = req.session.user.id_usu;
+      processArticlesQuery(userId);
+    } else if (req.session.profileData) {
+      const XboxUserId = req.session.profileData.profileUsers[0].id;
+      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+
+      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+        if (err) {
+          console.error('Erro ao obter userId:', err);
+          return res.status(500).json({ error: 'Erro ao obter userId' });
+        }
+
+        if (result.length > 0) {
+          userId = result[0].id_usu;
+          processArticlesQuery(userId);
+        } else {
+          return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+      });
+    } else {
+      return res.status(401).json({ redirect: '/login.html' });
+    }
   }
 
   function processArticlesQuery(userId) {
@@ -810,28 +851,27 @@ app.get('/search', (req, res) => {
   const searchTerm = req.query.term; // Recebe o termo de busca da query string
 
   const sql = `
-  SELECT 
-    IFNULL(u.login_usu, ux.gamertag) AS resultado,
-    'usuário' AS tipo, u.id_usu AS id
-  FROM usuario u 
-  LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
-  WHERE IFNULL(u.login_usu, ux.gamertag) LIKE ?
+    SELECT 
+      IFNULL(u.login_usu, ux.gamertag) AS resultado,
+      'usuário' AS tipo, u.id_usu AS id
+    FROM usuario u 
+    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
+    WHERE REGEXP_LIKE(IFNULL(u.login_usu, ux.gamertag), ?)
 
-  UNION
+    UNION
 
-  SELECT 
-    titulo AS resultado,
-    'artigo' AS tipo, a.id_artigo AS id
-  FROM artigo a
-  WHERE titulo LIKE ?
+    SELECT 
+      titulo AS resultado,
+      'artigo' AS tipo, a.id_artigo AS id
+    FROM artigo a
+    WHERE REGEXP_LIKE(titulo, ?)
 
-  LIMIT 7;
-`;
+    LIMIT 7;
+  `;
 
+  const params = [`\\b${searchTerm}\\w+`, `\\b${searchTerm}\\w+`]; // Array de parâmetros
 
-  const searchTermWithWildcard = searchTerm + '%';
-
-  connection.query(sql, [searchTermWithWildcard, searchTermWithWildcard], (err, results) => {
+  connection.query(sql, params, (err, results) => {
     if (err) {
       console.error('Erro ao realizar a busca:', err);
       return res.status(500).json({ error: 'Erro ao realizar a busca' });
@@ -840,6 +880,11 @@ app.get('/search', (req, res) => {
     res.json({ results });
   });
 });
+
+
+
+
+
 
 
 

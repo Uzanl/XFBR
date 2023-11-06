@@ -31,6 +31,7 @@ body {
   justify-content: center;
 /*  align-items: center;*/
   padding: 20px;
+  background-color: #333333;
 }
 
 .footer {
@@ -59,7 +60,7 @@ footer a img {
 .noticia {
   padding: 20px;
   background-color: #f2f2f2;
-  color: #333333;
+  color: #ececec;
   width: 60%;
   display: flex;
   align-items: center;
@@ -67,11 +68,13 @@ footer a img {
   height: auto;
   border-radius: 10px;
   box-shadow: -1px 2px 6px rgba(0,0,0,.25);
+  background-color: #555555;
 }
 
 .noticia h1 {
   font-size: 24px;
   margin-bottom: 10px;
+  color: #f2f2f2;
 }
 
 .noticia p {

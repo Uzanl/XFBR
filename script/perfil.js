@@ -92,8 +92,13 @@ let itemsPerPage = 8;
 let totalPages = 0;
 
 async function fetchTotalArticleCount() {
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+
+
   try {
-    const response = await fetch('/get-article-count-profile'); // Endpoint para obter a contagem total de artigos
+    const response = await fetch(`/get-article-count-profile?id=${id}`); // Endpoint para obter a contagem total de artigos
     const data = await response.json();
     totalPages = Math.ceil(data.count / itemsPerPage); // Calcular o número total de páginas
     //console.log(totalPages);
