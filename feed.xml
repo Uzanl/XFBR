@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>Feed de Notícias</title>
+    <link>http://localhost:3000</link>
+    <description>Notícias do Meu Site</description>
+
+    <!-- Adicione os itens do feed aqui -->
+    <item>
+      <title>Título da Notícia 1</title>
+      <link>http://localhost:3000/artigo/1</link>
+      <description>Descrição da Notícia 1</description>
+      <pubDate>2023-11-01T12:00:00Z</pubDate>
+      <enclosure url="http://localhost:3000/imagem1.webp" type="image/webp" />
+    </item>
+
+    <item>
+      <title>Título da Notícia 2</title>
+      <link>http://localhost:3000/artigo/2</link>
+      <description>Descrição da Notícia 2</description>
+      <pubDate>2023-11-02T10:30:00Z</pubDate>
+      <enclosure url="http://localhost:3000/imagem2.webp" type="image/webp" />
+    </item>
+
+    <!-- Adicione mais itens conforme necessário -->
+  </channel>
+</rss>

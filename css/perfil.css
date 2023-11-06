@@ -236,7 +236,8 @@ footer a img {
 .perfil-container{
   display: flex;
  /* justify-content: center;*/
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
   background-color: #333333;
  /* height: 90vh;*/
@@ -247,7 +248,7 @@ footer a img {
   /* height: 90vh;*/
 }
 
-.profile{
+.profile, .profile2{
   display: flex;
   justify-content: center;
   justify-items: center;
@@ -256,12 +257,18 @@ footer a img {
   /*max-width: 25%;*/
   /*background-color: #f2f2f2;*/
   padding: 20px;
+  
+  background: linear-gradient(45deg, #9a5916 10%, #e4b04d 18%, #fff1a3 22%, #e7b14f 30%, #ae6f27 38%, #f8c65d 50%);
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
   border: 1px solid #999;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
   margin-top: 20px;
+  min-width: 410px;
 }
+
+
+
 
 .gs-container{
   display: flex;
@@ -279,6 +286,10 @@ footer a img {
 }
 
 .circle {
+  border: 2px solid black;
+  color: black;
+    text-shadow: 1px 1px rgba(0,0,0,0.8);
+
   width: 20px;
   height: 20px;
   background-color: transparent; /* Fundo transparente */
@@ -296,7 +307,9 @@ footer a img {
 }
 
 
-.profile p {
+.profile p, .profile2 p{
+  color: black;
+    text-shadow: 1px 1px rgba(0,0,0,0.8);
  
   color: #888;
   font-size: 1.5em;
@@ -304,6 +317,16 @@ footer a img {
   text-shadow: 1px 1px rgba(255,255,255,0.8);
 }
 
+p.gamertag {
+  display: flex;
+}
+
+
+.profile2 p{
+ 
+  font-style: italic;
+ 
+}
 
 
 /* Animação para criar o efeito metálico */
@@ -327,7 +350,7 @@ footer a img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: transparent; 
+  background-color: #333333;; 
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra interna */
   border: 1px solid #999;
 }
@@ -352,8 +375,16 @@ footer a img {
   cursor: pointer;
 }
 
-.profile-description {
+.profile-description, .profile-description2 {
   flex: 1;
+  min-height: 152px;
+}
+
+.profile-description2{
+  display: flex;
+  align-items: center;
+  max-width: 400px;
+  justify-content: center;
 }
 
 .profile-description h2 {
