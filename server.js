@@ -868,7 +868,7 @@ app.get('/search', (req, res) => {
       'usuário' AS tipo, u.id_usu AS id
     FROM usuario u 
     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
-    WHERE REGEXP_LIKE(IFNULL(u.login_usu, ux.gamertag), ?)
+    WHERE IFNULL(u.login_usu, ux.gamertag) LIKE ? 
 
     UNION
 
@@ -876,12 +876,12 @@ app.get('/search', (req, res) => {
       titulo AS resultado,
       'artigo' AS tipo, a.id_artigo AS id
     FROM artigo a
-    WHERE REGEXP_LIKE(titulo, ?)
+    WHERE titulo LIKE ?
 
     LIMIT 7;
   `;
 
-  const params = [`\\b${searchTerm}\\w+`, `\\b${searchTerm}\\w+`]; // Array de parâmetros
+  const params = [`%${searchTerm}%`, `%${searchTerm}%`]; // Array de parâmetros
 
   connection.query(sql, params, (err, results) => {
     if (err) {
@@ -892,6 +892,7 @@ app.get('/search', (req, res) => {
     res.json({ results });
   });
 });
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
