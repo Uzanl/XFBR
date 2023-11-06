@@ -11,7 +11,7 @@ const XboxApiClient = require('xbox-webapi');
 //const fs = require('fs');
 const https = require('https');
 const RSS = require('rss');
-
+const Parser = require('rss-parser');
 const mysql = require('mysql2');
 //const { callbackify } = require('util');
 const port = 3000;
@@ -118,6 +118,18 @@ app.get('/feed.xml', (req, res) => {
   });
 });
 
+const parser = new Parser();
+
+const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
+
+(async () => {
+  try {
+    const feed = await parser.parseURL(url);
+    console.log('O feed é válido!');
+  } catch (err) {
+    console.error('Erro ao validar o feed:', err);
+  }
+})();
 
 
 
@@ -880,13 +892,6 @@ app.get('/search', (req, res) => {
     res.json({ results });
   });
 });
-
-
-
-
-
-
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
