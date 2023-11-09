@@ -177,6 +177,91 @@ app.post('/submit', (req, res) => {
   });
 });
 
+app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
+  //console.log("chegou aqui!")
+  const artigoId = req.params.artigoId;
+ // const userIdFromSession = req.session.user.id_usu; // Obtém o ID do usuário da sessão
+
+ let userId;
+
+ if (req.session.user) {
+ 
+   userId = req.session.user.id_usu;
+ } else if (req.session.profileData) {
+   const XboxUserId = req.session.profileData.profileUsers[0].id;
+
+   const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+
+   connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+     if (err) {
+       console.error('Erro ao obter userId:', err);
+       return res.status(500).json({ error: 'Erro ao obter userId' });
+     }
+
+     if (result.length > 0) {
+       userId = result[0].id_usu;
+       
+       if (!userId) {
+        //console.log("caiu aqui!")
+        return res.json({ temPermissao: false });
+      }
+    
+
+     } else {
+       return res.status(404).json({ error: 'Usuário não encontrado' });
+     }
+   });
+ } else {
+   return res.status(401).json({ redirect: '/login.html' });
+ }
+
+ app.delete('/excluir-artigo/:artigoId', (req, res) => {
+ // console.log("chegou aqui!")
+  const artigoId = req.params.artigoId;
+
+  // Verificar se o usuário não está autenticado
+  if (req.session.user || req.session.profileData) {
+    // Verificar se o usuário é o autor do artigo ou se é um administrador
+ 
+    // Agora você pode executar a lógica para excluir o artigo do banco de dados
+    const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
+
+    connection.query(deleteArtigoQuery, [artigoId], (err, result) => {
+      if (err) {
+        console.error('Erro ao excluir o artigo:', err);
+        return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+      }
+
+      return res.json({ message: 'Artigo excluído com sucesso' });
+    });
+  }else{
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+  }
+  
+});
+
+
+
+
+  // Verificar se o usuário está autenticado (se a sessão está ativa)
+ 
+  // Consultar o banco de dados para obter o ID do autor do artigo
+  connection.query('SELECT id_usu FROM artigo WHERE id_artigo = ?', [artigoId], (err, results) => {
+    if (err) {
+      console.error('Erro ao verificar permissão de edição:', err);
+      return res.status(500).json({ error: 'Erro ao verificar permissão de edição' });
+    }
+
+    const artigoAuthorId = results[0].id_usu;
+
+    // Verificar se o usuário é o autor do artigo ou se é um administrador
+    if (userId === artigoAuthorId || req.session.userType === 'administrador') {
+      return res.json({ temPermissao: true });
+    } else {
+      return res.json({ temPermissao: false });
+    }
+  });
+});
 
 
 
@@ -185,6 +270,7 @@ app.post('/insert-news', (req, res) => {
   let userId;
 
   if (req.session.user) {
+  
     userId = req.session.user.id_usu;
   } else if (req.session.profileData) {
     const XboxUserId = req.session.profileData.profileUsers[0].id;
@@ -407,7 +493,7 @@ app.get('/get-article-by-id/:id', (req, res) => {
   const id = req.params.id;
 
   const sql = `
-    SELECT artigo.titulo, artigo.conteudo, usuario.login_usu, usuario.descricao, usuario.imagem_url , ux.gamertag, ux.gamerscore, ux.imagem_url as imagem_url_xbox
+    SELECT artigo.titulo, artigo.conteudo,usuario.id_usu, usuario.login_usu, usuario.descricao, usuario.imagem_url , ux.gamertag, ux.gamerscore, ux.imagem_url as imagem_url_xbox
     FROM artigo
     LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
@@ -868,7 +954,7 @@ app.get('/search', (req, res) => {
       'usuário' AS tipo, u.id_usu AS id
     FROM usuario u 
     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
-    WHERE IFNULL(u.login_usu, ux.gamertag) LIKE ? 
+    WHERE REGEXP_LIKE(IFNULL(u.login_usu, ux.gamertag), ?)
 
     UNION
 
@@ -876,12 +962,16 @@ app.get('/search', (req, res) => {
       titulo AS resultado,
       'artigo' AS tipo, a.id_artigo AS id
     FROM artigo a
-    WHERE titulo LIKE ?
+    WHERE REGEXP_LIKE(titulo, ?)
 
     LIMIT 7;
   `;
 
-  const params = [`%${searchTerm}%`, `%${searchTerm}%`]; // Array de parâmetros
+const params = [`(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`, `(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`];
+
+
+
+ // Array de parâmetros
 
   connection.query(sql, params, (err, results) => {
     if (err) {
@@ -892,7 +982,6 @@ app.get('/search', (req, res) => {
     res.json({ results });
   });
 });
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
