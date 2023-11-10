@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
 
+
+
+
   
 
   const deleteButton = document.querySelector('.delete-image-container');
@@ -36,6 +39,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Erro ao excluir o artigo:', error);
       }
     }
+  }
+
+  const editElement = document.querySelector('.edit-image-container')
+
+  editElement.addEventListener('click', () => {
+    openArticle(id);
+  });
+
+  function openArticle(id) {
+    window.location.href = `editor.html?id=${id}`;
   }
 
 

@@ -485,6 +485,37 @@ app.get('/get-articles-profile', (req, res) => {
   }
 });
 
+// Rota para obter dados de um artigo por ID
+app.get('/get-article-edit-by-id/:id', (req, res) => {
+
+  //console.log("chegou aqui!")
+  const artigoId = req.params.id;
+
+  // Substitua o código abaixo com a lógica para obter os dados do artigo do seu banco de dados
+  const getArticleQuery = 'SELECT * FROM artigo WHERE id_artigo = ?';
+
+  connection.query(getArticleQuery, [artigoId], (err, result) => {
+    if (err) {
+      console.error('Erro ao obter dados do artigo:', err);
+      return res.status(500).json({ error: 'Erro ao obter dados do artigo' });
+    }
+
+    if (result.length > 0) {
+      const artigoData = {
+        titulo: result[0].titulo,
+        previa_conteudo: result[0].previa_conteudo,
+        conteudo: result[0].conteudo,
+        imagem_url: result[0].imagem_url,
+        // Adicione outros campos conforme necessário
+      };
+
+      res.json(artigoData);
+    } else {
+      res.status(404).json({ error: 'Artigo não encontrado' });
+    }
+  });
+});
+
 
 
 
