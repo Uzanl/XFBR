@@ -953,7 +953,7 @@ app.get('/profile', (req, res) => {
                     return;
                   }
 
-                  console.log('Imagem inserida com sucesso no banco de dados!');
+                 // console.log('Imagem inserida com sucesso no banco de dados!');
                 });
               });
           });
