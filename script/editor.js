@@ -73,10 +73,34 @@ tinymce.init({
         })
         .then(artigoData => {
           // Definir conteúdo do TinyMCE após a inicialização completa
-          
+
           document.getElementById('title').value = artigoData.titulo;
           document.getElementById('content-preview').value = artigoData.previa_conteudo;
+          // document.querySelector('.imagem-preview').src = artigoData.imagem_url;
+
+          // Crie um elemento de imagem
+          const imagePreview = new Image();
+          imagePreview.src = artigoData.imagem_url;
+          imagePreview.style.width = "256px";
+          imagePreview.style.height = "144px";
+
+          // Obtenha o corpo do editor do TinyMCE
+          const imagePreviewContainer = document.querySelector(".image-preview");
+
+          // Limpe o conteúdo atual
+          imagePreviewContainer.innerHTML = "";
+
+          // Adicione a imagem ao corpo do editor
+          imagePreviewContainer.appendChild(imagePreview);
+
+
+
+
+
+
           editor.setContent(artigoData.conteudo);
+
+          updatePreview();
         })
         .catch(error => {
           console.error('Erro ao preencher dados do artigo:', error);
@@ -210,12 +234,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const contentValue = event.target.value;
     contentPreview.textContent = contentValue; // Atualiza o conteúdo do parágrafo na prévia
   });
-
-
-
-
- 
-
 });
 
 
