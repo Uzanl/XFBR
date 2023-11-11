@@ -52,7 +52,7 @@ tinymce.init({
             link.parentNode.replaceChild(videoContainer, link);
           }
         }
-
+        // updatePreview();
         e.content = div.innerHTML;
       }
     });
@@ -76,6 +76,15 @@ tinymce.init({
 
           document.getElementById('title').value = artigoData.titulo;
           document.getElementById('content-preview').value = artigoData.previa_conteudo;
+
+          const titlePreview = document.querySelector(".title-preview h1");
+          const contentPreview = document.querySelector(".title-preview p");
+
+
+
+          titlePreview.textContent = artigoData.titulo;
+          contentPreview.textContent = artigoData.previa_conteudo;
+
           // document.querySelector('.imagem-preview').src = artigoData.imagem_url;
 
           // Crie um elemento de imagem
@@ -154,37 +163,105 @@ document.querySelector('form').addEventListener('submit', function (event) {
   console.log('Preview Conteúdo:', contentpreview)
   console.log('Conteúdo:', content)
 
-  // Enviar dados via AJAX
-  fetch('/insert-news', {
-    method: 'POST',
-    credentials: 'same-origin', // Mantém as credenciais no mesmo domínio
-    // headers: {
-    // 'Content-Type': 'application/json'
-    // },
-    //body: JSON.stringify({ title, image, contentpreview, content }) // Envia o título e o conteúdo no formato JSON
 
-    body: formData
-  })
-    .then(response => response.json()) // Espera uma resposta JSON do servidor
-    .then(data => {
-      if (data.error) {
-        document.getElementById('error-message').textContent = data.error; // Exibe o erro na div error-message
-      } else {
-        if (data.redirect) {
-          window.location.href = data.redirect; // Redireciona para a URL fornecida pelo servidor
-        } else {
-          alert("Notícia inserida com sucesso!");
-          window.location.reload(); // Recarrega a página em caso de sucesso
-        }
-      }
+
+
+
+  const params = new URLSearchParams(window.location.search);
+  const idArtigo = params.get('id');
+
+  if (idArtigo) {
+    // update do artigo
+    // Se há um ID de artigo, estamos editando, então enviamos uma solicitação de atualização
+    //artigoData.imagem_url;
+
+  // Adiciona a imagem_url ao formData se estiver disponível
+ // if (artigoData && artigoData.imagem_url) {
+  //  formData.append('imagem_url', artigoData.imagem_url);
+ // }
+
+    fetch(`/update-article/${idArtigo}`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: formData
     })
-    .catch(error => {
-      console.error("Erro no envio do formulário:", error);
-    });
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          document.getElementById('error-message').textContent = data.error;
+        } else {
+          if (data.redirect) {
+            window.location.href = data.redirect;
+          } else {
+            alert("Notícia atualizada com sucesso!");
+            window.location.reload();
+          }
+        }
+      })
+      .catch(error => {
+        console.error("Erro na atualização do formulário:", error);
+      });
+
+  } else {
+
+    // Enviar dados via AJAX
+    fetch('/insert-news', {
+      method: 'POST',
+      credentials: 'same-origin', // Mantém as credenciais no mesmo domínio
+      // headers: {
+      // 'Content-Type': 'application/json'
+      // },
+      //body: JSON.stringify({ title, image, contentpreview, content }) // Envia o título e o conteúdo no formato JSON
+
+      body: formData
+    })
+      .then(response => response.json()) // Espera uma resposta JSON do servidor
+      .then(data => {
+        if (data.error) {
+          document.getElementById('error-message').textContent = data.error; // Exibe o erro na div error-message
+        } else {
+          if (data.redirect) {
+            window.location.href = data.redirect; // Redireciona para a URL fornecida pelo servidor
+          } else {
+            alert("Notícia inserida com sucesso!");
+            window.location.reload(); // Recarrega a página em caso de sucesso
+          }
+        }
+      })
+      .catch(error => {
+        console.error("Erro no envio do formulário:", error);
+      });
+
+
+
+  }
+
+
 });
 
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+
+
+  const params = new URLSearchParams(window.location.search);
+  const idArtigo = params.get('id');
+
+
+  if (idArtigo) {
+
+
+    // Seletor do botão
+    const publishButton = document.querySelector('.inserir input[type="submit"]');
+
+    // Novo texto que você deseja definir
+    const novoTexto = 'Salvar';
+
+    // Altera o valor do atributo "value" do botão para o novo texto
+    publishButton.value = novoTexto;
+  }
+
+
   const imageInput = document.getElementById("image");
   const titleInput = document.getElementById("title");
   const contentInput = document.getElementById("content-preview")
@@ -205,8 +282,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (image.width >= 1280 && image.height >= 720) {
           const imagePreview = new Image();
           imagePreview.src = URL.createObjectURL(selectedImage);
-          imagePreview.style.width = "320px";
-          imagePreview.style.height = "180px";
+          imagePreview.style.width = "256px";
+          imagePreview.style.height = "144px";
           imagePreviewContainer.innerHTML = ""; // Limpar o conteúdo anterior, se houver
           imagePreviewContainer.appendChild(imagePreview);
         } else {

@@ -240,6 +240,75 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   
 });
 
+app.post('/update-article/:id', (req, res) => {
+  const idArtigo = req.params.id;
+  const { title, contentpreview, content } = req.body;
+  const image = req.files ? req.files.image : null;
+  const missingFields = [];
+
+  if (!title) {
+    missingFields.push('Título');
+  }
+
+  if (!content) {
+    missingFields.push('Conteúdo');
+  }
+
+  if (!contentpreview) {
+    missingFields.push('Conteúdo da prévia');
+  }
+
+  if (missingFields.length > 0) {
+    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
+    return res.status(400).json({ error: errorMessage });
+  }
+
+
+
+  // Aqui você verifica se a imagem não é undefined e não é uma string vazia
+  if (image !== undefined && image !== null) {
+    const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
+
+    sharp(image.data)
+      .resize(256, 144)
+      .webp({ quality: 100 })
+      .toFile(uploadPath, (err) => {
+        if (err) {
+          console.error('Erro ao comprimir e converter a imagem:', err);
+          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+        } else {
+          const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
+          // Execute a atualização no banco de dados
+          const sql = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
+          const values = [title, newImageName, contentpreview, content, idArtigo];
+
+          connection.query(sql, values, (error, results) => {
+            if (error) {
+              console.error('Erro ao atualizar o artigo:', error);
+              res.status(500).json({ error: 'Erro interno no servidor' });
+            } else {
+              res.status(200).json({ message: 'Artigo atualizado com sucesso' });
+            }
+          });
+        }
+      });
+  } else {
+    // Se a imagem for undefined ou null, apenas atualize os outros campos sem mexer na imagem
+    // Execute a atualização no banco de dados
+    const sql = 'UPDATE artigo SET titulo=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
+    const values = [title, contentpreview, content, idArtigo];
+
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        console.error('Erro ao atualizar o artigo:', error);
+        res.status(500).json({ error: 'Erro interno no servidor' });
+      } else {
+        res.status(200).json({ message: 'Artigo atualizado com sucesso' });
+      }
+    });
+  }
+});
+
 
 
 
