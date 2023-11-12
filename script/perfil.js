@@ -370,7 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   
     if(data.gamertag){
-     gamertag.textContent = `Gamertag: ${data.gamertag}`;
+     //gamertag.textContent = `Gamertag: ${data.gamertag}`;
+     gamertag.textContent = data.gamertag;
      gamerscoreValue.textContent = data.gamerscore;
      profileImage.src = data.imageUrl;
      descProfile.style.display= 'none';
@@ -420,7 +421,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   
     if(data.gamertag){
-     gamertag.textContent = `Gamertag: ${data.gamertag}`;
+     gamertag.textContent = data.gamertag;
+     //gamertag.textContent = `Gamertag: ${data.gamertag}`;
      gamerscoreValue.textContent = data.gamerscore;
      profileImage.src = data.profilepic;
      descProfile.style.display= 'none';
