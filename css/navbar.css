@@ -33,8 +33,15 @@ header nav ul li a:hover{
     color: #fff;
 }
 
-.menu-item:hover{
-     background-color: #444444;
+.menu-item{
+  transition: filter 0.3s ease-in-out;
+}
+
+
+
+.menu-item:hover {
+  /* Seus estilos aqui */
+  filter: brightness(0.8);
 }
 
 
