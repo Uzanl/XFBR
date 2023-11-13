@@ -156,7 +156,8 @@ footer a img {
 }
 
 .article h1:hover {
-  color: darkblue;
+   
+  filter: brightness(0.8);
 }
 
 .article p {
