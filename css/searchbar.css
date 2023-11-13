@@ -56,3 +56,22 @@
     /* Cor um pouco mais escura no hover */
   }
   
+  .search-container {
+    position: relative;
+    display: inline-block;
+}
+
+.clear-button {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #fff;
+  font-size: small;
+  display: none;
+}
+
+.clear-button:hover{
+  filter: brightness(0.8);
+}

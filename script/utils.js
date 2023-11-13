@@ -9,6 +9,7 @@ function toggleSidebar() {
 
 document.addEventListener('DOMContentLoaded', function() {
   const searchBox = document.querySelector('.search-box');
+  const ClearButton = document.querySelector('.clear-button');
   const suggestionContainer = document.querySelector('.suggestion-container');
   const suggestionList = document.querySelector('.suggestion-list');
 
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (inputText === '') {
       suggestionContainer.style.display = 'none';
+      ClearButton.style.display =  'none';
       return;
     }
 
@@ -54,8 +56,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (suggestions.length > 0) {
           suggestionContainer.style.display = 'block';
+          ClearButton.style.display = 'block';
+
         } else {
           suggestionContainer.style.display = 'none';
+         // ClearButton.style.display = 'none';
         }
       })
       .catch(error => {
@@ -71,3 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+function clearSearch() {
+  const ClearButton = document.querySelector('.clear-button');
+  ClearButton.style.display = 'none';
+  document.querySelector('.search-box').value = '';
+ 
+ 
+}
