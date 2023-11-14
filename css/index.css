@@ -26,20 +26,7 @@
   flex-direction: row;
 }
 
-.banner{
-  width: 15%;
-}
 
-.middle{
-  justify-content: center;
-   width: 70%; 
-  align-items: center;
-  display: flex;
-}
-
-.end{
-  width: 15%;
-}
 
 
 
