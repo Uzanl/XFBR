@@ -103,6 +103,66 @@ header nav ul li a {
 }
 
 
+.banner{
+  width: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.image-container {
+  width: 50px;
+  height: 50px;
+  background-image: url('/xfbr-logo.webp');
+  background-size: cover;
+  transition: background-image 0.3s ease; /* Adiciona transição suave para a troca de imagem */
+}
+
+.image-container:hover {
+  background-image: url('/xfbr.gif');
+  cursor: pointer;
+}
+
+
+
+.image-container::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  /*top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);*/
+  top: 80px;
+  padding: 5px;
+  background-color: #333;
+  color: #fff;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease; /* Adiciona uma transição de opacidade */
+  pointer-events: none; /* Evita que o tooltip bloqueie o evento de passar o mouse */
+  white-space: nowrap;
+  z-index: 1; /* Garante que o tooltip apareça acima do conteúdo */
+  border: 1px solid #999999;
+
+}
+
+.image-container:hover::after {
+  opacity: 1;
+}
+
+
+
+
+.middle{
+  justify-content: center;
+   width: 70%; 
+  align-items: center;
+  display: flex;
+}
+
+.end{
+  width: 15%;
+}
 
 
 

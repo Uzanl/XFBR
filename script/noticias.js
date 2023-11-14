@@ -1,16 +1,32 @@
 import { updateLoginButtonVisibility } from './auth.js';
 
-
-
 // Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
 updateLoginButtonVisibility();
 
+window.addEventListener('resize', handleImageResolution);
 
+function handleImageResolution() {
+  const screenWidth = window.innerWidth;
+  const images = document.querySelectorAll('.article img');
 
-let i = 0;
+  images.forEach((image, index) => {
+    const originalSrc = image.dataset.originalSrc; // Salvando o URL original em um atributo 'data'
+
+    if (screenWidth > 1199) {
+
+      if (index === 0) {
+        image.src = originalSrc.replace('.webp', '_firstchild.webp');
+      } else {
+        image.src = originalSrc.replace('_firstchild.webp', '.webp');
+      }
+    } else if (screenWidth >= 992 && screenWidth <= 1199) {
+      image.src = originalSrc.replace('.webp', '_firstchild.webp');
+    }
+  });
+}
 
 class Article {
-  constructor(id_artigo,titulo,conteudo,data_publicacao,id_usu,imagem_url,previa_conteudo) {
+  constructor(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) {
     this.id_artigo = id_artigo;
     this.conteudo = conteudo;
     this.titulo = titulo;
@@ -18,26 +34,25 @@ class Article {
     this.data_publicacao = data_publicacao;
     this.id_usu = id_usu;
     this.imagem_url = imagem_url;
-  
+
   }
 
-  async render() {
+  async render(index) {
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
     articleElement.setAttribute('data-id', this.id_artigo);
-
     const imageElement = document.createElement('img');
-    //imageElement.src = this.imagem_url;
     imageElement.alt = this.titulo;
-     // imageElement.src = this.imagem_url;
-     if (i==0) {
-       i++
-       imageElement.src = this.imagem_url.replace('.webp', '_firstchild.webp');
-      
-     } else {
-       imageElement.src = this.imagem_url;
-     }
-     
+
+    if (index === 0) {
+      //  i++
+      imageElement.src = this.imagem_url.replace('.webp', '_firstchild.webp');
+      imageElement.dataset.originalSrc = this.imagem_url;
+
+    } else {
+      imageElement.src = this.imagem_url;
+      imageElement.dataset.originalSrc = this.imagem_url;
+    }
 
     imageElement.addEventListener('click', () => {
       openArticle(this.id_artigo);
@@ -61,10 +76,12 @@ class Article {
     articleElement.appendChild(previewElement);
     articleElement.appendChild(userInfoElement);
 
+
+
     return articleElement;
   }
-}
 
+}
 
 async function getUserName(userId) {
   //console.log(userId);
@@ -104,10 +121,6 @@ async function fetchTotalArticleCount() {
     console.error('Error fetching total article count:', error);
   }
 }
-
-
-
-
 
 function updatePageNumbers(totalPages) {
   const pageNumbersContainer = document.querySelector('.page-numbers');
@@ -161,9 +174,9 @@ function updatePageNumbers(totalPages) {
     nextPageButton.style.display = 'none';
   }
 
-  if(currentPage== totalPages){
-    console.log("teste");
-  }
+  // if(currentPage== totalPages){
+  // console.log("teste");
+  //}
 }
 
 async function fetchAndAppendArticles(pageNumber) {
@@ -181,7 +194,7 @@ function clearArticleContainer() {
   const articleContainer = document.querySelector('.article-container');
   articleContainer.innerHTML = '';
   articles.length = 0;
-  i = 0;
+  //i = 0;
 }
 
 async function loadArticles(pageNumber) {
@@ -190,18 +203,15 @@ async function loadArticles(pageNumber) {
 
   const articleContainer = document.querySelector('.article-container');
 
-  for (const articleData of articles) {
-    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo} = articleData;
+  for (let i = 0; i < articles.length; i++) {
+    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo } = articles[i];
     const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo);
-    articleContainer.appendChild(await article.render());
+    articleContainer.appendChild(await article.render(i)); // Passando o índice para o método render()
   }
-
+  handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(totalPages);
 }
-
-
-
 
 // Captura o número da página ao clicar nos botões "Anterior" e "Próximo"
 const prevPageButton = document.querySelector('.prev-page');
@@ -224,7 +234,6 @@ nextPageButton.addEventListener('click', event => {
 function openArticle(id) {
   window.location.href = `artigo.html?id=${id}`;
 }
-
 
 fetchTotalArticleCount().then(() => {
   updatePageNumbers(totalPages);
