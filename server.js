@@ -471,7 +471,7 @@ app.get('/get-articles', (req, res) => {
   const currentPage = req.query.page || 1; // Página atual (padrão é 1)
   const startIndex = (currentPage - 1) * itemsPerPage;
 
-  const sql = 'SELECT * FROM artigo ORDER BY data_publicacao DESC LIMIT ?, ?';
+  const sql = 'SELECT a.* , IFNULL(u.login_usu, ux.gamertag) AS login_usu FROM artigo a inner join usuario u on a.id_usu = u.id_usu LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox  ORDER BY data_publicacao DESC LIMIT ?, ?';
   connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
     if (err) {
       console.error('Erro ao obter as notícias do banco de dados:', err);

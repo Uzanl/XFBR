@@ -26,7 +26,7 @@ function handleImageResolution() {
 }
 
 class Article {
-  constructor(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) {
+  constructor(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu) {
     this.id_artigo = id_artigo;
     this.conteudo = conteudo;
     this.titulo = titulo;
@@ -34,7 +34,7 @@ class Article {
     this.data_publicacao = data_publicacao;
     this.id_usu = id_usu;
     this.imagem_url = imagem_url;
-
+    this.login_usu = login_usu;
   }
 
   async render(index) {
@@ -43,9 +43,9 @@ class Article {
     articleElement.setAttribute('data-id', this.id_artigo);
     const imageElement = document.createElement('img');
     imageElement.alt = this.titulo;
-
+   
     if (index === 0) {
-      //  i++
+     
       imageElement.src = this.imagem_url.replace('.webp', '_firstchild.webp');
       imageElement.dataset.originalSrc = this.imagem_url;
 
@@ -54,20 +54,21 @@ class Article {
       imageElement.dataset.originalSrc = this.imagem_url;
     }
 
-    imageElement.addEventListener('click', () => {
-      openArticle(this.id_artigo);
-    });
-
     const titleElement = document.createElement('h1');
     titleElement.textContent = this.titulo;
-    titleElement.addEventListener('click', () => {
+
+
+    const openArticleHandler = () => {
       openArticle(this.id_artigo);
-    });
+    };
+
+    imageElement.addEventListener('click', openArticleHandler);
+    titleElement.addEventListener('click', openArticleHandler);
 
     const previewElement = document.createElement('p');
     previewElement.textContent = this.previa_conteudo;
 
-    const userName = await getUserName(this.id_usu);
+    const userName = this.login_usu;
     const userInfoElement = document.createElement('p2');
     userInfoElement.textContent = `Postado por ${userName} em ${formatDate(this.data_publicacao)}`;
 
@@ -76,29 +77,10 @@ class Article {
     articleElement.appendChild(previewElement);
     articleElement.appendChild(userInfoElement);
 
-
-
     return articleElement;
   }
 
 }
-
-async function getUserName(userId) {
-  //console.log(userId);
-  try {
-    const response = await fetch(`/get-username/${userId}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.username;
-    } else {
-      throw new Error('Erro ao obter nome de usuário');
-    }
-  } catch (error) {
-    console.error('Erro ao obter nome de usuário:', error);
-    return "Nome de Usuário Desconhecido"; // Em caso de erro ou falta de resposta
-  }
-}
-
 
 function formatDate(dateString) {
   const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
@@ -173,10 +155,6 @@ function updatePageNumbers(totalPages) {
   } else {
     nextPageButton.style.display = 'none';
   }
-
-  // if(currentPage== totalPages){
-  // console.log("teste");
-  //}
 }
 
 async function fetchAndAppendArticles(pageNumber) {
@@ -194,7 +172,6 @@ function clearArticleContainer() {
   const articleContainer = document.querySelector('.article-container');
   articleContainer.innerHTML = '';
   articles.length = 0;
-  //i = 0;
 }
 
 async function loadArticles(pageNumber) {
@@ -204,8 +181,8 @@ async function loadArticles(pageNumber) {
   const articleContainer = document.querySelector('.article-container');
 
   for (let i = 0; i < articles.length; i++) {
-    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo } = articles[i];
-    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo);
+    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu } = articles[i];
+    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu);
     articleContainer.appendChild(await article.render(i)); // Passando o índice para o método render()
   }
   handleImageResolution();
