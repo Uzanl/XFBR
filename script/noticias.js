@@ -1,7 +1,8 @@
 import { updateLoginButtonVisibility } from './auth.js';
 
-// Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
 updateLoginButtonVisibility();
+
+const articleContainer = document.querySelector('.article-container');
 
 window.addEventListener('resize', handleImageResolution);
 
@@ -21,6 +22,8 @@ function handleImageResolution() {
       }
     } else if (screenWidth >= 992 && screenWidth <= 1199) {
       image.src = originalSrc.replace('.webp', '_firstchild.webp');
+      
+    
     }
   });
 }
@@ -43,6 +46,12 @@ class Article {
     articleElement.setAttribute('data-id', this.id_artigo);
     const imageElement = document.createElement('img');
     imageElement.alt = this.titulo;
+
+
+    imageElement.setAttribute('width', '860');
+    imageElement.setAttribute('height', '483');
+    
+    
    
     if (index === 0) {
      
@@ -53,6 +62,12 @@ class Article {
       imageElement.src = this.imagem_url;
       imageElement.dataset.originalSrc = this.imagem_url;
     }
+
+
+      // Define estilos para a imagem
+      //imageElement.style.width = '100%';
+      //imageElement.style.height = 'auto';
+
 
     const titleElement = document.createElement('h1');
     titleElement.textContent = this.titulo;
@@ -168,8 +183,7 @@ async function fetchAndAppendArticles(pageNumber) {
   }
 }
 
-function clearArticleContainer() {
-  const articleContainer = document.querySelector('.article-container');
+function clearArticleContainer() { 
   articleContainer.innerHTML = '';
   articles.length = 0;
 }
@@ -177,8 +191,6 @@ function clearArticleContainer() {
 async function loadArticles(pageNumber) {
   clearArticleContainer();
   await fetchAndAppendArticles(pageNumber);
-
-  const articleContainer = document.querySelector('.article-container');
 
   for (let i = 0; i < articles.length; i++) {
     const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu } = articles[i];
@@ -188,25 +200,28 @@ async function loadArticles(pageNumber) {
   handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(totalPages);
+
+  
+
+
+
 }
 
-// Captura o número da página ao clicar nos botões "Anterior" e "Próximo"
+function handlePageButtonClick(offset) {
+  return function(event) {
+    event.preventDefault();
+    const nextPage = currentPage + offset;
+    if (nextPage >= 1 && nextPage <= totalPages) {
+      loadArticles(nextPage);
+    }
+  };
+}
+
 const prevPageButton = document.querySelector('.prev-page');
 const nextPageButton = document.querySelector('.next-page');
 
-prevPageButton.addEventListener('click', event => {
-  event.preventDefault();
-  if (currentPage > 1) {
-    loadArticles(currentPage - 1);
-  }
-});
-
-nextPageButton.addEventListener('click', event => {
-  event.preventDefault();
-  if (currentPage < totalPages) {
-    loadArticles(currentPage + 1);
-  }
-});
+prevPageButton.addEventListener('click', handlePageButtonClick(-1));
+nextPageButton.addEventListener('click', handlePageButtonClick(1));
 
 function openArticle(id) {
   window.location.href = `artigo.html?id=${id}`;

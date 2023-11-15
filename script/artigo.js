@@ -6,11 +6,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
 
-
-
-
-  
-
   const deleteButton = document.querySelector('.delete-image-container');
   deleteButton.addEventListener('click', handleExclusao);
 
