@@ -202,7 +202,8 @@ async function loadArticles(pageNumber) {
   updatePageNumbers(totalPages);
 
   
-
+  const paginationContainer = document.querySelector('.pagination-container');
+  paginationContainer.style.display = 'block'; 
 
 
 }
@@ -230,6 +231,7 @@ function openArticle(id) {
 fetchTotalArticleCount().then(() => {
   updatePageNumbers(totalPages);
   loadArticles(currentPage);
+ 
 });
 
 
