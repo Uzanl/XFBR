@@ -50,6 +50,10 @@
   /*width: 70%;*/
   box-shadow: -1px 2px 6px rgba(0,0,0,.25);
   background-color: #333333;
+  display: flex;
+    align-items: center;
+  /*  justify-content: center;*/
+    flex-direction: column;
 }
 
 .article img {
@@ -90,27 +94,19 @@
    display: block;
  }
 
- .article-container-wrapper {
+ /*.article-container-wrapper {
    margin-bottom: 100px;
- }
+ }*/
 
- .article-container {
-   display: flex;
-   flex-wrap: wrap;
-   justify-content: flex-start;
-   width: 900px;
-   margin: 0 auto;
-   margin-bottom: 20px;
-   background-color: #555555;
-   /*margin-top: 20px;*/
-   
- }
 
- .teste {
+
+ /*.teste2 {
    display: flex;
-   flex-direction: row;
+   flex-direction: column;
    justify-content: center;
- }
+   align-items: center;
+ }*/
+
 
  .start,
  .end {
@@ -152,16 +148,7 @@ p2 {
   color: #ececec;
 }
 
- .pagination-container {
-   bottom: 0;
-   left: 0;
-   width: 100%;
-   background-color: #f2f2f2;
-   padding: 10px 0;
-   display: flex;
-   justify-content: center;
-   z-index: 1;
- }
+ 
 
  .pagination {
    display: flex;
@@ -190,14 +177,14 @@ p2 {
  @media screen and (max-width: 1199px) {
 
 
-   .end,
+  /* .end,
    .start {
      display: none;
    }
 
    .middle {
      width: 100%;
-   }
+   }*/
 
  /*  .pagination-container {
      padding: 20px 0;
@@ -218,7 +205,7 @@ p2 {
      flex-direction: column;
      align-items: center;
      justify-content: center;
-     width: 90%;
+    /* width: 90%;*/
    }
 
    /*.article {
@@ -249,6 +236,30 @@ p2 {
     border-radius: 10px;
   }
 
+  .article-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 900px;
+    margin: 0 auto;
+   /* margin-bottom: 20px;*/
+    background-color: #555555;
+    /*margin-top: 20px;*/
+    
+  }
+
+  .pagination-container {
+    
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    width: 900px;
+    background-color: #f2f2f2;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+  }
+
   /* Adicione outros estilos conforme necessário */
 }
 
@@ -265,6 +276,30 @@ p2 {
     height: 144px;
     cursor: pointer;
     border-radius: 10px;
+  }
+
+  .article-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 900px;
+    margin: 0 auto;
+   /* margin-bottom: 20px;*/
+    background-color: #555555;
+    /*margin-top: 20px;*/
+    
+  }
+
+  .pagination-container {
+   
+    width: 900px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: #f2f2f2;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
   }
  
 }
