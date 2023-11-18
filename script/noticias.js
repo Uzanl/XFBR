@@ -62,13 +62,7 @@ class Article {
       imageElement.src = this.imagem_url;
       imageElement.dataset.originalSrc = this.imagem_url;
     }
-
-
-      // Define estilos para a imagem
-      //imageElement.style.width = '100%';
-      //imageElement.style.height = 'auto';
-
-
+    
     const titleElement = document.createElement('h1');
     titleElement.textContent = this.titulo;
 
@@ -103,8 +97,20 @@ function formatDate(dateString) {
   return date.toLocaleDateString('pt-BR', options);
 }
 
+
+// Obtém o número da página da URL
+function getCurrentPageFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const pageParam = urlParams.get('page');
+  return pageParam ? parseInt(pageParam) : 1; // Retorna 1 se nenhum parâmetro de página for fornecido
+}
+
+
+
+
 const articles = [];
-let currentPage = 1;
+// No início do código, atualize a variável currentPage
+let currentPage = getCurrentPageFromURL();
 let itemsPerPage = 8;
 let totalPages = 0;
 
@@ -141,14 +147,15 @@ function updatePageNumbers(totalPages) {
 
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement('a');
-    pageLink.href = '#';
+    pageLink.href = `not%C3%ADcias.html?page=${i}`;
     pageLink.textContent = i;
 
     if (i === currentPage) {
-      pageLink.classList.add('active'); // Adicionar a classe 'active' diretamente aqui
+      pageLink.classList.add('active');
     }
 
-    pageLink.addEventListener('click', () => {
+    pageLink.addEventListener('click', (event) => {
+      event.preventDefault();
       loadArticles(i);
     });
 
@@ -174,7 +181,7 @@ function updatePageNumbers(totalPages) {
 
 async function fetchAndAppendArticles(pageNumber) {
   try {
-    const response = await fetch(`/get-articles?page=${pageNumber}`);
+    const response = await fetch(`/get-articles/${pageNumber}`); // Alterando para passar o número da página como parte da URL
     const data = await response.json();
     const newArticles = data.articles;
     articles.push(...newArticles);
@@ -182,6 +189,7 @@ async function fetchAndAppendArticles(pageNumber) {
     console.error('Error fetching and appending articles:', error);
   }
 }
+
 
 function clearArticleContainer() { 
   articleContainer.innerHTML = '';
@@ -200,9 +208,7 @@ async function loadArticles(pageNumber) {
   handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(totalPages);
-
-  localStorage.setItem('currentPage', currentPage);
-  
+  window.history.pushState({}, '', `not%C3%ADcias.html?page=${pageNumber}`);
   const paginationContainer = document.querySelector('.pagination-container');
   paginationContainer.style.display = 'block'; 
 

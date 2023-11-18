@@ -1,19 +1,14 @@
 const express = require('express');
-//const multer = require('multer');
 const sharp = require('sharp');
 const compression = require('compression');
 const session = require('express-session')
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
-//const axios = require('axios');
-//const puppeteer = require('puppeteer');
-//const fs = require('fs');
 const https = require('https');
 const RSS = require('rss');
 const Parser = require('rss-parser');
 const mysql = require('mysql2');
-//const { callbackify } = require('util');
 const port = 3000;
 const app = express();
 
@@ -466,12 +461,12 @@ app.post('/upload', (req, res) => {
     });
 });
 
-app.get('/get-articles', (req, res) => {
+app.get('/get-articles/:page', (req, res) => {
   const itemsPerPage = 8; // Quantidade de notícias por página
-  const currentPage = req.query.page || 1; // Página atual (padrão é 1)
+  const currentPage = req.params.page || 1; // Página atual (padrão é 1)
   const startIndex = (currentPage - 1) * itemsPerPage;
 
-  const sql = 'SELECT a.* , IFNULL(u.login_usu, ux.gamertag) AS login_usu FROM artigo a inner join usuario u on a.id_usu = u.id_usu LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox  ORDER BY data_publicacao DESC LIMIT ?, ?';
+  const sql = 'SELECT a.*, IFNULL(u.login_usu, ux.gamertag) AS login_usu FROM artigo a INNER JOIN usuario u ON a.id_usu = u.id_usu LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox ORDER BY data_publicacao DESC LIMIT ?, ?';
   connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
     if (err) {
       console.error('Erro ao obter as notícias do banco de dados:', err);
@@ -480,9 +475,10 @@ app.get('/get-articles', (req, res) => {
 
     const articles = results;
     const hasNextPage = articles.length === itemsPerPage;
-    res.json({ articles, hasNextPage });
+    res.json({ articles, hasNextPage, currentPage });
   });
 });
+
 
 app.get('/get-articles-profile', (req, res) => {
   let userId;
@@ -590,6 +586,7 @@ app.get('/get-article-edit-by-id/:id', (req, res) => {
 
 // Rota para obter detalhes do artigo pelo ID
 app.get('/get-article-by-id/:id', (req, res) => {
+  console.log("aqui")
   const id = req.params.id;
 
   const sql = `
