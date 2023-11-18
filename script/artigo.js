@@ -5,18 +5,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
-
   const deleteButton = document.querySelector('.delete-image-container');
   deleteButton.addEventListener('click', handleExclusao);
 
-
   async function handleExclusao() {
     const confirmacao = confirm('Tem certeza que deseja excluir este artigo?');
-  
     if (confirmacao) {
-    //  const params = new URLSearchParams(window.location.search);
-     // const id = params.get('id');
-  
       try {
         const response = await fetch(`/excluir-artigo/${id}`, {
           method: 'DELETE',
@@ -25,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (response.ok) {
           // Artigo excluído com sucesso
           alert('Artigo excluído com sucesso!');
-          // Redirecionar para a página inicial ou outra página de sua escolha
           window.location.href = '/perfil.html';
         } else {
           throw new Error('Erro ao excluir o artigo');
@@ -45,9 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   function openArticle(id) {
     window.location.href = `editor.html?id=${id}`;
   }
-
-
-
 
   try {
     const temPermissao = await verificarPermissaoEditarArtigo(id);
@@ -109,10 +99,5 @@ function displayArticleDetails(articleData) {
 
   tituloElement.textContent = titulo;
   conteudoElement.innerHTML = conteudo;
-
-  if (!imagem_url) {
-    imagemPerfil.src = imagem_url_xbox;
-  } else {
-    imagemPerfil.src = imagem_url;
-  }
+  (!imagem_url)?imagemPerfil.src = imagem_url_xbox: imagemPerfil.src = imagem_url;
 }

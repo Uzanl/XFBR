@@ -19,14 +19,6 @@ class Article {
   }
 
   async render() {
-
-  
-
-   
-   // console.log(i);
-
-    
-
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
     articleElement.setAttribute('data-id', this.id_artigo);
