@@ -201,6 +201,7 @@ async function loadArticles(pageNumber) {
   currentPage = pageNumber;
   updatePageNumbers(totalPages);
 
+  localStorage.setItem('currentPage', currentPage);
   
   const paginationContainer = document.querySelector('.pagination-container');
   paginationContainer.style.display = 'block'; 

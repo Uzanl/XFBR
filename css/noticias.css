@@ -21,16 +21,9 @@
    margin: 0;
  }
 
-
-
-
-
  .botao-menu, .sidebar{
    display: none;
  }
-
-
-
 
  .article {
   flex-basis: calc(33.33% - 20px);
@@ -62,9 +55,6 @@
   cursor: pointer;
   border-radius: 10px;
 }
-
-
-
 
  .footer {
    width: 100%;
@@ -113,10 +103,10 @@
    width: 15%;
  }
 
- .middle {
+/* .middle {
    width: 70%;
    box-shadow: -1px 2px 6px rgba(0,0,0,.25);
- }
+ }*/
 
  
 
@@ -177,6 +167,19 @@ p2 {
  @media screen and (max-width: 1199px) {
 
 
+  .pagination-container {
+   
+    width: 100%;
+   /* border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;*/
+    background-color: #f2f2f2;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+  }
+
+
   /* .end,
    .start {
      display: none;
@@ -201,10 +204,15 @@ p2 {
      margin: 5px;
    }*/
 
+   .container{
+    background-color: #555555;
+   }
+
    .article-container {
      flex-direction: column;
      align-items: center;
      justify-content: center;
+     background-color: #555555;
     /* width: 90%;*/
    }
 
@@ -284,14 +292,10 @@ p2 {
     justify-content: flex-start;
     width: 900px;
     margin: 0 auto;
-   /* margin-bottom: 20px;*/
     background-color: #555555;
-    /*margin-top: 20px;*/
-    
   }
 
-  .pagination-container {
-   
+  .pagination-container {  
     width: 900px;
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;

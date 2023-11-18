@@ -47,6 +47,73 @@ body {
   
 }
 
+.share{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  width: 90px;
+  height: 30px;
+  transition: filter 0.3s ease-in-out;
+}
+
+.share-text{
+  font-size: 12px;
+  color: #cccccc;
+}
+
+.share-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.img-share:hover{
+  filter: brightness(0.8);
+  cursor: pointer;
+}
+
+.img-container:hover::after {
+  opacity: 1;
+}
+
+.img-container::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  /*top: 80px;*/
+  padding: 5px;
+  background-color: #333;
+  color: #fff;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+  border: 1px solid #999999;
+}
+
+.edit-image-container::after, .delete-image-container::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  /*top: 80px;*/
+  margin-top: 90px;
+  padding: 5px;
+  background-color: #333;
+  color: #fff;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+  border: 1px solid #999999;
+}
+
+.edit-image-container:hover::after, .delete-image-container:hover::after {
+  opacity: 1;
+}
+
 .delete-image-container, .edit-image-container{
   width: 50px;
   height: 50px;
@@ -118,32 +185,35 @@ footer a img {
   /* Estilos adicionais do carrossel aqui... */
 }
 
-.profile {
-  
-  min-height: 170px;
- /* min-width: 250px;*/
-/*  margin-top: 20px;*/
+.profile{
   display: flex;
   justify-content: center;
   justify-items: center;
-  align-items: center;
   flex-direction: column;
   text-align: center;
- /* max-width: 25%;*/
-  background-color: #f2f2f2;
+  /*max-width: 25%;*/
+  /*background-color: #f2f2f2;*/
   padding: 20px;
+  
+  background: linear-gradient(45deg, #9a5916 10%, #e4b04d 18%, #fff1a3 22%, #e7b14f 30%, #ae6f27 38%, #f8c65d 50%);
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
- /* background-size: 400% 400%;*/
- /* animation: metallicEffect 6s linear infinite;*/
   border: 1px solid #999;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
-
+  margin-top: 20px;
+  width: 350px;
 }
 
-.profile-image{
-  margin-left: 10px;
-}
+
+.profile-image {
+  /* position: relative;*/
+  /* display: inline-block;*/
+   margin-left: 10px;
+   /* display: inline-block; */
+   align-items: center;
+   display: flex;
+ }
+
 
 .gs-container{
   display: flex;
@@ -158,10 +228,13 @@ footer a img {
 .autor{
   display: flex;
   flex-direction: row;
-  align-items: center;
 }
 
 .circle {
+  border: 2px solid black;
+  color: black;
+    text-shadow: 1px 1px rgba(0,0,0,0.8);
+
   width: 20px;
   height: 20px;
   background-color: transparent; /* Fundo transparente */
@@ -179,14 +252,25 @@ footer a img {
 }
 
 
-.profile p {
- 
+.profile p{
+  color: black;
+    text-shadow: 1px 1px rgba(0,0,0,0.8);
   color: #888;
-  font-size: 1.5em;
+  font-size: 1.2em;
   text-align: center;
   text-shadow: 1px 1px rgba(255,255,255,0.8);
 }
 
+p.gamertag {
+  display: flex;
+}
+
+
+.profile2 p{
+ 
+  font-style: italic;
+ 
+}
 
 
 /* Animação para criar o efeito metálico */
@@ -210,11 +294,10 @@ footer a img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: transparent; 
+  background-color: #555555;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra interna */
   border: 1px solid #999;
 }
-
 
 
 
@@ -243,7 +326,10 @@ footer a img {
 
 
 
-
+.profile-description, .profile-description2 {
+  flex: 1;
+  min-height: 120.75px;
+}
 
 .noticia-conteudo {
   width: 100%;
@@ -262,6 +348,7 @@ footer a img {
   left: 0;
   width: 100%;
   height: 100%;
+  border-radius: 10px;
 }
 
 @media screen and (max-width: 768px) {

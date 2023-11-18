@@ -1,5 +1,3 @@
-
-
 @import url('searchbar.css');
 @import url('navbar.css');
 
@@ -9,8 +7,6 @@
   width: 30px;
   height: 30px;
 }
-
-
 
 .login-list-item,
 .logout-button , 
@@ -25,10 +21,6 @@
   display:flex;
   flex-direction: row;
 }
-
-
-
-
 
 body {
   display: flex;
@@ -84,23 +76,12 @@ footer a img {
 }
 
 .overlay {
-  background-image: url(/resident.webp);
+  background-image: url(/halo.webp);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
-}
-
-.overlay::before {
   min-height: 100vh;
-  text-align: center;
-  color: #f2f2f2;
-  display: flex;
-  content: '';
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.20);
-  opacity: 1;
+  box-shadow: inset 0 0 0 100vw hsl(0deg 0% 0%/50%);
 }
 
 .discord-button {
