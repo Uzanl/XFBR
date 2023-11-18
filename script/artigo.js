@@ -100,7 +100,7 @@ function displayArticleDetails(articleData) {
   const gamerscoreElement = document.querySelector('.gamerscore');
 
   if (gamertag) {
-    gamertagElement.textContent = `Gamertag: ${gamertag}`;
+    gamertagElement.textContent = gamertag;
   }
 
   if (gamerscore) {

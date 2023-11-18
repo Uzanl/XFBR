@@ -1,6 +1,5 @@
 import { updateLoginButtonVisibility } from './auth.js';
 
-// Chamar a função para atualizar a visibilidade do botão de login ao carregar a página
 updateLoginButtonVisibility();
 
 tinymce.init({
@@ -11,17 +10,17 @@ tinymce.init({
   automatic_uploads: true,
   file_picker_types: 'image',
   file_picker_callback: function (cb, value, meta) {
-    var input = document.createElement('input');
+    const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
     input.onchange = function () {
-      var file = this.files[0];
-      var reader = new FileReader();
+      const file = this.files[0];
+      const reader = new FileReader();
       reader.onload = function () {
-        var id = 'blobid' + (new Date()).getTime();
-        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-        var base64 = reader.result.split(',')[1];
-        var blobInfo = blobCache.create(id, file, base64);
+        const id = 'blobid' + (new Date()).getTime();
+        const blobCache = tinymce.activeEditor.editorUpload.blobCache;
+        const base64 = reader.result.split(',')[1];
+        const blobInfo = blobCache.create(id, file, base64);
         blobCache.add(blobInfo);
         cb(blobInfo.blobUri(), { title: file.name });
       };
@@ -30,40 +29,34 @@ tinymce.init({
     input.click();
   },
   setup: function (editor) {
-    editor.on('input', function () {
-      updatePreview();
-    });
+    editor.on('input', () => updatePreview());
 
     editor.on('PostProcess', function (e) {
       if (e.get) {
-        var content = e.content;
-        var div = document.createElement('div');
+        const content = e.content;
+        const div = document.createElement('div');
         div.innerHTML = content;
 
-        var youtubeLinks = div.querySelectorAll('a[href*="youtube.com"]');
-        for (var i = 0; i < youtubeLinks.length; i++) {
-          var link = youtubeLinks[i];
-          var videoId = getVideoIdFromUrl(link.href);
+        const youtubeLinks = div.querySelectorAll('a[href*="youtube.com"]');
+        for (let i = 0; i < youtubeLinks.length; i++) {
+          const link = youtubeLinks[i];
+          const videoId = getVideoIdFromUrl(link.href);
           if (videoId) {
-            var videoContainer = document.createElement('div');
+            const videoContainer = document.createElement('div');
             videoContainer.setAttribute('class', 'video-container');
-            var iframe = createYouTubeIframe(videoId);
+            const iframe = createYouTubeIframe(videoId);
             videoContainer.appendChild(iframe);
             link.parentNode.replaceChild(videoContainer, link);
           }
         }
-        // updatePreview();
         e.content = div.innerHTML;
       }
     });
 
-    // Adicionar evento init para garantir que o conteúdo seja definido após a inicialização completa
     editor.on('init', function () {
-      // Obtenha o ID do artigo da URL
       const params = new URLSearchParams(window.location.search);
       const idArtigo = params.get('id');
 
-      // Carregar dados do artigo
       fetch(`/get-article-edit-by-id/${idArtigo}`)
         .then(response => {
           if (!response.ok) {
@@ -72,66 +65,47 @@ tinymce.init({
           return response.json();
         })
         .then(artigoData => {
-          // Definir conteúdo do TinyMCE após a inicialização completa
-
           document.getElementById('title').value = artigoData.titulo;
           document.getElementById('content-preview').value = artigoData.previa_conteudo;
 
           const titlePreview = document.querySelector(".title-preview h1");
           const contentPreview = document.querySelector(".title-preview p");
 
-
-
           titlePreview.textContent = artigoData.titulo;
           contentPreview.textContent = artigoData.previa_conteudo;
 
-          // document.querySelector('.imagem-preview').src = artigoData.imagem_url;
-
-          // Crie um elemento de imagem
           const imagePreview = new Image();
           imagePreview.src = artigoData.imagem_url;
           imagePreview.style.width = "256px";
           imagePreview.style.height = "144px";
 
-          // Obtenha o corpo do editor do TinyMCE
           const imagePreviewContainer = document.querySelector(".image-preview");
-
-          // Limpe o conteúdo atual
           imagePreviewContainer.innerHTML = "";
-
-          // Adicione a imagem ao corpo do editor
           imagePreviewContainer.appendChild(imagePreview);
 
-
-
-
-
-
           editor.setContent(artigoData.conteudo);
-
           updatePreview();
         })
         .catch(error => {
           console.error('Erro ao preencher dados do artigo:', error);
         });
     });
-
   }
 });
 
 function updatePreview() {
-  var content = tinymce.activeEditor.getContent();
+  const content = tinymce.activeEditor.getContent();
   document.getElementById('preview').innerHTML = content;
 }
 
 function getVideoIdFromUrl(url) {
-  var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\??v?=?))([^#&?]*).*/;
-  var match = url.match(regExp);
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\??v?=?))([^#&?]*).*/;
+  const match = url.match(regExp);
   return match && match[7].length === 11 ? match[7] : false;
 }
 
 function createYouTubeIframe(videoId) {
-  var iframe = document.createElement('iframe');
+  const iframe = document.createElement('iframe');
   iframe.setAttribute('width', '100%');
   iframe.setAttribute('height', '100%');
   iframe.setAttribute('src', 'https://www.youtube.com/embed/' + videoId);
@@ -141,135 +115,54 @@ function createYouTubeIframe(videoId) {
   return iframe;
 }
 
-
-
 document.querySelector('form').addEventListener('submit', function (event) {
-  event.preventDefault(); // Evita o envio tradicional do formulário
+  event.preventDefault();
 
   const formData = new FormData(this);
-  // console.log(formData);
-
-
-  const title = formData.get('title');
-  const image = formData.get('image');
-  const contentpreview = formData.get('contentpreview');
-
-  const content = tinymce.activeEditor.getContent(); // Obtém o conteúdo do editor
-
-
-  // Imprime os dados do formulário no console (para depuração)
-  console.log('Título:', title);
-  console.log('URL imagem:', image);
-  console.log('Preview Conteúdo:', contentpreview)
-  console.log('Conteúdo:', content)
-
-
-
-
-
   const params = new URLSearchParams(window.location.search);
   const idArtigo = params.get('id');
 
-  if (idArtigo) {
-    // update do artigo
-    // Se há um ID de artigo, estamos editando, então enviamos uma solicitação de atualização
-    //artigoData.imagem_url;
+  const fetchUrl = idArtigo ? `/update-article/${idArtigo}` : '/insert-news';
 
-  // Adiciona a imagem_url ao formData se estiver disponível
- // if (artigoData && artigoData.imagem_url) {
-  //  formData.append('imagem_url', artigoData.imagem_url);
- // }
-
-    fetch(`/update-article/${idArtigo}`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      body: formData
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          document.getElementById('error-message').textContent = data.error;
+  fetch(fetchUrl, {
+    method: 'POST',
+    credentials: 'same-origin',
+    body: formData
+  })
+    .then(response => response.json())
+    .then(data => {
+      const errorMessage = document.getElementById('error-message');
+      if (data.error) {
+        errorMessage.textContent = data.error;
+      } else {
+        if (data.redirect) {
+          window.location.href = data.redirect;
         } else {
-          if (data.redirect) {
-            window.location.href = data.redirect;
-          } else {
-            alert("Notícia atualizada com sucesso!");
-            window.location.reload();
-          }
+          alert(idArtigo ? "Notícia atualizada com sucesso!" : "Notícia inserida com sucesso!");
+          window.location.reload();
         }
-      })
-      .catch(error => {
-        console.error("Erro na atualização do formulário:", error);
-      });
-
-  } else {
-
-    // Enviar dados via AJAX
-    fetch('/insert-news', {
-      method: 'POST',
-      credentials: 'same-origin', // Mantém as credenciais no mesmo domínio
-      // headers: {
-      // 'Content-Type': 'application/json'
-      // },
-      //body: JSON.stringify({ title, image, contentpreview, content }) // Envia o título e o conteúdo no formato JSON
-
-      body: formData
+      }
     })
-      .then(response => response.json()) // Espera uma resposta JSON do servidor
-      .then(data => {
-        if (data.error) {
-          document.getElementById('error-message').textContent = data.error; // Exibe o erro na div error-message
-        } else {
-          if (data.redirect) {
-            window.location.href = data.redirect; // Redireciona para a URL fornecida pelo servidor
-          } else {
-            alert("Notícia inserida com sucesso!");
-            window.location.reload(); // Recarrega a página em caso de sucesso
-          }
-        }
-      })
-      .catch(error => {
-        console.error("Erro no envio do formulário:", error);
-      });
-
-
-
-  }
-
-
+    .catch(error => {
+      console.error("Erro na atualização do formulário:", error);
+    });
 });
 
-
 document.addEventListener("DOMContentLoaded", async () => {
-
-
-
   const params = new URLSearchParams(window.location.search);
   const idArtigo = params.get('id');
 
-
   if (idArtigo) {
-
-
-    // Seletor do botão
-    const publishButton = document.querySelector('.inserir input[type="submit"]');
-
-    // Novo texto que você deseja definir
-    const novoTexto = 'Salvar';
-
-    // Altera o valor do atributo "value" do botão para o novo texto
-    publishButton.value = novoTexto;
+    document.querySelector('.inserir input[type="submit"]').value = 'Salvar';
   }
-
 
   const imageInput = document.getElementById("image");
   const titleInput = document.getElementById("title");
-  const contentInput = document.getElementById("content-preview")
+  const contentInput = document.getElementById("content-preview");
   const imagePreviewContainer = document.querySelector(".image-preview");
   const titlePreview = document.querySelector(".title-preview h1");
-  const contentPreview = document.querySelector(".title-preview p")
+  const contentPreview = document.querySelector(".title-preview p");
   const removeImageBtn = document.getElementById("removeImageBtn");
-
 
   imageInput.addEventListener("change", (event) => {
     const selectedImage = event.target.files[0];
@@ -284,12 +177,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           imagePreview.src = URL.createObjectURL(selectedImage);
           imagePreview.style.width = "256px";
           imagePreview.style.height = "144px";
-          imagePreviewContainer.innerHTML = ""; // Limpar o conteúdo anterior, se houver
+          imagePreviewContainer.innerHTML = "";
           imagePreviewContainer.appendChild(imagePreview);
         } else {
           alert("A imagem precisa ter no mínimo 1280x720 pixels de resolução.");
-          imageInput.value = ""; // Limpar a seleção de imagem
-          imagePreviewContainer.innerHTML = ""; // Limpar a prévia da imagem
+          imageInput.value = "";
+          imagePreviewContainer.innerHTML = "";
         }
       };
     }
@@ -297,26 +190,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   titleInput.addEventListener("input", (event) => {
     const titleValue = event.target.value;
-    titlePreview.textContent = titleValue; // Atualiza o conteúdo do h1 na prévia
+    titlePreview.textContent = titleValue;
   });
 
   removeImageBtn.addEventListener("click", (event) => {
-    event.preventDefault(); // Evita que o evento de clique seja propagado para o formulário
-    imageInput.value = ""; // Limpar a seleção de imagem
-    imagePreviewContainer.innerHTML = ""; // Limpar o conteúdo da prévia da imagem
-
+    event.preventDefault();
+    imageInput.value = "";
+    imagePreviewContainer.innerHTML = "";
   });
 
   contentInput.addEventListener("input", (event) => {
     const contentValue = event.target.value;
-    contentPreview.textContent = contentValue; // Atualiza o conteúdo do parágrafo na prévia
+    contentPreview.textContent = contentValue;
   });
 });
-
-
-
-
-
-
-
-

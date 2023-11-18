@@ -28,21 +28,14 @@ header nav ul li a {
     cursor: pointer;
 }
 
-
-
 .menu-item{
   transition: filter 0.3s ease-in-out;
 }
-
-
 
 .menu-item:hover {
   /* Seus estilos aqui */
   filter: brightness(0.8);
 }
-
-
-
 
 .submenu-noticias:hover .noticias-container,
 .submenu-profile:hover .profile-container,
@@ -124,8 +117,6 @@ header nav ul li a {
   cursor: pointer;
 }
 
-
-
 .image-container::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -149,9 +140,6 @@ header nav ul li a {
 .image-container:hover::after {
   opacity: 1;
 }
-
-
-
 
 .middle{
   justify-content: center;

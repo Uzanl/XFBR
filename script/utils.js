@@ -22,6 +22,14 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+      // Exibir o botão "Clear" se o campo de busca tiver mais de uma letra
+      if (inputText.length > 0) {
+        ClearButton.style.display = 'block';
+      } else {
+        ClearButton.style.display = 'none';
+      }
+  
+
     // Enviar uma solicitação ao servidor
     fetch(`/search?term=${inputText}`)
       .then(response => response.json())

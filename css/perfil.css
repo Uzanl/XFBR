@@ -371,7 +371,7 @@ p.gamertag {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #333333;; 
+  background-color: #333333;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra interna */
   border: 1px solid #999;
 }
