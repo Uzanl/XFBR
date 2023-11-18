@@ -30,65 +30,40 @@ function handleImageResolution() {
 
 class Article {
   constructor(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu) {
-    this.id_artigo = id_artigo;
-    this.conteudo = conteudo;
-    this.titulo = titulo;
-    this.previa_conteudo = previa_conteudo;
-    this.data_publicacao = data_publicacao;
-    this.id_usu = id_usu;
-    this.imagem_url = imagem_url;
-    this.login_usu = login_usu;
+    Object.assign(this, { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu });
   }
 
   async render(index) {
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
     articleElement.setAttribute('data-id', this.id_artigo);
+
     const imageElement = document.createElement('img');
     imageElement.alt = this.titulo;
+    imageElement.width = '860';
+    imageElement.height = '483';
+    const originalSrc = this.imagem_url;
+    const newSrc = (index === 0 ? originalSrc.replace('.webp', '_firstchild.webp') : originalSrc);
+    imageElement.src = newSrc;
+    imageElement.dataset.originalSrc = originalSrc;
 
-
-    imageElement.setAttribute('width', '860');
-    imageElement.setAttribute('height', '483');
-    
-    
-   
-    if (index === 0) {
-     
-      imageElement.src = this.imagem_url.replace('.webp', '_firstchild.webp');
-      imageElement.dataset.originalSrc = this.imagem_url;
-
-    } else {
-      imageElement.src = this.imagem_url;
-      imageElement.dataset.originalSrc = this.imagem_url;
-    }
-    
     const titleElement = document.createElement('h1');
     titleElement.textContent = this.titulo;
 
-
-    const openArticleHandler = () => {
-      openArticle(this.id_artigo);
-    };
-
+    const openArticleHandler = () => openArticle(this.id_artigo);
     imageElement.addEventListener('click', openArticleHandler);
     titleElement.addEventListener('click', openArticleHandler);
 
     const previewElement = document.createElement('p');
     previewElement.textContent = this.previa_conteudo;
 
-    const userName = this.login_usu;
     const userInfoElement = document.createElement('p2');
-    userInfoElement.textContent = `Postado por ${userName} em ${formatDate(this.data_publicacao)}`;
+    userInfoElement.textContent = `Postado por ${this.login_usu} em ${formatDate(this.data_publicacao)}`;
 
-    articleElement.appendChild(imageElement);
-    articleElement.appendChild(titleElement);
-    articleElement.appendChild(previewElement);
-    articleElement.appendChild(userInfoElement);
+    [imageElement, titleElement, previewElement, userInfoElement].forEach(elem => articleElement.appendChild(elem));
 
     return articleElement;
   }
-
 }
 
 function formatDate(dateString) {
@@ -97,16 +72,12 @@ function formatDate(dateString) {
   return date.toLocaleDateString('pt-BR', options);
 }
 
-
 // Obtém o número da página da URL
 function getCurrentPageFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   const pageParam = urlParams.get('page');
   return pageParam ? parseInt(pageParam) : 1; // Retorna 1 se nenhum parâmetro de página for fornecido
 }
-
-
-
 
 const articles = [];
 // No início do código, atualize a variável currentPage
@@ -166,17 +137,8 @@ function updatePageNumbers(totalPages) {
   const prevPageButton = paginationContainer.querySelector('.prev-page');
   const nextPageButton = paginationContainer.querySelector('.next-page');
 
-  if (currentPage > 1) {
-    prevPageButton.style.display = 'block';
-  } else {
-    prevPageButton.style.display = 'none';
-  }
-
-  if (currentPage < totalPages) {
-    nextPageButton.style.display = 'block';
-  } else {
-    nextPageButton.style.display = 'none';
-  }
+  prevPageButton.style.display = currentPage > 1 ? 'block' : 'none';
+  nextPageButton.style.display = currentPage < totalPages ? 'block' : 'none';
 }
 
 async function fetchAndAppendArticles(pageNumber) {
@@ -189,7 +151,6 @@ async function fetchAndAppendArticles(pageNumber) {
     console.error('Error fetching and appending articles:', error);
   }
 }
-
 
 function clearArticleContainer() { 
   articleContainer.innerHTML = '';
@@ -211,23 +172,18 @@ async function loadArticles(pageNumber) {
   window.history.pushState({}, '', `not%C3%ADcias.html?page=${pageNumber}`);
   const paginationContainer = document.querySelector('.pagination-container');
   paginationContainer.style.display = 'block'; 
-
-
 }
 
 function handlePageButtonClick(offset) {
   return function(event) {
     event.preventDefault();
     const nextPage = currentPage + offset;
-    if (nextPage >= 1 && nextPage <= totalPages) {
-      loadArticles(nextPage);
-    }
+   (nextPage >= 1 && nextPage <= totalPages) ? loadArticles(nextPage):undefined;
   };
 }
 
 const prevPageButton = document.querySelector('.prev-page');
 const nextPageButton = document.querySelector('.next-page');
-
 prevPageButton.addEventListener('click', handlePageButtonClick(-1));
 nextPageButton.addEventListener('click', handlePageButtonClick(1));
 
@@ -237,8 +193,7 @@ function openArticle(id) {
 
 fetchTotalArticleCount().then(() => {
   updatePageNumbers(totalPages);
-  loadArticles(currentPage);
- 
+  loadArticles(currentPage); 
 });
 
 
