@@ -44,9 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (temPermissao) {
       handlePermissaoEditar();
-    } else {
-      console.log("Não tem permissão de editar");
-    }
+    } 
 
     await getArticleDetails(id);
   } catch (error) {

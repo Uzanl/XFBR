@@ -25,8 +25,6 @@ app.use(
 const client = XboxApiClient({
   clientId: '532a110d-0270-4af5-995a-ce65266c50a3',
   clientSecret: 'Gej8Q~UPd.~iGF4jOSlxgK~vPn6px1EPWxGPFdoP'
-
-
 });
 
 app.use(express.json({ limit: '200mb' }));
@@ -50,18 +48,6 @@ app.use(express.static(path.join(__dirname, 'profile-xbox-images')));
 app.use('/script', express.static(path.join(__dirname, 'script')));
 
 app.use(express.static(path.join(__dirname, 'views')));
-
-// Rota para a página de notícias
-//app.get('/notícias.html', (req, res) => {
-//  res.sendFile(path.join(__dirname, 'views', 'notícias.html'));
-//});
-
-
-
-//app.get("/", (req, res) => {
-//  res.sendFile(path.join(__dirname, 'views', 'login.html'));
-//});
-
 
 // Create a connection to the MySQL database
 const connection = mysql.createConnection({
@@ -103,7 +89,7 @@ app.get('/feed.xml', (req, res) => {
         url: `http://localhost:3000/artigo/${row.id_artigo}`,
         description: row.previa_conteudo,
         date: row.data_publicacao,
-        enclosure: { url: row.imagem_url, type: 'image/webp' } 
+        enclosure: { url: row.imagem_url, type: 'image/webp' }
       });
     });
 
@@ -175,140 +161,140 @@ app.post('/submit', (req, res) => {
 app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   //console.log("chegou aqui!")
   const artigoId = req.params.artigoId;
- // const userIdFromSession = req.session.user.id_usu; // Obtém o ID do usuário da sessão
+  // const userIdFromSession = req.session.user.id_usu; // Obtém o ID do usuário da sessão
 
- let userId;
+  let userId;
 
- if (req.session.user) {
- 
-   userId = req.session.user.id_usu;
- } else if (req.session.profileData) {
-   const XboxUserId = req.session.profileData.profileUsers[0].id;
+  if (req.session.user) {
 
-   const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+    userId = req.session.user.id_usu;
+  } else if (req.session.profileData) {
+    const XboxUserId = req.session.profileData.profileUsers[0].id;
 
-   connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-     if (err) {
-       console.error('Erro ao obter userId:', err);
-       return res.status(500).json({ error: 'Erro ao obter userId' });
-     }
+    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
 
-     if (result.length > 0) {
-       userId = result[0].id_usu;
-       
-       if (!userId) {
-        //console.log("caiu aqui!")
-        return res.json({ temPermissao: false });
-      }
-    
-
-     } else {
-       return res.status(404).json({ error: 'Usuário não encontrado' });
-     }
-   });
- } else {
-   return res.status(401).json({ redirect: '/login.html' });
- }
-
- app.delete('/excluir-artigo/:artigoId', (req, res) => {
- // console.log("chegou aqui!")
-  const artigoId = req.params.artigoId;
-
-  // Verificar se o usuário não está autenticado
-  if (req.session.user || req.session.profileData) {
-    // Verificar se o usuário é o autor do artigo ou se é um administrador
- 
-    // Agora você pode executar a lógica para excluir o artigo do banco de dados
-    const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
-
-    connection.query(deleteArtigoQuery, [artigoId], (err, result) => {
+    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
       if (err) {
-        console.error('Erro ao excluir o artigo:', err);
-        return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+        console.error('Erro ao obter userId:', err);
+        return res.status(500).json({ error: 'Erro ao obter userId' });
       }
 
-      return res.json({ message: 'Artigo excluído com sucesso' });
+      if (result.length > 0) {
+        userId = result[0].id_usu;
+
+        if (!userId) {
+          //console.log("caiu aqui!")
+          return res.json({ temPermissao: false });
+        }
+
+
+      } else {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
     });
-  }else{
-      return res.status(401).json({ error: 'Usuário não autenticado' });
-  }
-  
-});
-
-app.post('/update-article/:id', (req, res) => {
-  const idArtigo = req.params.id;
-  const { title, contentpreview, content } = req.body;
-  const image = req.files ? req.files.image : null;
-  const missingFields = [];
-
-  if (!title) {
-    missingFields.push('Título');
+  } else {
+    return res.status(401).json({ redirect: '/login.html' });
   }
 
-  if (!content) {
-    missingFields.push('Conteúdo');
-  }
+  app.delete('/excluir-artigo/:artigoId', (req, res) => {
+    // console.log("chegou aqui!")
+    const artigoId = req.params.artigoId;
 
-  if (!contentpreview) {
-    missingFields.push('Conteúdo da prévia');
-  }
+    // Verificar se o usuário não está autenticado
+    if (req.session.user || req.session.profileData) {
+      // Verificar se o usuário é o autor do artigo ou se é um administrador
 
-  if (missingFields.length > 0) {
-    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
-    return res.status(400).json({ error: errorMessage });
-  }
+      // Agora você pode executar a lógica para excluir o artigo do banco de dados
+      const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
 
-
-
-  // Aqui você verifica se a imagem não é undefined e não é uma string vazia
-  if (image !== undefined && image !== null) {
-    const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
-
-    sharp(image.data)
-      .resize(256, 144)
-      .webp({ quality: 100 })
-      .toFile(uploadPath, (err) => {
+      connection.query(deleteArtigoQuery, [artigoId], (err, result) => {
         if (err) {
-          console.error('Erro ao comprimir e converter a imagem:', err);
-          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-        } else {
-          const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
-          // Execute a atualização no banco de dados
-          const sql = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
-          const values = [title, newImageName, contentpreview, content, idArtigo];
+          console.error('Erro ao excluir o artigo:', err);
+          return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+        }
 
-          connection.query(sql, values, (error, results) => {
-            if (error) {
-              console.error('Erro ao atualizar o artigo:', error);
-              res.status(500).json({ error: 'Erro interno no servidor' });
-            } else {
-              res.status(200).json({ message: 'Artigo atualizado com sucesso' });
-            }
-          });
+        return res.json({ message: 'Artigo excluído com sucesso' });
+      });
+    } else {
+      return res.status(401).json({ error: 'Usuário não autenticado' });
+    }
+
+  });
+
+  app.post('/update-article/:id', (req, res) => {
+    const idArtigo = req.params.id;
+    const { title, contentpreview, content } = req.body;
+    const image = req.files ? req.files.image : null;
+    const missingFields = [];
+
+    if (!title) {
+      missingFields.push('Título');
+    }
+
+    if (!content) {
+      missingFields.push('Conteúdo');
+    }
+
+    if (!contentpreview) {
+      missingFields.push('Conteúdo da prévia');
+    }
+
+    if (missingFields.length > 0) {
+      const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
+      return res.status(400).json({ error: errorMessage });
+    }
+
+
+
+    // Aqui você verifica se a imagem não é undefined e não é uma string vazia
+    if (image !== undefined && image !== null) {
+      const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
+
+      sharp(image.data)
+        .resize(256, 144)
+        .webp({ quality: 100 })
+        .toFile(uploadPath, (err) => {
+          if (err) {
+            console.error('Erro ao comprimir e converter a imagem:', err);
+            return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+          } else {
+            const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
+            // Execute a atualização no banco de dados
+            const sql = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
+            const values = [title, newImageName, contentpreview, content, idArtigo];
+
+            connection.query(sql, values, (error, results) => {
+              if (error) {
+                console.error('Erro ao atualizar o artigo:', error);
+                res.status(500).json({ error: 'Erro interno no servidor' });
+              } else {
+                res.status(200).json({ message: 'Artigo atualizado com sucesso' });
+              }
+            });
+          }
+        });
+    } else {
+      // Se a imagem for undefined ou null, apenas atualize os outros campos sem mexer na imagem
+      // Execute a atualização no banco de dados
+      const sql = 'UPDATE artigo SET titulo=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
+      const values = [title, contentpreview, content, idArtigo];
+
+      connection.query(sql, values, (error, results) => {
+        if (error) {
+          console.error('Erro ao atualizar o artigo:', error);
+          res.status(500).json({ error: 'Erro interno no servidor' });
+        } else {
+          res.status(200).json({ message: 'Artigo atualizado com sucesso' });
         }
       });
-  } else {
-    // Se a imagem for undefined ou null, apenas atualize os outros campos sem mexer na imagem
-    // Execute a atualização no banco de dados
-    const sql = 'UPDATE artigo SET titulo=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
-    const values = [title, contentpreview, content, idArtigo];
-
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        console.error('Erro ao atualizar o artigo:', error);
-        res.status(500).json({ error: 'Erro interno no servidor' });
-      } else {
-        res.status(200).json({ message: 'Artigo atualizado com sucesso' });
-      }
-    });
-  }
-});
+    }
+  });
 
 
 
 
   // Verificar se o usuário está autenticado (se a sessão está ativa)
- 
+
   // Consultar o banco de dados para obter o ID do autor do artigo
   connection.query('SELECT id_usu FROM artigo WHERE id_artigo = ?', [artigoId], (err, results) => {
     if (err) {
@@ -334,7 +320,7 @@ app.post('/insert-news', (req, res) => {
   let userId;
 
   if (req.session.user) {
-  
+
     userId = req.session.user.id_usu;
   } else if (req.session.profileData) {
     const XboxUserId = req.session.profileData.profileUsers[0].id;
@@ -466,7 +452,7 @@ app.get('/get-articles/:page', (req, res) => {
   const currentPage = req.params.page || 1; // Página atual (padrão é 1)
   const startIndex = (currentPage - 1) * itemsPerPage;
 
-  const sql = 'SELECT a.*, IFNULL(u.login_usu, ux.gamertag) AS login_usu FROM artigo a INNER JOIN usuario u ON a.id_usu = u.id_usu LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox ORDER BY data_publicacao DESC LIMIT ?, ?';
+  const sql = 'SELECT a.id_artigo, a.titulo, a.data_publicacao, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu FROM artigo a INNER JOIN usuario u ON a.id_usu = u.id_usu LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox ORDER BY data_publicacao DESC LIMIT ?, ?';
   connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
     if (err) {
       console.error('Erro ao obter as notícias do banco de dados:', err);
@@ -586,7 +572,6 @@ app.get('/get-article-edit-by-id/:id', (req, res) => {
 
 // Rota para obter detalhes do artigo pelo ID
 app.get('/get-article-by-id/:id', (req, res) => {
-  console.log("aqui")
   const id = req.params.id;
 
   const sql = `
@@ -813,30 +798,13 @@ app.get('/logout', (req, res) => {
   });
 });
 
-
-
-
 // Rota para verificar o status de login do usuário
 app.get('/checkLoginStatus', (req, res) => {
-  // Verificar se o usuário está logado na sessão
-  if (req.session.isAuth) {
-    // Usuário está logado
-    //console.log('User is logged in');
-    res.json({ isLoggedIn: true });
-  } else {
-    // Usuário não está logado
-    //console.log('User is not logged in');
-    res.json({ isLoggedIn: false });
-  }
+  (req.session.isAuth) ? res.json({ isLoggedIn: true }) : res.json({ isLoggedIn: false });
 });
 
 app.get('/get-user-info', (req, res) => {
   // Verificar se req.session.user está definido
-
-
-
-
-
   if (req.session.user && req.session.user.id_usu) {
     const userId = req.session.user.id_usu;
     const selectQuery = 'SELECT descricao, imagem_url FROM usuario WHERE id_usu = ?';
@@ -883,7 +851,7 @@ app.get('/get-user-info/:id', (req, res) => {
   const userId = req.params.id;
 
   if (userId) {
-  
+
 
 
     const selectQuery = `
@@ -895,7 +863,6 @@ app.get('/get-user-info/:id', (req, res) => {
     LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
     WHERE u.id_usu = ?;
   `;
-
 
     connection.query(selectQuery, [userId], (err, result) => {
       if (err) {
@@ -954,21 +921,14 @@ let authData = null;
 app.get('/auth', (req, res) => {
   if (!authData) {
     const url = client.startAuthServer(() => {
-
-
       console.log('Authentication is done. User logged in');
       authData = client._authentication;
-
-
     });
 
     res.redirect(url);
   }
-
   // res.send('Authentication started. Check console for details.');
 });
-
-// ...
 
 app.get('/profile', (req, res) => {
   client.isAuthenticated().then(() => {
@@ -1018,16 +978,10 @@ app.get('/profile', (req, res) => {
                     console.error('Erro ao inserir a imagem no banco de dados:', err);
                     return;
                   }
-
-                 // console.log('Imagem inserida com sucesso no banco de dados!');
                 });
               });
           });
       });
-
-      // ...
-
-
       res.redirect('/notícias.html');
 
     }).catch(error => {
@@ -1064,11 +1018,7 @@ app.get('/search', (req, res) => {
     LIMIT 7;
   `;
 
-const params = [`(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`, `(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`];
-
-
-
- // Array de parâmetros
+  const params = [`(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`, `(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`];
 
   connection.query(sql, params, (err, results) => {
     if (err) {
