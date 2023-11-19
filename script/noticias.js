@@ -29,8 +29,8 @@ function handleImageResolution() {
 }
 
 class Article {
-  constructor(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu) {
-    Object.assign(this, { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu });
+  constructor(id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu) {
+    Object.assign(this, { id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu });
   }
 
   async render(index) {
@@ -161,11 +161,11 @@ async function loadArticles(pageNumber) {
   clearArticleContainer();
   await fetchAndAppendArticles(pageNumber);
 
-  for (let i = 0; i < articles.length; i++) {
-    const { id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo,login_usu } = articles[i];
-    const article = new Article(id_artigo, titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu);
-    articleContainer.appendChild(await article.render(i)); // Passando o índice para o método render()
-  }
+ for (const article of articles) {
+  const { id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu } = article;
+  const articleInstance = new Article(id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu);
+  articleContainer.appendChild(await articleInstance.render());
+}
   handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(totalPages);
@@ -174,13 +174,12 @@ async function loadArticles(pageNumber) {
   paginationContainer.style.display = 'block'; 
 }
 
-function handlePageButtonClick(offset) {
-  return function(event) {
-    event.preventDefault();
-    const nextPage = currentPage + offset;
-   (nextPage >= 1 && nextPage <= totalPages) ? loadArticles(nextPage):undefined;
-  };
-}
+// Utilização de arrow functions e operador ternário para deixar o código mais enxuto
+const handlePageButtonClick = (offset) => (event) => {
+  event.preventDefault();
+  const nextPage = currentPage + offset;
+  (nextPage >= 1 && nextPage <= totalPages) && loadArticles(nextPage);
+};
 
 const prevPageButton = document.querySelector('.prev-page');
 const nextPageButton = document.querySelector('.next-page');

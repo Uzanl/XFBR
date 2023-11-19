@@ -78,11 +78,9 @@
     cursor: pointer;
   }
 
- /* .google-login img {
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
-  }*/
+  .xbox-login:hover{
+    filter: brightness(0.8);
+  }
 
   .create-account {
     text-align: center;

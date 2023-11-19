@@ -1,3 +1,9 @@
+// auth.js
+
+//import Cookies from 'js-cookie';
+
+// auth.js
+
 function updateLoginButtonVisibility() {
   fetch("http://localhost:3000/checkLoginStatus")
     .then((response) => response.json())
@@ -13,7 +19,10 @@ function updateLoginButtonVisibility() {
         profileButton.style.display = 'flex';
         localStorage.setItem('isLoggedIn', 'true');
       } else if(loginButton || logoutButton){
+        
           loginButton.style.display = 'flex';
+        
+       
         logoutButton.style.display = 'none';
        // profileButton.style.display = 'none';
         localStorage.setItem('isLoggedIn', 'false');
@@ -23,6 +32,8 @@ function updateLoginButtonVisibility() {
       console.error("Error checking login status:", error);
     });
 }
+
+
 
 export { updateLoginButtonVisibility };
 
@@ -44,7 +55,8 @@ if (logoutButtonListItem) { // Verificar se o elemento existe
           .catch((error) => {
             console.error("Error logging out:", error);
           });
-      }    
+      }
+    
   });
 }
 
