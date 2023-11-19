@@ -23,7 +23,6 @@ function handleImageResolution() {
     } else if (screenWidth >= 992 && screenWidth <= 1199) {
       image.src = originalSrc.replace('.webp', '_firstchild.webp');
       
-    
     }
   });
 }
@@ -85,17 +84,6 @@ let currentPage = getCurrentPageFromURL();
 let itemsPerPage = 8;
 let totalPages = 0;
 
-async function fetchTotalArticleCount() {
-  try {
-    const response = await fetch('/get-article-count'); // Endpoint para obter a contagem total de artigos
-    const data = await response.json();
-    totalPages = Math.ceil(data.count / itemsPerPage); // Calcular o número total de páginas
-    //console.log(totalPages);
-  } catch (error) {
-    console.error('Error fetching total article count:', error);
-  }
-}
-
 function updatePageNumbers(totalPages) {
   const pageNumbersContainer = document.querySelector('.page-numbers');
   pageNumbersContainer.innerHTML = ''; // Limpar os números de página existentes
@@ -146,6 +134,9 @@ async function fetchAndAppendArticles(pageNumber) {
     const response = await fetch(`/get-articles/${pageNumber}`); // Alterando para passar o número da página como parte da URL
     const data = await response.json();
     const newArticles = data.articles;
+  
+    totalPages = Math.ceil(data.totalCount / itemsPerPage); // Calcular o número total de páginas
+    
     articles.push(...newArticles);
   } catch (error) {
     console.error('Error fetching and appending articles:', error);
@@ -190,10 +181,8 @@ function openArticle(id) {
   window.location.href = `artigo.html?id=${id}`;
 }
 
-fetchTotalArticleCount().then(() => {
-  updatePageNumbers(totalPages);
   loadArticles(currentPage); 
-});
+ 
 
 
 

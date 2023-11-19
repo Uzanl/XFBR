@@ -452,17 +452,28 @@ app.get('/get-articles/:page', (req, res) => {
   const currentPage = req.params.page || 1; // Página atual (padrão é 1)
   const startIndex = (currentPage - 1) * itemsPerPage;
 
-  const sql = 'SELECT a.id_artigo, a.titulo, a.data_publicacao, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu FROM artigo a INNER JOIN usuario u ON a.id_usu = u.id_usu LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox ORDER BY data_publicacao DESC LIMIT ?, ?';
-  connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
-    if (err) {
-      console.error('Erro ao obter as notícias do banco de dados:', err);
-      return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
-    }
+  const sql = `
+  SELECT a.id_artigo, a.titulo, a.data_publicacao, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+  COUNT(*) OVER () AS total_count
+  FROM artigo a
+  INNER JOIN usuario u ON a.id_usu = u.id_usu 
+  LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
+  ORDER BY data_publicacao DESC LIMIT ?, ?
+`;
 
-    const articles = results;
-    const hasNextPage = articles.length === itemsPerPage;
-    res.json({ articles, hasNextPage, currentPage });
-  });
+connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
+  if (err) {
+    console.error('Erro ao obter as notícias do banco de dados:', err);
+    return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+  }
+
+  const articles = results;
+  const totalCount = articles.length > 0 ? articles[0].total_count : 0;
+  const hasNextPage = articles.length === itemsPerPage;
+
+  res.json({ articles, hasNextPage, currentPage, totalCount });
+});
+
 });
 
 
