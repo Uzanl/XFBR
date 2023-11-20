@@ -447,7 +447,7 @@ app.post('/upload', (req, res) => {
     });
 });
 
-app.get('/get-articles/:page', (req, res) => {
+app.get('/get-articles/:page',compression(),(req, res) => {
   const itemsPerPage = 8; // Quantidade de notícias por página
   const currentPage = req.params.page || 1; // Página atual (padrão é 1)
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -461,21 +461,20 @@ app.get('/get-articles/:page', (req, res) => {
   ORDER BY data_publicacao DESC LIMIT ?, ?
 `;
 
-connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
-  if (err) {
-    console.error('Erro ao obter as notícias do banco de dados:', err);
-    return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
-  }
+  connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
+    if (err) {
+      console.error('Erro ao obter as notícias do banco de dados:', err);
+      return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+    }
 
-  const articles = results;
-  const totalCount = articles.length > 0 ? articles[0].total_count : 0;
-  const hasNextPage = articles.length === itemsPerPage;
+    const articles = results;
+    const totalCount = articles.length > 0 ? articles[0].total_count : 0;
+    const hasNextPage = articles.length === itemsPerPage;
 
-  res.json({ articles, hasNextPage, currentPage, totalCount });
+    res.json({ articles, hasNextPage, currentPage, totalCount });
+  });
+
 });
-
-});
-
 
 app.get('/get-articles-profile', (req, res) => {
   let userId;
@@ -513,8 +512,6 @@ app.get('/get-articles-profile', (req, res) => {
       return res.status(401).json({ redirect: '/login.html' });
     }
   }
-
-
 
   function processArticlesQuery(userId) {
     const itemsPerPage = 8;
@@ -577,9 +574,6 @@ app.get('/get-article-edit-by-id/:id', (req, res) => {
     }
   });
 });
-
-
-
 
 // Rota para obter detalhes do artigo pelo ID
 app.get('/get-article-by-id/:id', (req, res) => {
