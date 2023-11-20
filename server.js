@@ -112,8 +112,6 @@ const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
   }
 })();
 
-
-
 app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   const missingFields = [];
@@ -244,8 +242,6 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
       return res.status(400).json({ error: errorMessage });
     }
 
-
-
     // Aqui você verifica se a imagem não é undefined e não é uma string vazia
     if (image !== undefined && image !== null) {
       const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
@@ -290,9 +286,6 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
     }
   });
 
-
-
-
   // Verificar se o usuário está autenticado (se a sessão está ativa)
 
   // Consultar o banco de dados para obter o ID do autor do artigo
@@ -312,8 +305,6 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
     }
   });
 });
-
-
 
 app.post('/insert-news', (req, res) => {
 
@@ -447,7 +438,7 @@ app.post('/upload', (req, res) => {
     });
 });
 
-app.get('/get-articles/:page',compression(),(req, res) => {
+app.get('/get-articles/:page', compression(), (req, res) => {
   const itemsPerPage = 8; // Quantidade de notícias por página
   const currentPage = req.params.page || 1; // Página atual (padrão é 1)
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -518,28 +509,43 @@ app.get('/get-articles-profile', (req, res) => {
     const currentPage = req.query.page || 1;
     const startIndex = (currentPage - 1) * itemsPerPage;
 
-    const sql = `
-     SELECT 
-     artigo.*, 
-     IFNULL(usuario.login_usu, ux.gamertag) AS login_usu,
-     IF(artigo.id_artigo = (SELECT MAX(id_artigo) FROM artigo  WHERE artigo.id_usu = ? ORDER BY artigo.data_publicacao DESC LIMIT 1), 1, 0) AS isFirstArticle
-     FROM artigo
-     LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
-     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-     WHERE artigo.id_usu = ?
-     ORDER BY artigo.data_publicacao DESC
-     LIMIT ?, ?  
-    `;
+    const sqlCount = `
+    SELECT COUNT(*) AS total_count 
+    FROM artigo a
+    WHERE a.id_usu = ?
+  `;
 
-    connection.query(sql, [userId, userId, startIndex, itemsPerPage], (err, results) => {
+    const sql = `
+    SELECT 
+      a.id_artigo, a.titulo, a.data_publicacao, a.id_usu, a.imagem_url, a.previa_conteudo, 
+      IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+    FROM artigo a
+    LEFT JOIN usuario ON a.id_usu = usuario.id_usu
+    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+    WHERE a.id_usu = ?
+    ORDER BY a.data_publicacao DESC
+  `;
+
+
+    connection.query(sqlCount, [userId], (err, countResults) => {
       if (err) {
-        console.error('Erro ao obter as notícias do banco de dados:', err);
-        return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+        console.error('Erro ao contar o número total de artigos:', err);
+        return res.status(500).json({ error: 'Erro ao contar o número total de artigos' });
       }
 
-      const articles = results;
-      const hasNextPage = articles.length === itemsPerPage;
-      res.json({ articles, hasNextPage });
+      const totalCount = countResults[0].total_count;
+
+      connection.query(sql, [userId, startIndex, itemsPerPage], (err, results) => {
+        if (err) {
+          console.error('Erro ao obter as notícias do banco de dados:', err);
+          return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+        }
+
+        const articles = results;
+        const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
+
+        res.json({ articles, totalCount, hasNextPage });
+      });
     });
   }
 });
@@ -601,10 +607,6 @@ app.get('/get-article-by-id/:id', (req, res) => {
     res.json(article);
   });
 });
-
-
-
-
 
 // Rota para obter a contagem total de artigos
 app.get('/get-article-count', (req, res) => {
@@ -678,8 +680,6 @@ app.get('/get-article-count-profile', (req, res) => {
 
 });
 
-
-
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
@@ -725,8 +725,6 @@ app.post('/login', (req, res) => {
   });
 });
 
-
-
 app.get('/get-username/:userId', (req, res) => {
   const userId = req.params.userId;
 
@@ -756,42 +754,20 @@ app.get('/get-username/:userId', (req, res) => {
   });
 });
 
-
-
-//app.get("/",(req,res)=>{
-//    req.session.isAuth = true;
-//    console.log(req.session)
-//    res.send("Hello Session Tut")
-//});
-
 // Rota para fazer logout
 app.get('/logout', (req, res) => {
-
   // Revogue o token de acesso na Microsoft
   const microsoftAccessToken = client.getAccessToken();
 
-
-
   if (microsoftAccessToken) {
-
-    //console.log(microsoftAccessToken.access_token);
     // Chame a função de revogação do token de acesso, se disponível
     console.log(microsoftAccessToken.access_token);
-    // client.revokeAccessToken(microsoftAccessToken.access_token);
     authData = null;
     client.clearTokens();
     res.clearCookie('connect.sid');
-    // console.log(microsoftAccessToken);
   }
-
-
   // Destrua a sessão
-
-
   res.clearCookie('connect.sid');
-
-  //localStorage.removeItem('isLoggedIn');
-
 
   req.session.destroy((err) => {
     if (err) {
@@ -852,44 +828,71 @@ app.get('/get-user-info', (req, res) => {
 
 app.get('/get-user-info/:id', (req, res) => {
   // Verificar se req.session.user está definido
+  let userId;
+  const id = parseInt(req.params.id);
 
-  const userId = req.params.id;
+  if (!isNaN(id) && id > 1) {
+   
+    userId = id;
+    processUserQuery(userId);
+  } else {
 
-  if (userId) {
+ 
+    if (req.session.user) {
+      userId = req.session.user.id_usu;
+      processUserQuery(userId);
+    } else if (req.session.profileData) {
+      const XboxUserId = req.session.profileData.profileUsers[0].id;
+      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
 
-
-
-    const selectQuery = `
-    SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
-    IFNULL(u.descricao, "") AS descricao,
-    IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
-    IFNULL(ux.gamerscore, 0) AS gamerscore
-    FROM usuario u
-    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
-    WHERE u.id_usu = ?;
-  `;
-
-    connection.query(selectQuery, [userId], (err, result) => {
-      if (err) {
-        console.error('Erro ao buscar informações do usuário:', err);
-        res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
-      } else {
-        if (result.length > 0) {
-          const userGamertag = result[0].login_usu;
-          const userDescription = result[0].descricao;
-          const userImageUrl = result[0].imagem_url;
-          const userGamerscore = result[0].gamerscore;
-
-          res.status(200).json({ description: userDescription, imageUrl: userImageUrl, gamertag: userGamertag, gamerscore: userGamerscore });
-        } else {
-          console.error('Usuário não encontrado');
-          res.status(404).json({ error: 'Usuário não encontrado' });
+      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+        if (err) {
+          console.error('Erro ao obter userId:', err);
+          return res.status(500).json({ error: 'Erro ao obter userId' });
         }
-      }
-    });
-  }
-});
 
+        if (result.length > 0) {
+          userId = result[0].id_usu;
+          processUserQuery(userId);
+        } else {
+          return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+      });
+    } else {
+      return res.status(401).json({ redirect: '/login.html' });
+    }
+  }
+ function processUserQuery(userId){
+  const selectQuery = `
+  SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+  IFNULL(u.descricao, "") AS descricao,
+  IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
+  IFNULL(ux.gamerscore, 0) AS gamerscore
+  FROM usuario u
+  LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+  WHERE u.id_usu = ?;
+`;
+
+  connection.query(selectQuery, [userId], (err, result) => {
+    if (err) {
+      console.error('Erro ao buscar informações do usuário:', err);
+      res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
+    } else {
+      if (result.length > 0) {
+        const userGamertag = result[0].login_usu;
+        const userDescription = result[0].descricao;
+        const userImageUrl = result[0].imagem_url;
+        const userGamerscore = result[0].gamerscore;
+
+        res.status(200).json({ description: userDescription, imageUrl: userImageUrl, gamertag: userGamertag, gamerscore: userGamerscore });
+      } else {
+        console.error('Usuário não encontrado');
+        res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+    }
+  });
+ }
+});
 
 // Rota para atualizar a descrição do usuário
 app.post('/update-description', (req, res) => {
@@ -917,7 +920,6 @@ app.post('/update-description', (req, res) => {
     }
   });
 });
-
 
 // Store authentication data
 let authData = null;
@@ -999,7 +1001,6 @@ app.get('/profile', (req, res) => {
     res.status(401).json({ error: 'User is not authenticated' });
   });
 });
-
 
 app.get('/search', (req, res) => {
   const searchTerm = req.query.term; // Recebe o termo de busca da query string
