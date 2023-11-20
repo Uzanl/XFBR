@@ -1,9 +1,3 @@
-// auth.js
-
-//import Cookies from 'js-cookie';
-
-// auth.js
-
 function updateLoginButtonVisibility() {
   fetch("http://localhost:3000/checkLoginStatus")
     .then((response) => response.json())
