@@ -71,12 +71,17 @@ function formatDate(dateString) {
   return date.toLocaleDateString('pt-BR', options);
 }
 
-// Obtém o número da página da URL
 function getCurrentPageFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   const pageParam = urlParams.get('page');
-  return pageParam ? parseInt(pageParam) : 1; // Retorna 1 se nenhum parâmetro de página for fornecido
+  // Validação básica para garantir que o parâmetro 'page' seja um número inteiro positivo
+  if (pageParam && /^\d+$/.test(pageParam)) {
+    const parsedPage = parseInt(pageParam, 10);
+    return parsedPage > 0 ? parsedPage : 1; // Retorna o valor convertido se for um número positivo, senão retorna 1
+  }
+  return 1; // Retorna 1 se nenhum parâmetro de página válido for fornecido
 }
+
 
 let currentPage = getCurrentPageFromURL();
 
