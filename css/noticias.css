@@ -7,6 +7,42 @@
    height: 30px;
  }
 
+/* Estilos para as bolinhas */
+.status-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+  margin: 50px auto;
+}
+
+.status-items {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.status-item {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  background-color: black;
+}
+
+.red { color: red; }
+.yellow { color: yellow; }
+.green { color: green; }
+
+
+.status-item:hover {
+  transform: scale(1.2);
+}
+
  .login-list-item,
  .logout-button , 
  .sidebar,
@@ -34,16 +70,7 @@
   text-align: center;
   border-radius: 10px;
   background-color: #555555;
-}
-/* Adicione outros estilos conforme necessário */
-
-.container {
-  min-height: 100vh;
-  box-shadow: -1px 2px 6px rgba(0,0,0,.25);
-  background-color: #333333;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+  
 }
 
 .article img {
@@ -51,6 +78,31 @@
   height: 483px;
   cursor: pointer;
   border-radius: 10px;
+  transition: transform 0.3s ease;
+  transition: box-shadow 0.3s ease-in-out; 
+}
+
+.article:hover img {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.9);
+}
+
+.container {
+  min-height: 100vh;
+  box-shadow: -1px 2px 6px rgba(0,0,0,.25);
+  background-color: #555555;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 10px;
+  width: 900px;
+}
+
+.container-row{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #333333;
 }
 
  .footer {
@@ -81,11 +133,11 @@
    display: block;
  }
 
- .start,
- .end {
-   width: 15%;
- }
+.start, .end{
+  display: flex;
+  flex-grow: 1;
 
+}
  .publish-button {
    cursor: pointer;
  }
@@ -95,7 +147,7 @@
   margin-bottom: 10px;
   cursor: pointer;
   color: #f2f2f2;
-  text-decoration: underline;
+  transition: transform 0.3s ease;
 }
 
 .article h1:hover {
@@ -113,8 +165,6 @@ p2 {
   margin-bottom: 20px;
   color: #ececec;
 }
-
- 
 
  .pagination {
    display: flex;
@@ -142,6 +192,8 @@ p2 {
 
  @media screen and (max-width: 1199px) {
 
+
+
   .pagination-container {
    
     width: 100%;
@@ -167,9 +219,6 @@ p2 {
    }
  }
 
-
-
-
  /* Estilos para desktops (de 1200 a 1919 pixels) */
 @media screen and (min-width: 1200px) and (max-width: 1919px) {
   .article:first-child img {
@@ -177,7 +226,6 @@ p2 {
     height: 483px;
    }
 
-   
    .article img {
     width: 256px;
     height: 144px;
@@ -190,11 +238,7 @@ p2 {
     flex-wrap: wrap;
     justify-content: flex-start;
     width: 900px;
-    margin: 0 auto;
-   /* margin-bottom: 20px;*/
-    background-color: #555555;
-    /*margin-top: 20px;*/
-    
+    margin: 0 auto;    
   }
 
   .pagination-container {
@@ -215,6 +259,7 @@ p2 {
 /* Estilos para telas muito grandes (1920 pixels ou mais) */
 @media screen and (min-width: 1920px) {
 
+
   .article:first-child img {
     width: 860px;
     height: 483px;
@@ -233,7 +278,6 @@ p2 {
     justify-content: flex-start;
     width: 900px;
     margin: 0 auto;
-    background-color: #555555;
   }
 
   .pagination-container {  

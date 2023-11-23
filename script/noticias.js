@@ -3,6 +3,7 @@ import { updateLoginButtonVisibility } from './auth.js';
 updateLoginButtonVisibility();
 
 const articleContainer = document.querySelector('.article-container');
+const paginationContainer = document.querySelector('.pagination-container');
 
 window.addEventListener('resize', handleImageResolution);
 
@@ -12,24 +13,34 @@ function handleImageResolution() {
 
   images.forEach((image, index) => {
     const originalSrc = image.dataset.originalSrc; // Salvando o URL original em um atributo 'data'
-
     if (screenWidth > 1199) {
+      
+      (index === 0)? image.src = originalSrc.replace('.webp', '_firstchild.webp'):  image.src = originalSrc.replace('_firstchild.webp', '.webp'); 
 
-      if (index === 0) {
-        image.src = originalSrc.replace('.webp', '_firstchild.webp');
-      } else {
-        image.src = originalSrc.replace('_firstchild.webp', '.webp');
-      }
     } else if (screenWidth >= 992 && screenWidth <= 1199) {
       image.src = originalSrc.replace('.webp', '_firstchild.webp');
-
+    } else if (screenWidth > 320 && screenWidth <= 480) {
+      // Lógica para telas menores ou iguais a 480px
+      image.src = originalSrc.replace('.webp', '_432.webp');
+      image.onerror = function () {
+        image.src = originalSrc;
+      };
+    } else if (screenWidth > 480 && screenWidth <= 768) {
+      // Lógica para telas menores ou iguais a 768px
+      image.src = originalSrc.replace('.webp', '_720.webp');
+      image.onerror = function () {
+        image.src = originalSrc;
+      };
+    } else if (screenWidth <= 320) {
+      // Lógica para telas menores ou iguais a 768px
+      image.src = originalSrc.replace('_firstchild.webp', '.webp');
     }
   });
 }
 
 class Article {
-  constructor(id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu) {
-    Object.assign(this, { id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu });
+  constructor(id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu) {
+    Object.assign(this, { id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu });
   }
 
   async render(index) {
@@ -57,18 +68,12 @@ class Article {
     previewElement.textContent = this.previa_conteudo;
 
     const userInfoElement = document.createElement('p2');
-    userInfoElement.textContent = `Postado por ${this.login_usu} em ${formatDate(this.data_publicacao)}`;
+    userInfoElement.textContent = `Postado por ${this.login_usu} em ${this.data_formatada}`;
 
     [imageElement, titleElement, previewElement, userInfoElement].forEach(elem => articleElement.appendChild(elem));
 
     return articleElement;
   }
-}
-
-function formatDate(dateString) {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pt-BR', options);
 }
 
 function getCurrentPageFromURL() {
@@ -81,7 +86,6 @@ function getCurrentPageFromURL() {
   }
   return 1; // Retorna 1 se nenhum parâmetro de página válido for fornecido
 }
-
 
 let currentPage = getCurrentPageFromURL();
 
@@ -100,7 +104,7 @@ function updatePageNumbers(totalPages) {
 
   endPage = endPage > totalPages ? totalPages : endPage;
   startPage = endPage > totalPages ? Math.max(1, totalPages - maxPageIndices + 1) : startPage;
-  
+
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement('a');
     pageLink.href = `not%C3%ADcias.html?page=${i}`;
@@ -114,7 +118,7 @@ function updatePageNumbers(totalPages) {
   const prevPageButton = paginationContainer.querySelector('.prev-page');
   const nextPageButton = paginationContainer.querySelector('.next-page');
   prevPageButton.addEventListener('click', handlePageButtonClick(-1, totalPages));
-  nextPageButton.addEventListener('click', handlePageButtonClick(1, totalPages));  
+  nextPageButton.addEventListener('click', handlePageButtonClick(1, totalPages));
   prevPageButton.style.display = currentPage > 1 ? 'block' : 'none';
   nextPageButton.style.display = currentPage < totalPages ? 'block' : 'none';
 }
@@ -133,19 +137,21 @@ async function fetchArticles(pageNumber) {
 
 async function loadArticles(pageNumber) {
   const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
-  articleContainer.innerHTML = '';
+  const fragment = document.createDocumentFragment();
 
   for (const article of newArticles) {
-    const { id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu } = article;
-    const articleInstance = new Article(id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu);
-    articleContainer.appendChild(await articleInstance.render());
+    const { id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu } = article;
+    const articleInstance = new Article(id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu);
+    fragment.appendChild(await articleInstance.render());
   }
+ 
+  articleContainer.innerHTML = '';
+  articleContainer.appendChild(fragment);
 
   handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(newTotalPages);
   window.history.pushState({}, '', `not%C3%ADcias.html?page=${pageNumber}`);
-  const paginationContainer = document.querySelector('.pagination-container');
   paginationContainer.style.display = 'block';
 }
 
