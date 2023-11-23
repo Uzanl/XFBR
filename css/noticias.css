@@ -1,25 +1,69 @@
-@import url('searchbar.css');
-@import url('navbar.css');
- 
- .login-image,
- .logout-image {
-   width: 30px;
-   height: 30px;
- }
-
-/* Estilos para as bolinhas */
-.status-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 200px;
-  margin: 50px auto;
+.login-image,
+.logout-image {
+  width: 30px;
+  height: 30px;
 }
 
-.status-items {
+.login-list-item,
+.logout-button,
+.sidebar,
+#item-profile {
+  display: none;
+}
+
+body {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+.botao-menu,
+.sidebar {
+  display: none;
+}
+
+.article {
+  flex-basis: calc(33.33% - 20px);
+  margin: 10px;
+  padding: 10px;
+  background-color: #f2f2f2;
+  box-sizing: border-box;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #555555;
+}
+
+.status-trapezoid-container{
   width: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    background-color: #555555
+}
+
+.status{
+  background-color: #333;
+    height: 50px;
+    width: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    transform: rotate(-180deg);
+}
+
+.status-item-container{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+ 
+}
+
+.status-item-container p{
+  padding: 10px;
+  color: #f2f2f2;
 }
 
 .status-item {
@@ -43,34 +87,16 @@
   transform: scale(1.2);
 }
 
- .login-list-item,
- .logout-button , 
- .sidebar,
-  #item-profile{
-   display: none;
- }
- body {
-   display: flex;
-   flex-direction: column;
-   min-height: 100vh;
-   font-family: Arial, sans-serif;
-   margin: 0;
- }
-
- .botao-menu, .sidebar{
-   display: none;
- }
-
- .article {
-  flex-basis: calc(33.33% - 20px);
-  margin: 10px;
-  padding: 10px;
-  background-color: #f2f2f2;
-  box-sizing: border-box;
-  text-align: center;
-  border-radius: 10px;
-  background-color: #555555;
-  
+.trapezoid{
+  width: 700px;
+    height: 100px;
+    background-color: #333;
+    clip-path: polygon(15% 0, 85% 0, 100% 100%, 0 100%);
+    transform: rotate(-180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -1px;
 }
 
 .article img {
@@ -79,18 +105,16 @@
   cursor: pointer;
   border-radius: 10px;
   transition: transform 0.3s ease;
-  transition: box-shadow 0.3s ease-in-out; 
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .article:hover img {
   transform: translateY(-2px);
-  box-shadow: 0 5px 10px rgba(0,0,0,0.9);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.9);
 }
 
 .container {
   min-height: 100vh;
-  box-shadow: -1px 2px 6px rgba(0,0,0,.25);
-  background-color: #555555;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -98,51 +122,70 @@
   width: 900px;
 }
 
-.container-row{
+.container-row {
   display: flex;
   flex-direction: row;
   justify-content: center;
   background-color: #333333;
+  flex-flow: row wrap;
 }
 
- .footer {
-   width: 100%;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
-   background-color: #333333;
-   color: #fff;
-   padding: 20px;
-   box-sizing: border-box;
-   font-weight: bold;
- }
+.footer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #333333;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+  font-weight: bold;
+}
 
- footer a {
-   background-color: #333333;
-   border: none;
-   padding: 0;
- }
+footer a {
+  background-color: #333333;
+  border: none;
+  padding: 0;
+}
 
- footer a img {
-   height: 30px;
-   width: 39.59px;
- }
+footer a img {
+  height: 30px;
+  width: 39.59px;
+}
 
- .navbar {
-   display: block;
- }
+.navbar {
+  display: block;
+}
 
-.start, .end{
+
+
+.start{
+  order: 1;
+}
+
+.container{
+  order: 2;
+}
+
+.end{
+  order: 3;
+}
+
+
+
+.start,
+.end {
   display: flex;
   flex-grow: 1;
 
 }
- .publish-button {
-   cursor: pointer;
- }
 
- .article h1 {
+.publish-button {
+  cursor: pointer;
+}
+
+.article h1 {
   font-size: 24px;
   margin-bottom: 10px;
   cursor: pointer;
@@ -166,36 +209,35 @@ p2 {
   color: #ececec;
 }
 
- .pagination {
-   display: flex;
-   justify-content: center;
-   align-items: center;
- }
-
- .pagination a {
-   padding: 5px 10px;
-   margin: 0 5px;
-   border-radius: 5px;
-   background-color: #f2f2f2;
-   color: #333333;
-   text-decoration: none;
- }
-
- .pagination a.active {
-   background-color: #333333;
-   color: #fff;
- }
-
- .pagination a:hover {
-   background-color: #ccc;
- }
-
- @media screen and (max-width: 1199px) {
 
 
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination a {
+  padding: 5px 10px;
+  margin: 0 5px;
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  color: #333333;
+  text-decoration: none;
+}
+
+.pagination a.active {
+  background-color: #333333;
+  color: #fff;
+}
+
+.pagination a:hover {
+  background-color: #ccc;
+}
+
+@media screen and (max-width: 1199px) {
   .pagination-container {
-   
     width: 100%;
     background-color: #f2f2f2;
     padding: 10px 0;
@@ -203,69 +245,57 @@ p2 {
     justify-content: center;
     z-index: 1;
   }
-   .container{
+
+  
+
+ 
+
+.container-row{
+  flex-direction: column;
+  align-items: center;
+}
+  
+
+
+  .container {
     background-color: #555555;
-   }
+    width: 100%;
+    order: 1;
+  }
 
-   .article-container {
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-     background-color: #555555;
-   }
-   .article img {
-     max-width: 100%;
-     height: auto;
-   }
- }
+  .end{
+    width: 100%;
+    order: 2;
+    height: 100px;
+  }
 
- /* Estilos para desktops (de 1200 a 1919 pixels) */
+  .start{
+    width: 100%;
+    order: 3;
+    height: 100px;
+  }
+
+  .article-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #555555;
+  }
+
+  .article img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Estilos para desktops (de 1200 a 1919 pixels) */
 @media screen and (min-width: 1200px) and (max-width: 1919px) {
   .article:first-child img {
     width: 860px;
     height: 483px;
-   }
-
-   .article img {
-    width: 256px;
-    height: 144px;
-    cursor: pointer;
-    border-radius: 10px;
   }
 
-  .article-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    width: 900px;
-    margin: 0 auto;    
-  }
-
-  .pagination-container {
-    
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    width: 900px;
-    background-color: #f2f2f2;
-    padding: 10px 0;
-    display: flex;
-    justify-content: center;
-    z-index: 1;
-  }
-
-  /* Adicione outros estilos conforme necessário */
-}
-
-/* Estilos para telas muito grandes (1920 pixels ou mais) */
-@media screen and (min-width: 1920px) {
-
-
-  .article:first-child img {
-    width: 860px;
-    height: 483px;
-   }
-
-   .article img {
+  .article img {
     width: 256px;
     height: 144px;
     cursor: pointer;
@@ -278,9 +308,46 @@ p2 {
     justify-content: flex-start;
     width: 900px;
     margin: 0 auto;
+    background-color: #555555;
   }
 
-  .pagination-container {  
+  .pagination-container {
+
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    width: 900px;
+    background-color: #f2f2f2;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+
+  .article:first-child img {
+    width: 860px;
+    height: 483px;
+  }
+
+  .article img {
+    width: 256px;
+    height: 144px;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+
+  .article-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 900px;
+    margin: 0 auto;
+    background-color: #555555;
+  }
+
+  .pagination-container {
     width: 900px;
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
@@ -290,5 +357,5 @@ p2 {
     justify-content: center;
     z-index: 1;
   }
- 
+
 }
