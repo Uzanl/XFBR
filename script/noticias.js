@@ -20,19 +20,10 @@ function handleImageResolution() {
     } else if (screenWidth >= 992 && screenWidth <= 1199) {
       image.src = originalSrc.replace('.webp', '_firstchild.webp');
     } else if (screenWidth > 320 && screenWidth <= 480) {
-      // Lógica para telas menores ou iguais a 480px
       image.src = originalSrc.replace('.webp', '_432.webp');
-      image.onerror = function () {
-        image.src = originalSrc;
-      };
     } else if (screenWidth > 480 && screenWidth <= 768) {
-      // Lógica para telas menores ou iguais a 768px
       image.src = originalSrc.replace('.webp', '_720.webp');
-      image.onerror = function () {
-        image.src = originalSrc;
-      };
     } else if (screenWidth <= 320) {
-      // Lógica para telas menores ou iguais a 768px
       image.src = originalSrc.replace('_firstchild.webp', '.webp');
     }
   });
@@ -91,9 +82,9 @@ let currentPage = getCurrentPageFromURL();
 
 function updatePageNumbers(totalPages) {
   const pageNumbersContainer = document.querySelector('.page-numbers');
-  pageNumbersContainer.innerHTML = ''; // Limpar os números de página existentes
+  pageNumbersContainer.innerHTML = '';
 
-  const maxPageIndices = 8; // Quantidade máxima de índices de página exibidos
+  const maxPageIndices = 8;
   const halfMaxIndices = Math.floor(maxPageIndices / 2);
 
   let startPage = currentPage - halfMaxIndices;
@@ -105,23 +96,33 @@ function updatePageNumbers(totalPages) {
   endPage = endPage > totalPages ? totalPages : endPage;
   startPage = endPage > totalPages ? Math.max(1, totalPages - maxPageIndices + 1) : startPage;
 
+  const fragment = document.createDocumentFragment();
+  
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement('a');
     pageLink.href = `not%C3%ADcias.html?page=${i}`;
     pageLink.textContent = i;
     pageLink.classList.toggle('active', i === currentPage);
-    pageLink.addEventListener('click', loadArticles.bind(null, i));
-    pageNumbersContainer.appendChild(pageLink);
+    pageLink.addEventListener('click', () => loadArticles(i));
+    fragment.appendChild(pageLink);
   }
 
-  const paginationContainer = document.querySelector('.pagination-container');
   const prevPageButton = paginationContainer.querySelector('.prev-page');
   const nextPageButton = paginationContainer.querySelector('.next-page');
   prevPageButton.addEventListener('click', handlePageButtonClick(-1, totalPages));
-  nextPageButton.addEventListener('click', handlePageButtonClick(1, totalPages));
+  nextPageButton.addEventListener('click', handlePageButtonClick(1, totalPages));  
   prevPageButton.style.display = currentPage > 1 ? 'block' : 'none';
   nextPageButton.style.display = currentPage < totalPages ? 'block' : 'none';
+
+  pageNumbersContainer.appendChild(fragment);
 }
+
+const handlePageButtonClick = (offset, totalPages) => async () => {
+  const nextPage = currentPage + offset;
+  if (nextPage >= 1 && nextPage <= totalPages) {
+    await loadArticles(nextPage);
+  }
+};
 
 async function fetchArticles(pageNumber) {
   try {
@@ -147,18 +148,12 @@ async function loadArticles(pageNumber) {
  
   articleContainer.innerHTML = '';
   articleContainer.appendChild(fragment);
-
   handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(newTotalPages);
   window.history.pushState({}, '', `not%C3%ADcias.html?page=${pageNumber}`);
   paginationContainer.style.display = 'block';
 }
-
-const handlePageButtonClick = (offset, totalPages) => async (event) => {
-  const nextPage = currentPage + offset;
-  (nextPage >= 1 && nextPage <= totalPages) && await loadArticles(nextPage);
-};
 
 function openArticle(id) {
   window.location.href = `artigo.html?id=${id}`;

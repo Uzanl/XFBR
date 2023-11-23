@@ -8,6 +8,7 @@ const XboxApiClient = require('xbox-webapi');
 const https = require('https');
 const RSS = require('rss');
 const Parser = require('rss-parser');
+const fs = require('fs');
 const mysql = require('mysql2');
 const port = 3000;
 const app = express();
@@ -195,29 +196,57 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   }
 
   app.delete('/excluir-artigo/:artigoId', (req, res) => {
-    // console.log("chegou aqui!")
     const artigoId = req.params.artigoId;
 
-    // Verificar se o usuário não está autenticado
+    // Verificar se o usuário está autenticado
     if (req.session.user || req.session.profileData) {
-      // Verificar se o usuário é o autor do artigo ou se é um administrador
-
-      // Agora você pode executar a lógica para excluir o artigo do banco de dados
       const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
+      const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
 
-      connection.query(deleteArtigoQuery, [artigoId], (err, result) => {
+      connection.query(selectImageURLQuery, [artigoId], async (err, result) => {
         if (err) {
-          console.error('Erro ao excluir o artigo:', err);
-          return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+          console.error('Erro ao obter a URL da imagem:', err);
+          return res.status(500).json({ error: 'Erro ao obter a URL da imagem' });
         }
 
-        return res.json({ message: 'Artigo excluído com sucesso' });
+        const imageUrl = result[0]?.imagem_url; // Obtendo a URL da imagem do resultado da consulta
+
+        connection.query(deleteArtigoQuery, [artigoId], async (err, result) => {
+          if (err) {
+            console.error('Erro ao excluir o artigo:', err);
+            return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+          }
+          if (imageUrl) {
+            const imagePath = __dirname + '/images-preview/'; 
+            const imageName = imageUrl.split('/').pop(); // Obtém o nome do arquivo da URL
+            const imageBaseName = imageName.split('.webp')[0]; // Remove a extensão para obter o nome base da imagem
+
+            const variations = ['_720', '_432', '_firstchild']; // Lista de variações de tamanho das imagens
+
+            try {
+              // Exclui a imagem original do sistema de arquivos
+               fs.unlinkSync(`${imagePath}/${imageName}`);
+
+              // Exclui as variações de tamanho das imagens
+              variations.forEach(async (variation) => {
+                const variationImageName = `${imageBaseName}${variation}.webp`;
+                fs.unlinkSync(`${imagePath}/${variationImageName}`);
+              });
+
+              return res.json({ message: 'Artigo e imagens excluídos com sucesso' });
+            } catch (error) {
+              console.error('Erro ao excluir as imagens:', error);
+              return res.status(500).json({ error: 'Erro ao excluir as imagens do artigo' });
+            }
+          }
+          return res.json({ message: 'Artigo excluído com sucesso, mas a imagem não foi encontrada' });
+        });
       });
     } else {
       return res.status(401).json({ error: 'Usuário não autenticado' });
     }
-
   });
+
 
   app.post('/update-article/:id', (req, res) => {
     const idArtigo = req.params.id;
@@ -364,60 +393,60 @@ app.post('/insert-news', (req, res) => {
     const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
 
     sharp(image.data)
-    .resize(256, 144)
-    .webp({ quality: 100 })
-    .toFile(uploadPath, (err) => {
-      if (err) {
-        console.error('Erro ao comprimir e converter a imagem:', err);
-        return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-      } else {
-        const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
-        const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
-        const publicationDate = new Date();
+      .resize(256, 144)
+      .webp({ quality: 100 })
+      .toFile(uploadPath, (err) => {
+        if (err) {
+          console.error('Erro ao comprimir e converter a imagem:', err);
+          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+        } else {
+          const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
+          const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
+          const publicationDate = new Date();
 
-        connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
-          if (err) {
-            console.error('Erro ao inserir artigo:', err);
-            res.status(500).json({ error: 'Erro ao inserir o artigo' });
-          } else {
-            // Salvando a versão em resolução maior (860x483)
-            const uploadPathFirstChild = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_firstchild.webp';
-            sharp(image.data)
-              .resize(860, 483)
-              .webp({ quality: 100 })
-              .toFile(uploadPathFirstChild, (err) => {
-                if (err) {
-                  console.error('Erro ao salvar imagem de resolução maior:', err);
-                }
-              });
+          connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
+            if (err) {
+              console.error('Erro ao inserir artigo:', err);
+              res.status(500).json({ error: 'Erro ao inserir o artigo' });
+            } else {
+              // Salvando a versão em resolução maior (860x483)
+              const uploadPathFirstChild = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_firstchild.webp';
+              sharp(image.data)
+                .resize(860, 483)
+                .webp({ quality: 100 })
+                .toFile(uploadPathFirstChild, (err) => {
+                  if (err) {
+                    console.error('Erro ao salvar imagem de resolução maior:', err);
+                  }
+                });
 
-            // Salvando a versão em resolução menor (432x243)
-            const uploadPath432 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_432.webp';
-            sharp(image.data)
-              .resize(432, 243)
-              .webp({ quality: 100 })
-              .toFile(uploadPath432, (err) => {
-                if (err) {
-                  console.error('Erro ao salvar imagem de resolução intermediária:', err);
-                }
-              });
+              // Salvando a versão em resolução menor (432x243)
+              const uploadPath432 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_432.webp';
+              sharp(image.data)
+                .resize(432, 243)
+                .webp({ quality: 100 })
+                .toFile(uploadPath432, (err) => {
+                  if (err) {
+                    console.error('Erro ao salvar imagem de resolução intermediária:', err);
+                  }
+                });
 
-            // Salvando a versão em resolução intermediária (720x405)
-            const uploadPath720 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_720.webp';
-            sharp(image.data)
-              .resize(720, 405)
-              .webp({ quality: 100 })
-              .toFile(uploadPath720, (err) => {
-                if (err) {
-                  console.error('Erro ao salvar imagem de resolução menor:', err);
-                }
-              });
+              // Salvando a versão em resolução intermediária (720x405)
+              const uploadPath720 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_720.webp';
+              sharp(image.data)
+                .resize(720, 405)
+                .webp({ quality: 100 })
+                .toFile(uploadPath720, (err) => {
+                  if (err) {
+                    console.error('Erro ao salvar imagem de resolução menor:', err);
+                  }
+                });
 
-            res.status(200).json({ message: 'Artigo inserido com sucesso' });
-          }
-        });
-      }
-    });
+              res.status(200).json({ message: 'Artigo inserido com sucesso' });
+            }
+          });
+        }
+      });
   }
 });
 
@@ -467,7 +496,7 @@ app.get('/get-articles/:page', compression(), (req, res) => {
 
   const sql = `
   SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu,
-  COUNT(*) OVER () AS total_count
+  (SELECT COUNT(*) FROM artigo) AS total_count
   FROM artigo a
   INNER JOIN usuario u ON a.id_usu = u.id_usu 
   LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
@@ -854,12 +883,12 @@ app.get('/get-user-info/:id', (req, res) => {
   const id = parseInt(req.params.id);
 
   if (!isNaN(id) && id > 1) {
-   
+
     userId = id;
     processUserQuery(userId);
   } else {
 
- 
+
     if (req.session.user) {
       userId = req.session.user.id_usu;
       processUserQuery(userId);
@@ -884,8 +913,8 @@ app.get('/get-user-info/:id', (req, res) => {
       return res.status(401).json({ redirect: '/login.html' });
     }
   }
- function processUserQuery(userId){
-  const selectQuery = `
+  function processUserQuery(userId) {
+    const selectQuery = `
   SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
   IFNULL(u.descricao, "") AS descricao,
   IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
@@ -895,25 +924,25 @@ app.get('/get-user-info/:id', (req, res) => {
   WHERE u.id_usu = ?;
 `;
 
-  connection.query(selectQuery, [userId], (err, result) => {
-    if (err) {
-      console.error('Erro ao buscar informações do usuário:', err);
-      res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
-    } else {
-      if (result.length > 0) {
-        const userGamertag = result[0].login_usu;
-        const userDescription = result[0].descricao;
-        const userImageUrl = result[0].imagem_url;
-        const userGamerscore = result[0].gamerscore;
-
-        res.status(200).json({ description: userDescription, imageUrl: userImageUrl, gamertag: userGamertag, gamerscore: userGamerscore });
+    connection.query(selectQuery, [userId], (err, result) => {
+      if (err) {
+        console.error('Erro ao buscar informações do usuário:', err);
+        res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
       } else {
-        console.error('Usuário não encontrado');
-        res.status(404).json({ error: 'Usuário não encontrado' });
+        if (result.length > 0) {
+          const userGamertag = result[0].login_usu;
+          const userDescription = result[0].descricao;
+          const userImageUrl = result[0].imagem_url;
+          const userGamerscore = result[0].gamerscore;
+
+          res.status(200).json({ description: userDescription, imageUrl: userImageUrl, gamertag: userGamertag, gamerscore: userGamerscore });
+        } else {
+          console.error('Usuário não encontrado');
+          res.status(404).json({ error: 'Usuário não encontrado' });
+        }
       }
-    }
-  });
- }
+    });
+  }
 });
 
 // Rota para atualizar a descrição do usuário

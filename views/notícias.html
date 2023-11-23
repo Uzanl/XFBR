@@ -8,13 +8,18 @@
   <meta name="description"
     content="Acompanhe as últimas notícias sobre games, tecnologia e entretenimento no Xbox Family Br. Fique por dentro de artigos informativos, análises e novidades da comunidade.">
   <link rel="preload" href="/css/noticias.css" as="style">
+  <link rel="preload" href="/css/searchbar.css" as="style">
+  <link rel="preload" href="/css/navbar.css" as="style">
   <link rel="stylesheet" href="/css/noticias.css">
+  <link rel="stylesheet" href="/css/searchbar.css">
+  <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="modulepreload" href="/script/noticias.js">
   <script type="module" src="/script/noticias.js"></script>
   <script src="/script/utils.js" defer></script>
   <script src="/script/articleRedirect.js" defer></script>
 </head>
+
 <body>
   <header class="navbar">
     <nav>
@@ -81,22 +86,38 @@
     <div class="start">
     </div>
     <div class="container">
-      <div class="status-container">
-        <div class="status-items">
-          <div class="status-item">
-            <div class="red">B</div>
+
+      <div class="status-trapezoid-container">
+        <div class="trapezoid">
+          <div class="status">
+            <div class="status-item-container">
+              <div class="status-item">
+                <div class="red">B</div>
+              </div>
+              <p>Enviados: X</p>
+            </div>
+            <div class="status-item-container">
+              <div class="status-item">
+                <div class="yellow">Y</div>
+              </div>
+              <p>Em Análise: X</p>
+            </div>
+        
+            <div class="status-item-container">
+              <div class="status-item">
+                <div class="green">A</div>
+        
+              </div>
+              <p>Produzidos: X</p>
+            </div>
+        
           </div>
-          <div class="status-item">
-            <div class="yellow">Y</div>
-          </div>
-          <div class="status-item">
-            <div class="green">A</div>
-          </div>
-        </div>
-        <div class="progress-bar">
-          <div class="progress"></div>
         </div>
       </div>
+
+
+      
+
       <div class="article-container">
       </div>
       <div class="pagination-container" style="display: none;">
@@ -117,13 +138,15 @@
       </div>
     </div>
     <div class="end">
+
     </div>
   </div>
   <footer>
     <div class="footer">
-      <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord"></a>
+      <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord" loading="lazy"></a>
       <p>© 2023 Xbox Family BR</p>
     </div>
   </footer>
 </body>
+
 </html>
