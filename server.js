@@ -364,38 +364,60 @@ app.post('/insert-news', (req, res) => {
     const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
 
     sharp(image.data)
-      .resize(256, 144)
-      .webp({ quality: 100 })
-      .toFile(uploadPath, (err) => {
-        if (err) {
-          console.error('Erro ao comprimir e converter a imagem:', err);
-          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-        } else {
-          const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
-          const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
-          const publicationDate = new Date();
+    .resize(256, 144)
+    .webp({ quality: 100 })
+    .toFile(uploadPath, (err) => {
+      if (err) {
+        console.error('Erro ao comprimir e converter a imagem:', err);
+        return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+      } else {
+        const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
+        const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
+        const publicationDate = new Date();
 
-          connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
-            if (err) {
-              console.error('Erro ao inserir artigo:', err);
-              res.status(500).json({ error: 'Erro ao inserir o artigo' });
-            } else {
-              // Salvando a versão em resolução maior
-              const uploadPathFirstChild = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_firstchild.webp';
-              sharp(image.data)
-                .resize(860, 483)
-                .webp({ quality: 100 })
-                .toFile(uploadPathFirstChild, (err) => {
-                  if (err) {
-                    console.error('Erro ao salvar imagem de resolução maior:', err);
-                  }
-                });
+        connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
+          if (err) {
+            console.error('Erro ao inserir artigo:', err);
+            res.status(500).json({ error: 'Erro ao inserir o artigo' });
+          } else {
+            // Salvando a versão em resolução maior (860x483)
+            const uploadPathFirstChild = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_firstchild.webp';
+            sharp(image.data)
+              .resize(860, 483)
+              .webp({ quality: 100 })
+              .toFile(uploadPathFirstChild, (err) => {
+                if (err) {
+                  console.error('Erro ao salvar imagem de resolução maior:', err);
+                }
+              });
 
-              res.status(200).json({ message: 'Artigo inserido com sucesso' });
-            }
-          });
-        }
-      });
+            // Salvando a versão em resolução menor (432x243)
+            const uploadPath432 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_432.webp';
+            sharp(image.data)
+              .resize(432, 243)
+              .webp({ quality: 100 })
+              .toFile(uploadPath432, (err) => {
+                if (err) {
+                  console.error('Erro ao salvar imagem de resolução intermediária:', err);
+                }
+              });
+
+            // Salvando a versão em resolução intermediária (720x405)
+            const uploadPath720 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_720.webp';
+            sharp(image.data)
+              .resize(720, 405)
+              .webp({ quality: 100 })
+              .toFile(uploadPath720, (err) => {
+                if (err) {
+                  console.error('Erro ao salvar imagem de resolução menor:', err);
+                }
+              });
+
+            res.status(200).json({ message: 'Artigo inserido com sucesso' });
+          }
+        });
+      }
+    });
   }
 });
 
@@ -444,7 +466,7 @@ app.get('/get-articles/:page', compression(), (req, res) => {
   const startIndex = (currentPage - 1) * itemsPerPage;
 
   const sql = `
-  SELECT a.id_artigo, a.titulo, a.data_publicacao, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+  SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu,
   COUNT(*) OVER () AS total_count
   FROM artigo a
   INNER JOIN usuario u ON a.id_usu = u.id_usu 

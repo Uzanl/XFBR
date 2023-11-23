@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <title>Notícias</title>
@@ -10,6 +11,9 @@
   <link rel="stylesheet" href="/css/noticias.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="modulepreload" href="/script/noticias.js">
+  <script type="module" src="/script/noticias.js"></script>
+  <script src="/script/utils.js" defer></script>
+  <script src="/script/articleRedirect.js" defer></script>
 </head>
 <body>
   <header class="navbar">
@@ -73,7 +77,26 @@
     <span></span>
     <span></span>
   </div>
+  <div class="container-row">
+    <div class="start">
+    </div>
     <div class="container">
+      <div class="status-container">
+        <div class="status-items">
+          <div class="status-item">
+            <div class="red">B</div>
+          </div>
+          <div class="status-item">
+            <div class="yellow">Y</div>
+          </div>
+          <div class="status-item">
+            <div class="green">A</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress"></div>
+        </div>
+      </div>
       <div class="article-container">
       </div>
       <div class="pagination-container" style="display: none;">
@@ -93,14 +116,14 @@
         </div>
       </div>
     </div>
+    <div class="end">
+    </div>
+  </div>
   <footer>
     <div class="footer">
       <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord"></a>
-      <p>© 2023 Xbox Family BR, Inc.</p>
+      <p>© 2023 Xbox Family BR</p>
     </div>
   </footer>
-  <script type="module" src="/script/noticias.js"></script>
-  <script src="/script/utils.js" defer></script>
-  <script src="/script/articleRedirect.js" defer></script>
 </body>
 </html>
