@@ -12,6 +12,9 @@ const fs = require('fs');
 const mysql = require('mysql2');
 const port = 3000;
 const app = express();
+const dbConfig = require('./script/dbConfig');
+
+
 
 
 app.use(
@@ -51,12 +54,8 @@ app.use('/script', express.static(path.join(__dirname, 'script')));
 app.use(express.static(path.join(__dirname, 'views')));
 
 // Create a connection to the MySQL database
-const connection = mysql.createConnection({
-  host: '127.0.0.1',
-  user: 'root',
-  password: 'Sony#Xbox*1ç',
-  database: 'xfbr',
-});
+const connection = mysql.createConnection(dbConfig);
+
 
 // Connect to the database
 connection.connect((err) => {
