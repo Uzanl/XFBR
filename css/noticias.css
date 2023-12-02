@@ -11,6 +11,10 @@
   display: none;
 }
 
+.navbar {
+  display: block;
+}
+
 body {
   display: flex;
   flex-direction: column;
@@ -28,40 +32,37 @@ body {
   flex-basis: calc(33.33% - 20px);
   margin: 10px;
   padding: 10px;
-  background-color: #f2f2f2;
   box-sizing: border-box;
   text-align: center;
   border-radius: 10px;
-  background-color: #555555;
 }
 
-.status-trapezoid-container{
+.status-trapezoid-container {
   width: 100%;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    background-color: #555555
+  align-items: center;
+  display: flex;
+  justify-content: center;
 }
 
-.status{
+.status {
   background-color: #333;
-    height: 50px;
-    width: 100%;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    transform: rotate(-180deg);
+  height: 50px;
+  width: 100%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  transform: rotate(-180deg);
 }
 
-.status-item-container{
+.status-item-container {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
- 
+
 }
 
-.status-item-container p{
+.status-item-container p {
   padding: 10px;
   color: #f2f2f2;
 }
@@ -78,25 +79,32 @@ body {
   background-color: black;
 }
 
-.red { color: red; }
-.yellow { color: yellow; }
-.green { color: green; }
+.red {
+  color: red;
+}
 
+.yellow {
+  color: yellow;
+}
+
+.green {
+  color: green;
+}
 
 .status-item:hover {
   transform: scale(1.2);
 }
 
-.trapezoid{
+.trapezoid {
   width: 700px;
-    height: 100px;
-    background-color: #333;
-    clip-path: polygon(15% 0, 85% 0, 100% 100%, 0 100%);
-    transform: rotate(-180deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1px;
+  height: 100px;
+  background-color: #333;
+  clip-path: polygon(15% 0, 85% 0, 100% 100%, 0 100%);
+  transform: rotate(-180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -1px;
 }
 
 .article img {
@@ -118,8 +126,10 @@ body {
   display: flex;
   align-items: center;
   flex-direction: column;
-  border-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
   width: 900px;
+  background-color: #555555;
 }
 
 .container-row {
@@ -130,7 +140,7 @@ body {
   flex-flow: row wrap;
 }
 
-.footer {
+footer {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -141,38 +151,37 @@ body {
   padding: 20px;
   box-sizing: border-box;
   font-weight: bold;
+  text-align: center;
 }
 
 footer a {
   background-color: #333333;
   border: none;
-  padding: 0;
+
 }
 
-footer a img {
-  height: 30px;
-  width: 39.59px;
+footer img {
+  height: 50px;
+  width: 50px;
 }
 
-.navbar {
-  display: block;
+footer img:hover{
+  filter: brightness(0.8);
 }
 
 
 
-.start{
+.start {
   order: 1;
 }
 
-.container{
+.container {
   order: 2;
 }
 
-.end{
+.end {
   order: 3;
 }
-
-
 
 .start,
 .end {
@@ -209,9 +218,6 @@ p2 {
   color: #ececec;
 }
 
-
-
-
 .pagination {
   display: flex;
   justify-content: center;
@@ -236,6 +242,47 @@ p2 {
   background-color: #ccc;
 }
 
+.social-row{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Para telas menores ou iguais a 480px */
+@media screen and (max-width: 480px) {
+  .status-trapezoid-container{
+    display: none;
+ }
+
+ footer{
+  font-size: 12px;
+}
+
+.pagination a{
+  padding: 2px 7px;
+  font-size: 12px;
+}
+
+}
+
+/* Para telas maiores que 480px e menores ou iguais a 768px */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .status-trapezoid-container{
+    display: none;
+ }
+
+ footer{
+  font-size: 14px;
+}
+}
+
+
+
+
+
+
+
 @media screen and (max-width: 1199px) {
   .pagination-container {
     width: 100%;
@@ -246,16 +293,10 @@ p2 {
     z-index: 1;
   }
 
-  
-
- 
-
-.container-row{
-  flex-direction: column;
-  align-items: center;
-}
-  
-
+  .container-row {
+    flex-direction: column;
+    align-items: center;
+  }
 
   .container {
     background-color: #555555;
@@ -263,13 +304,13 @@ p2 {
     order: 1;
   }
 
-  .end{
+  .end {
     width: 100%;
     order: 2;
     height: 100px;
   }
 
-  .start{
+  .start {
     width: 100%;
     order: 3;
     height: 100px;
@@ -279,7 +320,6 @@ p2 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #555555;
   }
 
   .article img {
@@ -308,7 +348,6 @@ p2 {
     justify-content: flex-start;
     width: 900px;
     margin: 0 auto;
-    background-color: #555555;
   }
 
   .pagination-container {

@@ -490,45 +490,48 @@ app.post('/upload', (req, res) => {
 });
 
 app.get('/get-articles/:page', compression(), (req, res) => {
-  const itemsPerPage = 8; // Quantidade de notícias por página
-  const currentPage = req.params.page || 1; // Página atual (padrão é 1)
+  const itemsPerPage = 8;
+  const currentPage = req.params.page || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
 
-  const sql = `
-  SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu,
-  (SELECT COUNT(*) FROM artigo) AS total_count
-  FROM artigo a
-  INNER JOIN usuario u ON a.id_usu = u.id_usu 
-  LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
-  ORDER BY data_publicacao DESC LIMIT ?, ?
-`;
+  // Consulta para obter os artigos da página atual
+  const articlesQuery = `
+    SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
+    FROM artigo a
+    INNER JOIN usuario u ON a.id_usu = u.id_usu 
+    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
+    ORDER BY data_publicacao DESC LIMIT ?, ?
+  `;
 
-  connection.query(sql, [startIndex, itemsPerPage], (err, results) => {
+  connection.query(articlesQuery, [startIndex, itemsPerPage], (err, articles) => {
     if (err) {
       console.error('Erro ao obter as notícias do banco de dados:', err);
       return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
     }
 
-    const articles = results;
-    const totalCount = articles.length > 0 ? articles[0].total_count : 0;
-    const hasNextPage = articles.length === itemsPerPage;
+    // Consulta para obter o total de artigos
+    const countQuery = 'SELECT COUNT(*) AS total_count FROM artigo';
+    connection.query(countQuery, (err, countResult) => {
+      if (err) {
+        console.error('Erro ao obter o número total de artigos:', err);
+        return res.status(500).json({ error: 'Erro ao obter o número total de artigos' });
+      }
 
-    res.json({ articles, hasNextPage, currentPage, totalCount });
+      const totalCount = countResult[0].total_count;
+      const hasNextPage = articles.length === itemsPerPage;
+
+      res.json({ articles, hasNextPage, currentPage, totalCount });
+    });
   });
-
 });
+
 
 app.get('/get-articles-profile', (req, res) => {
   let userId;
 
-  //console.log(req.query.id);
-  const id = parseInt(req.query.id);
+ 
 
-  if (!isNaN(id) && id > 1) {
-    //console.log("chegou aqui")
-    userId = id;
-    processArticlesQuery(userId);
-  } else {
+ 
 
     if (req.session.user) {
       userId = req.session.user.id_usu;
@@ -553,7 +556,7 @@ app.get('/get-articles-profile', (req, res) => {
     } else {
       return res.status(401).json({ redirect: '/login.html' });
     }
-  }
+  
 
   function processArticlesQuery(userId) {
     const itemsPerPage = 8;
@@ -574,7 +577,8 @@ app.get('/get-articles-profile', (req, res) => {
     LEFT JOIN usuario ON a.id_usu = usuario.id_usu
     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
     WHERE a.id_usu = ?
-    ORDER BY a.data_publicacao DESC
+    ORDER BY a.data_publicacao DESC LIMIT ?, ?
+    
   `;
 
 
@@ -591,8 +595,9 @@ app.get('/get-articles-profile', (req, res) => {
           console.error('Erro ao obter as notícias do banco de dados:', err);
           return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
         }
-
+    
         const articles = results;
+  
         const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
 
         res.json({ articles, totalCount, hasNextPage });
@@ -813,7 +818,7 @@ app.get('/logout', (req, res) => {
   if (microsoftAccessToken) {
     // Chame a função de revogação do token de acesso, se disponível
     console.log(microsoftAccessToken.access_token);
-    authData = null;
+    req.session.authData = null;
     client.clearTokens();
     res.clearCookie('connect.sid');
   }
@@ -962,7 +967,7 @@ app.post('/update-description', (req, res) => {
     if (err) {
       console.error('Erro ao atualizar descrição:', err);
       return res.status(500).json({ error: 'Erro ao atualizar a descrição' });
-    }
+    }session
 
     if (result.affectedRows === 1) {
       return res.json({ success: true });
@@ -972,32 +977,32 @@ app.post('/update-description', (req, res) => {
   });
 });
 
-// Store authentication data
-let authData = null;
-
-// Start authentication flow
+// Rota de autenticação
 app.get('/auth', (req, res) => {
-  if (!authData) {
+  
+  if (!req.session.authData) {
+ 
     const url = client.startAuthServer(() => {
-      console.log('Authentication is done. User logged in');
-      authData = client._authentication;
+      req.session.authData = client._authentication; // Salvar os dados de autenticação na sessão do usuário
     });
 
     res.redirect(url);
+  } else {
+    // O usuário já está autenticado, talvez redirecionar para outra página ou enviar uma resposta adequada
+    res.send('User already authenticated.');
   }
-  // res.send('Authentication started. Check console for details.');
 });
 
 app.get('/profile', (req, res) => {
   client.isAuthenticated().then(() => {
-    console.log('User is authenticated.');
+    console.log('cheguei aqui!.');
 
     client.getProvider('profile').getUserProfile().then(result => {
-      console.log('Profile:', result);
+    /*  console.log('Profile:', result);*/
 
       req.session.isAuth = true;
       req.session.profileData = result;
-
+    
       const data = req.session.profileData;
       const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
       const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;

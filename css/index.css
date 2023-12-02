@@ -26,8 +26,9 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
+  color: #f2f2f2;
 }
 
 footer a {
@@ -51,9 +52,10 @@ footer {
   justify-content: center;
   align-items: center;
   background-color: #333333;
-  color: #fff;
+  font-size: 14px;
   padding: 20px;
   font-weight: bold;
+  text-align: center;
 }
 
 .info {
@@ -62,19 +64,18 @@ footer {
   align-items: center;
   flex-direction: column;
   position: absolute;
-  color: #f2f2f2;
+  max-width: 40%;
+  height: auto;
 }
 
 .info p {
-  max-width: 600px;
+
   padding: 20px;
-  font-size: 1.5rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
   line-height: 1.8em;
   text-align: justify;
-  font-weight: 300;
+  font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
-  color:white;
 }
 
 .overlay {
@@ -86,7 +87,7 @@ footer {
   box-shadow: inset 0 0 0 100vw hsl(0deg 0% 0%/50%);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .social-row{
@@ -97,17 +98,86 @@ footer {
 }
 
 .discord-button {
-  background-color: #7289da;
+  background-color: #3f51b5; /* Um azul mais escuro */
   color: #fff;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
-  font-size: 1.2rem;
+  font-size: 18px;
   font-weight: bold;
   text-decoration: none;
   cursor: pointer;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.9);
 }
 
 .discord-button:hover {
   background-color: #677bc4;
 }
+
+
+
+/* Para telas menores ou iguais a 480px */
+@media screen and (max-width: 480px) {
+  .info p {
+    font-size: 16px;
+    padding: 0;
+  }
+
+  .discord-button {
+    font-size: 14px;
+  }
+  
+
+  footer img{
+    width: 30px;
+    height: 30px;
+  }
+
+  footer{
+    font-size: 12px;
+  }
+
+  .overlay{
+    justify-content: center;
+  }
+
+  .info{
+    max-width: 80%;
+    height: auto;
+  }
+ 
+}
+
+/* Para telas maiores que 480px e menores ou iguais a 768px */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .info p {
+    font-size: 20px; /* ou mantenha o tamanho original de 20px, se preferir */
+
+  }
+
+  .discord-button {
+    font-size: 18px;
+  }
+  
+
+  footer{
+    font-size: 14px;
+  }
+
+  footer img{
+  width: 40px;
+  height: 40px;
+  }
+
+  .overlay{
+    justify-content: center;
+  }
+
+  .info{
+    max-width: 80%;
+    height: auto;
+  }
+
+}
+
+
