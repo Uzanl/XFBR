@@ -1,6 +1,9 @@
 import { updateLoginButtonVisibility } from './auth.js';
-
-updateLoginButtonVisibility();
+import { redirectToArticlePage } from './articleRedirect.js';
+(async function () {
+    updateLoginButtonVisibility();
+    redirectToArticlePage();
+  })();
 
 
 

@@ -1,4 +1,4 @@
-function updateLoginButtonVisibility() {
+async function updateLoginButtonVisibility() {
   fetch("http://localhost:3000/checkLoginStatus")
     .then(response => response.json())
     .then(data => {

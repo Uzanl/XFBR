@@ -1,6 +1,5 @@
 import { updateLoginButtonVisibility } from './auth.js';
-
-updateLoginButtonVisibility();
+import { redirectToArticlePage } from './articleRedirect.js';
 
 const articleContainer = document.querySelector('.article-container');
 const paginationContainer = document.querySelector('.pagination-container');
@@ -35,6 +34,7 @@ class Article {
   }
 
   async render(index) {
+
     const articleElement = document.createElement('div');
     articleElement.classList.add('article');
     articleElement.setAttribute('data-id', this.id_artigo);
@@ -52,9 +52,10 @@ class Article {
     titleElement.textContent = this.titulo;
 
     const openArticleHandler = () => openArticle(this.id_artigo);
+
     imageElement.addEventListener('click', openArticleHandler);
     titleElement.addEventListener('click', openArticleHandler);
-
+   
     const previewElement = document.createElement('p');
     previewElement.textContent = this.previa_conteudo;
 
@@ -62,7 +63,7 @@ class Article {
     userInfoElement.textContent = `Postado por ${this.login_usu} em ${this.data_formatada}`;
 
     [imageElement, titleElement, previewElement, userInfoElement].forEach(elem => articleElement.appendChild(elem));
-
+    
     return articleElement;
   }
 }
@@ -103,17 +104,24 @@ function updatePageNumbers(totalPages) {
     pageLink.href = `not%C3%ADcias.html?page=${i}`;
     pageLink.textContent = i;
     pageLink.classList.toggle('active', i === currentPage);
-    pageLink.addEventListener('click', () => loadArticles(i));
     fragment.appendChild(pageLink);
   }
 
+  paginationContainer.addEventListener('click', (event) => {
+    if (event.target.classList.contains('page-link')) {
+      const pageNumber = parseInt(event.target.textContent);
+      loadArticles(pageNumber);
+    } else if (event.target.classList.contains('prev-page')) {
+      handlePageButtonClick(-1, totalPages)();
+    } else if (event.target.classList.contains('next-page')) {
+      handlePageButtonClick(1, totalPages)();
+    }
+  }); 
+
   const prevPageButton = paginationContainer.querySelector('.prev-page');
   const nextPageButton = paginationContainer.querySelector('.next-page');
-  prevPageButton.addEventListener('click', handlePageButtonClick(-1, totalPages));
-  nextPageButton.addEventListener('click', handlePageButtonClick(1, totalPages));  
   prevPageButton.style.display = currentPage > 1 ? 'block' : 'none';
   nextPageButton.style.display = currentPage < totalPages ? 'block' : 'none';
-
   pageNumbersContainer.appendChild(fragment);
 }
 
@@ -140,6 +148,8 @@ async function loadArticles(pageNumber) {
   const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
   const fragment = document.createDocumentFragment();
 
+
+
   for (const article of newArticles) {
     const { id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu } = article;
     const articleInstance = new Article(id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu);
@@ -152,14 +162,19 @@ async function loadArticles(pageNumber) {
   currentPage = pageNumber;
   updatePageNumbers(newTotalPages);
   window.history.pushState({}, '', `not%C3%ADcias.html?page=${pageNumber}`);
-  paginationContainer.style.display = 'block';
+  paginationContainer.style.display = 'flex';
 }
 
 function openArticle(id) {
   window.location.href = `artigo.html?id=${id}`;
 }
 
-loadArticles(currentPage);
+(async function () {
+  const currentPage = getCurrentPageFromURL();
+  updateLoginButtonVisibility();
+  redirectToArticlePage();
+  await loadArticles(currentPage);
+})();
 
 
 
