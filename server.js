@@ -14,9 +14,6 @@ const port = 3000;
 const app = express();
 const dbConfig = require('./script/dbConfig');
 
-
-
-
 app.use(
   session({
     secret: 'key',
