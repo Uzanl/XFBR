@@ -106,12 +106,12 @@ const handlePageButtonClick = (offset, totalPages) => async () => {
   }
 };
 
-async function fetchArticles(pageNumber) {
+async function fetchArticles(pageNumber, id) {
   try {
      // Obtém o ID dos parâmetros da URL
 
     let itemsPerPage = 8;
-    const response = await fetch(`/get-articles-profile?page=${pageNumber}`); // Adiciona o ID à URL
+    const response = await fetch(`/get-articles-profile?page=${pageNumber}&id=${id}`); // Adiciona o ID à URL
     const data = await response.json();
 
     return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
@@ -122,8 +122,9 @@ async function fetchArticles(pageNumber) {
   }
 }
 
-async function loadArticles(pageNumber) {
-  const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
+async function loadArticles(pageNumber,id) {
+
+  const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber,id);
   articleContainer.innerHTML = '';
 
   for (const article of newArticles) {
@@ -145,7 +146,7 @@ async function GetPageData() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   LoadProfile(id)
-  loadArticles(currentPage);
+  loadArticles(currentPage, id);
 }
 
 GetPageData();

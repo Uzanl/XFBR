@@ -13,7 +13,10 @@ function handleImageResolution() {
       
       (index === 0)? image.src = originalSrc.replace('.webp', '_firstchild.webp'):  image.src = originalSrc.replace('_firstchild.webp', '.webp'); 
 
-    } else if (screenWidth >= 992 && screenWidth <= 1199) {
+    } else if (screenWidth >768 && screenWidth <992) {
+      image.src = originalSrc.replace('.webp', '_firstchild.webp');
+    }
+    else if (screenWidth >= 992 && screenWidth <= 1199) {
       image.src = originalSrc.replace('.webp', '_firstchild.webp');
     } else if (screenWidth > 320 && screenWidth <= 480) {
       image.src = originalSrc.replace('.webp', '_432.webp');
@@ -144,9 +147,6 @@ async function fetchArticles(pageNumber) {
 async function loadArticles(pageNumber) {
   const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
   const fragment = document.createDocumentFragment();
-
-
-
   for (const article of newArticles) {
     const { id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu } = article;
     const articleInstance = new Article(id_artigo, titulo, data_formatada, id_usu, imagem_url, previa_conteudo, login_usu);
@@ -168,8 +168,6 @@ function openArticle(id) {
 
 (async function () {
   const currentPage = getCurrentPageFromURL();
-  updateLoginButtonVisibility();
-  redirectToArticlePage();
   await loadArticles(currentPage);
 })();
 

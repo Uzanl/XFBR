@@ -500,11 +500,17 @@ app.get('/get-articles/:page', compression(), (req, res) => {
 
 
 app.get('/get-articles-profile', (req, res) => {
+
   let userId;
 
- 
+  //console.log(req.query.id);
+  const id = parseInt(req.query.id);
 
- 
+  if (!isNaN(id) && id > 1) {
+    //console.log("chegou aqui")
+    userId = id;
+    processArticlesQuery(userId);
+  } else {
 
     if (req.session.user) {
       userId = req.session.user.id_usu;
@@ -529,7 +535,7 @@ app.get('/get-articles-profile', (req, res) => {
     } else {
       return res.status(401).json({ redirect: '/login.html' });
     }
-  
+  }
 
   function processArticlesQuery(userId) {
     const itemsPerPage = 8;
