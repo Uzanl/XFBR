@@ -1,4 +1,4 @@
-import { updateLoginButtonVisibility } from './auth.js';
+
 
 const articleContainer = document.querySelector('.article-container');
 const paginationContainer = document.querySelector('.pagination-container');
@@ -146,7 +146,6 @@ async function GetPageData() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   LoadProfile(id)
-  updateLoginButtonVisibility();
   loadArticles(currentPage);
 }
 

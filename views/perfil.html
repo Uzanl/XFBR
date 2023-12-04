@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <title>Perfil</title>
@@ -9,16 +8,12 @@
   <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/searchbar.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
-  <link rel="modulepreload" href="/script/auth.js">
-  <link rel="modulepreload" href="/script/articleRedirect.js">
-  <link rel="modulepreload" href="/script/perfil.js">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
-
-
+  <script src="/script/perfil.js" defer></script>
+  <script src="/script/auth.js" defer></script>
+  <script src="/script/utils.js" defer></script>
+  <script src="/script/articleRedirect.js" defer></script>
 
 </head>
-
 <body>
   <header class="navbar">
     <nav>
@@ -68,33 +63,25 @@
     </nav>
   </header>
   <div class="sidebar">
-    <!-- Conteúdo do menu lateral -->
     <ul>
       <li><a href="index.html">Informações</a></li>
       <li><a href="notícias.html">Notícias</a></li>
       <li><a href="bate-papo.html">Bate-papo</a></li>
       <li><a href="video-clipes.html">Vídeo-clipes</a></li>
       <li><a>Publicar</a></li>
-
     </ul>
   </div>
-
   <div class="toggle-btn" onclick="toggleSidebar()">
     <span></span>
     <span></span>
     <span></span>
   </div>
-
-
   <div class="perfil-container">
-   
 <div class="links">
   <button class="downloadButton">
     <img width="25" height="25" src="/baixar.webp">
   </button>
 </div>
-
-
     <div class="profile">
       <div class="autor">        
         <div class="hole-container">
@@ -120,25 +107,20 @@
         </div>                
       </div>
     </div>
-
 <div class="profile2">
       <div class="autor">        
         <div class="hole-container">
           <div class="hole"> 
           </div>
         </div>
-   
         <div class="profile-description2">
           <p class="desc-profile2">Sua descrição atual do perfil vai aqui.</p>
         </div>                
       </div>
     </div>
-
     <textarea id="description-input" rows="4" placeholder="Atualize sua descrição"></textarea>
     <button id="update-description-button">Atualizar Descrição</button>
   </div>
-
-
   <div class="teste">
     <div class="perfil-posts">
       <div class="start">
@@ -148,7 +130,6 @@
           <div class="article-container">
           </div>
         </div>
-      
       <div class="end">
       </div>
     </div>
@@ -169,15 +150,11 @@
       </div>
     </div>
   </div>
-  
   <footer>
     <div class="footer">
       <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord"></a>
       <p>© 2023 Xbox Family Br, Inc.</p>
     </div>
   </footer>
-  <script type="module" src="/script/perfil.js"></script>
-  <script src="/script/utils.js" defer></script>
-  <script src="/script/articleRedirect.js" defer></script>
 </body>
 </html>
