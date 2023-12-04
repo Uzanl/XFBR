@@ -324,8 +324,6 @@ p.gamertag {
   overflow: hidden; /* Garante que a imagem não exceda os limites do círculo */
 }
 
-
-
 .profile-description, .profile-description2 {
   flex: 1;
   min-height: 120.75px;
