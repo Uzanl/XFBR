@@ -6,4 +6,6 @@ async function redirectToArticlePage() {
   
 }
 
-  export{redirectToArticlePage};
+
+redirectToArticlePage();
+/*  export{redirectToArticlePage};*/

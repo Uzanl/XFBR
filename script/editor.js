@@ -1,6 +1,4 @@
-import { updateLoginButtonVisibility } from './auth.js';
 
-updateLoginButtonVisibility();
 
 tinymce.init({
   selector: '#editor',

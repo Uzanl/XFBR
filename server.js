@@ -178,7 +178,6 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
         userId = result[0].id_usu;
 
         if (!userId) {
-          //console.log("caiu aqui!")
           return res.json({ temPermissao: false });
         }
 
@@ -250,18 +249,10 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
     const image = req.files ? req.files.image : null;
     const missingFields = [];
 
-    if (!title) {
-      missingFields.push('Título');
-    }
-
-    if (!content) {
-      missingFields.push('Conteúdo');
-    }
-
-    if (!contentpreview) {
-      missingFields.push('Conteúdo da prévia');
-    }
-
+    if (!title) missingFields.push('Título');
+    if (!content) missingFields.push('Conteúdo');
+    if (!contentpreview) missingFields.push('Conteúdo da prévia');
+    
     if (missingFields.length > 0) {
       const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
       return res.status(400).json({ error: errorMessage });
@@ -332,11 +323,8 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
 });
 
 app.post('/insert-news', (req, res) => {
-
   let userId;
-
   if (req.session.user) {
-
     userId = req.session.user.id_usu;
   } else if (req.session.profileData) {
     const XboxUserId = req.session.profileData.profileUsers[0].id;
@@ -365,22 +353,11 @@ app.post('/insert-news', (req, res) => {
     const image = req.files ? req.files.image : null;
     const missingFields = [];
 
-    if (!title) {
-      missingFields.push('Título');
-    }
-
-    if (!content) {
-      missingFields.push('Conteúdo');
-    }
-
-    if (!image) {
-      missingFields.push('URL da imagem');
-    }
-
-    if (!contentpreview) {
-      missingFields.push('Conteúdo da prévia');
-    }
-
+    if (!title) missingFields.push('Título');
+    if (!content) missingFields.push('Conteúdo');
+    if (!image)  missingFields.push('URL da imagem'); 
+    if (!contentpreview) missingFields.push('Conteúdo da prévia');
+    
     if (missingFields.length > 0) {
       const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
       return res.status(400).json({ error: errorMessage });
@@ -1009,7 +986,6 @@ app.get('/profile', (req, res) => {
       const imagePath = __dirname + '/profile-xbox-images/' + id + '.webp';
 
       // ...
-
       const download = https.get(profileImageURL, (response) => {
         const chunks = [];
         response
@@ -1024,8 +1000,6 @@ app.get('/profile', (req, res) => {
                   console.error('Erro ao redimensionar e converter a imagem:', err);
                   return;
                 }
-
-
                 const newImageName = id + '.webp';
                 // Insere a imagem redimensionada e convertida no banco de dados
                 const insertImageQuery = `
