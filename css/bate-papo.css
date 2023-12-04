@@ -2,7 +2,6 @@
 .logout-image {
   width: 30px;
   height: 30px;
-
 }
 
 .login-list-item,
@@ -11,25 +10,37 @@
  #item-profile{
   display: none;
 }
+.publish-button {
+  cursor: pointer;
+}
 
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: auto;
   font-family: Arial, sans-serif;
   margin: 0;
+  background-color: #333333;
 }
 
 main {
-  justify-content: center;
+  display: flex;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
-  min-height: 100vh;
+  height: auto;
   text-align: center;
-  background-color: #333333;
   color: #f2f2f2;
 }
 
+footer{
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
 .footer {
   display: flex;
@@ -54,7 +65,6 @@ footer a img {
 
 main p {
   max-width: 600px;
-  margin: auto;
   font-size: 1.2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5em;
@@ -63,13 +73,13 @@ main p {
 }
 
 .wb-embed {
-  width: 60%;
+  width: 100%;
   margin-top: 20px;
   height: 500px;
 }
 
-.publish-button {
-  cursor: pointer;
+.sidebar {
+  display: none;
 }
 
 @media screen and (max-width: 768px) {
