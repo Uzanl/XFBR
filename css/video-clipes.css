@@ -14,11 +14,7 @@
   cursor: pointer;
 }
 
-
-
-
 body {
-  transition: all 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
   height: auto;
@@ -77,7 +73,7 @@ main p {
 }
 
 .wb-embed {
-  width: 60%;
+  width: 50%;
   margin-top: 20px;
   height: 500px;
 }
