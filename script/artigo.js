@@ -1,8 +1,5 @@
-import { updateLoginButtonVisibility } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  updateLoginButtonVisibility();
-
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   const deleteButton = document.querySelector('.delete-image-container');

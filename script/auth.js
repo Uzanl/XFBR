@@ -18,7 +18,10 @@ async function updateLoginButtonVisibility() {
     });
 }
 
-export { updateLoginButtonVisibility };
+
+updateLoginButtonVisibility();
+
+/*export { updateLoginButtonVisibility };*/
 
 const logoutButtonListItem = document.querySelector('.logout-button');
 

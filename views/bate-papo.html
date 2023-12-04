@@ -11,8 +11,12 @@
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="stylesheet" href="/css/searchbar.css">
 
-</head>
+  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed" defer></script>
+  <script  src="/script/auth.js" defer></script>
+  <script  src="/script/utils.js" defer></script>
+  <script src="/script/articleRedirect.js" defer></script>
 
+</head>
 <body class="pagina-escura">
   <header class="navbar">
     <nav>
@@ -26,17 +30,13 @@
           <ul class="suggestion-list">
           </ul>
           </div>
-        </li>
-       
+        </li>    
         <li class="submenu-noticias">
           <a class="menu-item">Artigos</a>
           <div class="noticias-container">
            <ul class="noticias-list">
-
              <li class="item"><a href="notícias.html">Notícias</a></li>
              <li class="publish-button"><a id="publish-link">Publicar</a></li>
-
-
            </ul>
            </div>
        </li>
@@ -44,37 +44,28 @@
            <a class="menu-item">Comunidade</a>
            <div class="comunidade-container">
             <ul class="comunidade-list">
-
-
               <li class="item"><a href="index.html">Informações</a></li>
               <li class="item"><a href="bate-papo.html">Bate-papo</a></li>
               <li class="item" ><a href="video-clipes.html">Vídeo-clipes</a></li>
-
-
             </ul>
             </div>
-        </li>
-     
+        </li> 
         <li class="submenu-profile">
           <a class="menu-item">
             <img src="/profile.png" alt="Logout" class="logout-image">
           </a>
           <div class="profile-container">
            <ul class="profile-list">
-
             <li class="login-list-item"><a href="login.html">Login</a></li>
             <li class="logout-button"><a href="#">Sair</a></li>
             <li class="item" id="item-profile"><a  href="perfil.html">Perfil</a></li>
-
            </ul>
            </div>
        </li>
       </ul>    
     </nav>
   </header>
-
   <div class="sidebar">
-    <!-- Conteúdo do menu lateral -->
     <ul>
       <li><a href="index.html">Info</a></li>
       <li><a href="notícias.html">Notícias</a></li>
@@ -82,13 +73,11 @@
       <li><a href="video-clipes.html">Vídeos</a></li>
     </ul>
   </div>
-
   <div class="toggle-btn" onclick="toggleSidebar()">
     <span></span>
     <span></span>
     <span></span>
   </div>
-
   <main>
     <div id="bate-papo" class="container">
       <p>"Bem-vindo ao lugar onde as discussões sobre Xbox e o mundo dos jogos são intensas e emocionantes! Junte-se a
@@ -96,15 +85,8 @@
         você pode se conectar com outros jogadores apaixonados e mergulhar no universo dos jogos de uma forma incrível!"
       </p>
       <widgetbot class="wb-embed" server="901946904408113212" channel="903661574592561192"></widgetbot>
-      <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed"></script>
     </div>
   </main>
-
- 
-  <script type="module" src="/script/bate-papo.js"></script>
-  <script  src="/script/utils.js" defer></script>
-  <script src="/script/articleRedirect.js" defer></script>
-
 <footer>
   <div class="footer">
     <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord"></a>
@@ -112,5 +94,4 @@
   </div>
 </footer>
 </body>
-
 </html>

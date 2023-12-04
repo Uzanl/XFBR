@@ -1,6 +1,3 @@
-import { updateLoginButtonVisibility } from './auth.js';
-import { redirectToArticlePage } from './articleRedirect.js';
-
 const articleContainer = document.querySelector('.article-container');
 const paginationContainer = document.querySelector('.pagination-container');
 
