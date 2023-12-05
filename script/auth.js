@@ -1,6 +1,8 @@
+updateLoginButtonVisibility();
+
 async function updateLoginButtonVisibility() {
   try {
-    const response = await fetch("http://localhost:3000/checkLoginStatus");
+    const response = await fetch("/checkLoginStatus");
     const data = await response.json();
     console.log("Response from server:", data);
 
@@ -28,7 +30,7 @@ async function updateLoginButtonVisibility() {
   }
 }
 
-updateLoginButtonVisibility();
+
 
 const logoutButtonListItem = document.querySelector('.logout-button');
 if (logoutButtonListItem) {

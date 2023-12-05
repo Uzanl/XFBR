@@ -134,15 +134,31 @@ const handlePageButtonClick = (offset, totalPages) => async () => {
 
 async function fetchArticles(pageNumber) {
   try {
-    let itemsPerPage = 8
-    const response = await fetch(`/get-articles/${pageNumber}`);
-    const data = await response.json();
-    return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
+    let itemsPerPage = 8;
+
+    const cache = await caches.open('articles-cache');
+    const cachedResponse = await cache.match(`/get-articles/${pageNumber}`);
+
+    if (cachedResponse) {
+      const data = await cachedResponse.json();
+      return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
+    } else {
+      const response = await fetch(`/get-articles/${pageNumber}`);
+      const responseData = await response.clone().json(); // Consumindo o corpo da resposta aqui
+
+      // Armazenando a resposta em cache para uso futuro
+      cache.put(`/get-articles/${pageNumber}`, new Response(JSON.stringify(responseData)));
+
+      return { articles: responseData.articles, totalPages: Math.ceil(responseData.totalCount / itemsPerPage) };
+    }
   } catch (error) {
     console.error('Error fetching articles:', error);
     return { articles: [], totalPages: 0 };
   }
 }
+
+
+
 
 async function loadArticles(pageNumber) {
   const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
