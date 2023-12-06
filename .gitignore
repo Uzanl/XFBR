@@ -5,3 +5,4 @@
 /node_modules/sharp/build/Release/sharp-win32-x64.node
 script/dbConfig.js
 /.tokens.json
+script/xbApiConfig.js
