@@ -13,6 +13,14 @@ const mysql = require('mysql2');
 const port = 3000;
 const app = express();
 const dbConfig = require('./script/dbConfig');
+const config = require('./script/xbApiConfig.js');
+
+// Use as chaves do arquivo de configuração
+const client = XboxApiClient({
+  clientId: config.clientId,
+  clientSecret: config.clientSecret
+});
+
 
 app.use(
   session({
@@ -22,11 +30,7 @@ app.use(
   })
 );
 
-// Initialize XboxApiClient
-const client = XboxApiClient({
-  clientId: '532a110d-0270-4af5-995a-ce65266c50a3',
-  clientSecret: 'Gej8Q~UPd.~iGF4jOSlxgK~vPn6px1EPWxGPFdoP'
-});
+
 
 app.use(express.json({ limit: '200mb' }));
 
