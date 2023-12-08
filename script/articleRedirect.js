@@ -5,7 +5,5 @@ async function redirectToArticlePage() {
   });
   
 }
-
-
 redirectToArticlePage();
 /*  export{redirectToArticlePage};*/

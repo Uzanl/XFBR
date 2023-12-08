@@ -14,6 +14,8 @@ const port = 3000;
 const app = express();
 const dbConfig = require('./script/dbConfig');
 const config = require('./script/xbApiConfig.js');
+const cors = require('cors');
+
 
 // Use as chaves do arquivo de configuração
 const client = XboxApiClient({
@@ -30,7 +32,7 @@ app.use(
   })
 );
 
-
+app.use(cors());
 
 app.use(express.json({ limit: '200mb' }));
 
@@ -43,6 +45,8 @@ app.use(fileUpload());
 app.use('/css', express.static(path.join(__dirname, 'css')));
 
 app.use(express.static(path.join(__dirname, 'rsc')));
+
+app.use(express.static(path.join(__dirname, 'fonts')));
 
 app.use(express.static(path.join(__dirname, 'images-preview')));
 
