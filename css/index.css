@@ -1,3 +1,25 @@
+@font-face {
+  font-family: 'TT Octosquares'; /* Nome da fonte */
+  src: url('/TTOctosquares-Black.woff2') format('woff2'); /* Caminho para o arquivo .ttf */
+  /* Adicione outras variações da fonte (como itálico, negrito, etc.) conforme necessário */
+    /* Use font-display: swap to display fallback font until custom font is loaded */
+    font-display: swap;
+}
+
+
+body {
+  font-family: 'Sugoi UI', sans-serif;
+ 
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  margin: 0;
+  color: #f2f2f2;
+
+}
+
+
+
 .login-image,
 .logout-image,
 .item-profile {
@@ -17,16 +39,10 @@
   border-bottom: 1px solid #999999;
   display:flex;
   flex-direction: row;
+
 }
 
-body {
-  display: flex;
-  flex-direction: column;
-  height: auto;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
-  margin: 0;
-  color: #f2f2f2;
-}
+
 
 footer img {
   height: 50px;
@@ -47,6 +63,7 @@ footer {
   padding: 20px;
   font-weight: bold;
   text-align: center;
+
 }
 
 .info {
@@ -54,27 +71,40 @@ footer {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  position: absolute;
-  max-width: 40%;
+  font-family: 'TT Octosquares', sans-serif;
+  max-width: 60%;
   height: auto;
+  
+ 
+}
+
+.cor-xbox {
+  color: #C1FF72; /* Substitua pelo código da cor desejada */
+}
+
+h1{
+  font-size: 64px;
+  font-display: optional
 }
 
 .info p {
-  padding: 20px;
-  font-size: 20px;
+  font-size: 21px;
   line-height: 1.8em;
   text-align: justify;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+ 
 }
 
 .overlay {
-  background: url('/halot.webp') no-repeat center center / cover;
-  height: 100vh;
+  background: url('/haloinfinite.webp') no-repeat center center / cover;
+  height: 100dvh;
   box-shadow: inset 0 0 0 100vw hsl(0deg 0% 0%/20%);
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  flex-direction: column;
+ 
 }
 
 .social-row{
@@ -101,18 +131,62 @@ footer {
   background-color: #677bc4;
 }
 
+
 /* Para telas menores ou iguais a 480px */
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 360px) {
+  .info p {
+    font-size: 14px;
+   
+  }
+
+  h1{
+    font-size: 29px;
+  }
+
+  .info{
+    padding:0;
+  }
+  .discord-button {
+    font-size: 12px;
+  }
+  
+
+  footer img{
+    width: 30px;
+    height: 30px;
+  }
+
+  footer{
+    font-size: 10px;
+  }
+
+  .overlay{
+    justify-content: center;
+  }
+
+  .info{
+    max-width: 80%;
+    height: auto;
+  }
+ 
+}
+
+/* Para telas menores ou iguais a 480px */
+@media screen and (min-width: 361px) and (max-width: 480px) {
   .info p {
     font-size: 16px;
-    padding: 0;
+  
   }
+
+  h1{
+    font-size: 40px;
+   }
+
 
   .discord-button {
     font-size: 14px;
   }
   
-
   footer img{
     width: 30px;
     height: 30px;
@@ -129,6 +203,7 @@ footer {
   .info{
     max-width: 80%;
     height: auto;
+    padding: 0;
   }
  
 }
@@ -139,6 +214,12 @@ footer {
     font-size: 20px; /* ou mantenha o tamanho original de 20px, se preferir */
 
   }
+
+   .info{
+    padding: 0;
+   }
+
+   
   .discord-button {
     font-size: 18px;
   }
@@ -157,5 +238,4 @@ footer {
     height: auto;
   }
 }
-
 
