@@ -200,55 +200,75 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
 
   app.delete('/excluir-artigo/:artigoId', (req, res) => {
     const artigoId = req.params.artigoId;
-
+  
     // Verificar se o usuário está autenticado
     if (req.session.user || req.session.profileData) {
-      const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
       const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
-
-      connection.query(selectImageURLQuery, [artigoId], async (err, result) => {
+      const countImageURLQuery = 'SELECT COUNT(*) AS count FROM artigo WHERE imagem_url = ?';
+  
+      // Obter a URL da imagem do artigo que será excluído
+      connection.query(selectImageURLQuery, [artigoId], (err, imageResult) => {
         if (err) {
           console.error('Erro ao obter a URL da imagem:', err);
           return res.status(500).json({ error: 'Erro ao obter a URL da imagem' });
         }
-
-        const imageUrl = result[0]?.imagem_url; // Obtendo a URL da imagem do resultado da consulta
-
-        connection.query(deleteArtigoQuery, [artigoId], async (err, result) => {
-          if (err) {
-            console.error('Erro ao excluir o artigo:', err);
-            return res.status(500).json({ error: 'Erro ao excluir o artigo' });
-          }
-          if (imageUrl) {
-            const imagePath = __dirname + '/images-preview/'; 
-            const imageName = imageUrl.split('/').pop(); // Obtém o nome do arquivo da URL
-            const imageBaseName = imageName.split('.webp')[0]; // Remove a extensão para obter o nome base da imagem
-
-            const variations = ['_720', '_432', '_firstchild']; // Lista de variações de tamanho das imagens
-
-            try {
-              // Exclui a imagem original do sistema de arquivos
-               fs.unlinkSync(`${imagePath}/${imageName}`);
-
-              // Exclui as variações de tamanho das imagens
-              variations.forEach(async (variation) => {
-                const variationImageName = `${imageBaseName}${variation}.webp`;
-                fs.unlinkSync(`${imagePath}/${variationImageName}`);
-              });
-
-              return res.json({ message: 'Artigo e imagens excluídos com sucesso' });
-            } catch (error) {
-              console.error('Erro ao excluir as imagens:', error);
-              return res.status(500).json({ error: 'Erro ao excluir as imagens do artigo' });
+  
+        const imageUrl = imageResult[0]?.imagem_url;
+  
+        if (imageUrl) {
+          // Verificar a quantidade de artigos com a mesma imagem_url
+          connection.query(countImageURLQuery, [imageUrl], (err, countResult) => {
+            if (err) {
+              console.error('Erro ao contar a quantidade de imagens:', err);
+              return res.status(500).json({ error: 'Erro ao contar a quantidade de imagens' });
             }
-          }
-          return res.json({ message: 'Artigo excluído com sucesso, mas a imagem não foi encontrada' });
-        });
+  
+            const count = countResult[0]?.count || 0;
+  
+            if (count === 1) {
+              // Apenas um artigo com essa imagem, então exclui o artigo e suas imagens
+              const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
+              const imagePath = __dirname + '/images-preview/';
+              const imageName = imageUrl.split('/').pop();
+              const imageBaseName = imageName.split('.webp')[0];
+              const variations = ['_720', '_432', '_firstchild'];
+  
+              connection.query(deleteArtigoQuery, [artigoId], (err) => {
+                if (err) {
+                  console.error('Erro ao excluir o artigo:', err);
+                  return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+                }
+  
+                // Excluir as imagens do sistema de arquivos
+                fs.unlinkSync(`${imagePath}/${imageName}`);
+                variations.forEach((variation) => {
+                  const variationImageName = `${imageBaseName}${variation}.webp`;
+                  fs.unlinkSync(`${imagePath}/${variationImageName}`);
+                });
+  
+                return res.json({ message: 'Artigo e imagens excluídos com sucesso' });
+              });
+            } else {
+              // Mais de um artigo com essa imagem, então exclui somente o artigo
+              const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
+              connection.query(deleteArtigoQuery, [artigoId], (err) => {
+                if (err) {
+                  console.error('Erro ao excluir o artigo:', err);
+                  return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+                }
+                return res.json({ message: 'Artigo excluído com sucesso' });
+              });
+            }
+          });
+        } else {
+          return res.json({ message: 'Artigo não encontrado ou sem imagem associada' });
+        }
       });
     } else {
       return res.status(401).json({ error: 'Usuário não autenticado' });
     }
   });
+  
 
 
   app.post('/update-article/:id', (req, res) => {
@@ -260,7 +280,7 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
     if (!title) missingFields.push('Título');
     if (!content) missingFields.push('Conteúdo');
     if (!contentpreview) missingFields.push('Conteúdo da prévia');
-    
+
     if (missingFields.length > 0) {
       const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
       return res.status(400).json({ error: errorMessage });
@@ -363,9 +383,9 @@ app.post('/insert-news', (req, res) => {
 
     if (!title) missingFields.push('Título');
     if (!content) missingFields.push('Conteúdo');
-    if (!image)  missingFields.push('URL da imagem'); 
+    if (!image) missingFields.push('URL da imagem');
     if (!contentpreview) missingFields.push('Conteúdo da prévia');
-    
+
     if (missingFields.length > 0) {
       const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
       return res.status(400).json({ error: errorMessage });
@@ -390,39 +410,22 @@ app.post('/insert-news', (req, res) => {
               console.error('Erro ao inserir artigo:', err);
               res.status(500).json({ error: 'Erro ao inserir o artigo' });
             } else {
-              // Salvando a versão em resolução maior (860x483)
-              const uploadPathFirstChild = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_firstchild.webp';
-              sharp(image.data)
-                .resize(860, 483)
-                .webp({ quality: 100 })
-                .toFile(uploadPathFirstChild, (err) => {
-                  if (err) {
-                    console.error('Erro ao salvar imagem de resolução maior:', err);
-                  }
-                });
-
-              // Salvando a versão em resolução menor (432x243)
-              const uploadPath432 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_432.webp';
-              sharp(image.data)
-                .resize(432, 243)
-                .webp({ quality: 100 })
-                .toFile(uploadPath432, (err) => {
-                  if (err) {
-                    console.error('Erro ao salvar imagem de resolução intermediária:', err);
-                  }
-                });
-
-              // Salvando a versão em resolução intermediária (720x405)
-              const uploadPath720 = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '_720.webp';
-              sharp(image.data)
-                .resize(720, 405)
-                .webp({ quality: 100 })
-                .toFile(uploadPath720, (err) => {
-                  if (err) {
-                    console.error('Erro ao salvar imagem de resolução menor:', err);
-                  }
-                });
-
+              const resolutions = [
+                { width: 860, height: 483, suffix: '_firstchild' },
+                { width: 432, height: 243, suffix: '_432' },
+                { width: 720, height: 405, suffix: '_720' }
+              ];
+              
+              resolutions.forEach(({ width, height, suffix }) => {
+                const uploadPath = `${__dirname}/images-preview/${image.name.replace(/\.[^/.]+$/, "")}${suffix}.webp`;
+              
+                sharp(image.data)
+                  .resize(width, height)
+                  .webp({ quality: 100 })
+                  .toFile(uploadPath, (err) => {
+                    if (err) console.error(`Erro ao salvar imagem de resolução ${width}x${height}:`, err);
+                  });
+              });              
               res.status(200).json({ message: 'Artigo inserido com sucesso' });
             }
           });
@@ -567,8 +570,6 @@ app.get('/get-articles-profile', (req, res) => {
     ORDER BY a.data_publicacao DESC LIMIT ?, ?
     
   `;
-
-
     connection.query(sqlCount, [userId], (err, countResults) => {
       if (err) {
         console.error('Erro ao contar o número total de artigos:', err);
@@ -582,9 +583,9 @@ app.get('/get-articles-profile', (req, res) => {
           console.error('Erro ao obter as notícias do banco de dados:', err);
           return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
         }
-    
+
         const articles = results;
-  
+
         const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
 
         res.json({ articles, totalCount, hasNextPage });
@@ -880,7 +881,6 @@ app.get('/get-user-info/:id', (req, res) => {
     processUserQuery(userId);
   } else {
 
-
     if (req.session.user) {
       userId = req.session.user.id_usu;
       processUserQuery(userId);
@@ -954,7 +954,7 @@ app.post('/update-description', (req, res) => {
     if (err) {
       console.error('Erro ao atualizar descrição:', err);
       return res.status(500).json({ error: 'Erro ao atualizar a descrição' });
-    }session
+    } session
 
     if (result.affectedRows === 1) {
       return res.json({ success: true });
@@ -966,9 +966,9 @@ app.post('/update-description', (req, res) => {
 
 // Rota de autenticação
 app.get('/auth', (req, res) => {
-  
+
   if (!req.session.authData) {
- 
+
     const url = client.startAuthServer(() => {
       req.session.authData = client._authentication; // Salvar os dados de autenticação na sessão do usuário
     });
@@ -985,11 +985,11 @@ app.get('/profile', (req, res) => {
     console.log('cheguei aqui!.');
 
     client.getProvider('profile').getUserProfile().then(result => {
-    /*  console.log('Profile:', result);*/
+      /*  console.log('Profile:', result);*/
 
       req.session.isAuth = true;
       req.session.profileData = result;
-    
+
       const data = req.session.profileData;
       const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
       const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
