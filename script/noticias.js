@@ -46,8 +46,7 @@ class Article {
     const titleElement = document.createElement("h1");
     titleElement.textContent = this.titulo;
     const openArticleHandler = () => openArticle(this.id_artigo);
-    imageElement.addEventListener("click", openArticleHandler);
-    titleElement.addEventListener("click", openArticleHandler);
+    [imageElement, titleElement].forEach(elem => elem.addEventListener("click", openArticleHandler));
     const previewElement = document.createElement("p");
     previewElement.textContent = this.previa_conteudo;
 
