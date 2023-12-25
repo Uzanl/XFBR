@@ -402,10 +402,11 @@ app.post('/insert-news', (req, res) => {
           return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
         } else {
           const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
-          const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo) VALUES (?, ?, ?, ?, ?, ?)';
+          const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
           const publicationDate = new Date();
-
-          connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview], (err, result) => {
+          const status = 'Enviado'; // Definindo o status como 'Enviado'
+          
+          connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview, status], (err, result) => {
             if (err) {
               console.error('Erro ao inserir artigo:', err);
               res.status(500).json({ error: 'Erro ao inserir o artigo' });
