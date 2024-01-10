@@ -286,10 +286,9 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
       return res.status(400).json({ error: errorMessage });
     }
 
-    // Aqui você verifica se a imagem não é undefined e não é uma string vazia
     if (image !== undefined && image !== null) {
       const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
-
+  
       sharp(image.data)
         .resize(256, 144)
         .webp({ quality: 100 })
@@ -299,13 +298,30 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
             return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
           } else {
             const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
-            // Execute a atualização no banco de dados
-            const sql = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
-            const values = [title, newImageName, contentpreview, content, idArtigo];
-
-            connection.query(sql, values, (error, results) => {
-              if (error) {
-                console.error('Erro ao atualizar o artigo:', error);
+            const resolutions = [
+              { width: 860, height: 483, suffix: '_firstchild' },
+              { width: 432, height: 243, suffix: '_432' },
+              { width: 720, height: 405, suffix: '_720' }
+            ];
+  
+            resolutions.forEach(({ width, height, suffix }) => {
+              const uploadPath = `${__dirname}/images-preview/${newImageName.replace(/\.[^/.]+$/, "")}${suffix}.webp`;
+  
+              sharp(image.data)
+                .resize(width, height)
+                .webp({ quality: 100 })
+                .toFile(uploadPath, (err) => {
+                  if (err) console.error(`Erro ao salvar imagem de resolução ${width}x${height}:`, err);
+                });
+            });
+  
+            // Após salvar todas as diferentes resoluções, realizar a atualização no banco de dados
+            const sqlUpdate = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
+            const valuesUpdate = [title, newImageName, contentpreview, content, idArtigo];
+  
+            connection.query(sqlUpdate, valuesUpdate, (errorUpdate, resultsUpdate) => {
+              if (errorUpdate) {
+                console.error('Erro ao atualizar o artigo:', errorUpdate);
                 res.status(500).json({ error: 'Erro interno no servidor' });
               } else {
                 res.status(200).json({ message: 'Artigo atualizado com sucesso' });
