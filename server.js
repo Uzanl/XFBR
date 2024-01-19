@@ -161,6 +161,76 @@ app.post('/submit', (req, res) => {
   });
 });
 
+app.get('/getTipoUsuario', async (req, res) => {
+  let userId;
+
+  try {
+    if (req.session.user) {
+      userId = req.session.user.id_usu;
+    } else if (req.session.profileData) {
+      const XboxUserId = req.session.profileData.profileUsers[0].id;
+
+      // Promessa para obter o userId
+      userId = await getUserId(XboxUserId);
+    } else {
+      return res.status(401).json({ redirect: '/login.html' });
+    }
+
+    // Consulta SQL para obter o tipo do usuário com base no ID
+    const sql = 'SELECT tipo FROM usuario WHERE id_usu = ?';
+    
+    // Promessa para obter o tipo do usuário
+    const tipoUsuario = await getUserType(userId);
+
+    // Enviar o tipo do usuário como resposta
+    res.json({ tipoUsuario });
+  } catch (error) {
+    console.error('Erro ao obter tipo de usuário:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Função assíncrona para obter userId com base no XboxUserId
+async function getUserId(XboxUserId) {
+  return new Promise((resolve, reject) => {
+    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+
+    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+      if (err) {
+        console.error('Erro ao obter userId:', err);
+        reject('Erro ao obter userId');
+      }
+
+      if (result.length > 0) {
+        resolve(result[0].id_usu);
+      } else {
+        reject('Usuário não encontrado');
+      }
+    });
+  });
+}
+
+// Função assíncrona para obter tipo de usuário com base no userId
+async function getUserType(userId) {
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT tipo FROM usuario WHERE id_usu = ?';
+
+    connection.query(sql, [userId], (err, result) => {
+      if (err) {
+        console.error('Erro na consulta SQL:', err);
+        reject('Erro na consulta SQL');
+      }
+
+      if (result.length > 0) {
+        resolve(result[0].tipo);
+      } else {
+        reject('Usuário não encontrado');
+      }
+    });
+  });
+}
+
+
 app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   //console.log("chegou aqui!")
   const artigoId = req.params.artigoId;

@@ -4,9 +4,20 @@
   height: 30px;
 }
 
+.status-news{
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: flex-start;
+  color: #f2f2f2;
+  margin-left: 40px;
+  margin-top: 20px;
+}
+
 .login-list-item,
 .logout-button,
 .sidebar,
+.pagination-container,
 #item-profile {
   display: none;
 }

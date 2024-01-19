@@ -148,6 +148,30 @@ async function loadArticles(pageNumber) {
   paginationContainer.style.display = "flex";
 }
 
+async function verificarTipoUsuario() {
+  try {
+    // Faça uma solicitação HTTP para obter o tipo do usuário
+    const response = await fetch('/getTipoUsuario');
+    
+    if (!response.ok) {
+      throw new Error(`Erro na solicitação: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const tipoUsuario = data.tipoUsuario;
+
+    // Verifique se o tipo do usuário é "administrador" e exiba a div se for verdadeiro
+    if (tipoUsuario === "administrador") {
+      console.log("chegou aqui")
+      const divStatusNews = document.querySelector(".status-news");
+      divStatusNews.style.display = "flex";
+    }
+  } catch (error) {
+    console.error('Erro ao obter o tipo do usuário:', error);
+  }
+}
+
+
 function openArticle(id) {
   window.location.href = `artigo.html?id=${id}`;
 }
@@ -155,6 +179,7 @@ function openArticle(id) {
 (async function () {
   const currentPage = getCurrentPageFromURL();
   await loadArticles(currentPage);
+  await verificarTipoUsuario();
 })();
 
 
