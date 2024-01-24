@@ -1051,6 +1051,36 @@ app.post('/update-description', (req, res) => {
   });
 });
 
+
+// Rota para alterar o status do artigo
+app.put('/alterar-status-artigo/:id', (req, res) => {
+  const articleId = req.params.id;
+  const newStatus = req.body.status;
+
+  // Substitua 'conexaoBancoDados' pela variável que armazena sua conexão real com o banco de dados
+  connection.query(
+    'UPDATE artigo SET status = ? WHERE id_artigo = ?',
+    [newStatus, articleId],
+    (err, result) => {
+      if (err) {
+        console.error('Erro ao atualizar o status do artigo:', err);
+        return res.status(500).json({ error: 'Erro interno do servidor' });
+      }
+
+      // Verificar se a atualização foi bem-sucedida
+      if (result.affectedRows > 0) {
+        res.status(200).json({ message: `Status do artigo ${articleId} alterado para ${newStatus}` });
+      } else {
+        res.status(404).json({ error: 'Artigo não encontrado ou status não alterado.' });
+      }
+    }
+  );
+});
+
+
+
+
+
 // Rota de autenticação
 app.get('/auth', (req, res) => {
 

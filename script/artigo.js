@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   const deleteButton = document.querySelector('.delete-image-container');
+  const approveButton = document.querySelector('.approve-image-container');
+  const declineButton = document.querySelector('.decline-image-container');
   deleteButton.addEventListener('click', handleExclusao);
 
   async function handleExclusao() {
@@ -22,6 +24,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       } catch (error) {
         console.error('Erro ao excluir o artigo:', error);
+      }
+    }
+  }
+
+  approveButton.addEventListener('click', () => {
+    handleStatusChange(id, 'aprovado');
+  });
+
+  declineButton.addEventListener('click', () => {
+    handleStatusChange(id, 'reprovado');
+  });
+
+  // Função para lidar com a alteração de status
+  async function handleStatusChange(articleId, status) {
+    const confirmacao = confirm(`Tem certeza que deseja ${status === 'aprovado' ? 'aprovar' : 'reprovar'} este artigo?`);
+
+    if (confirmacao) {
+      try {
+        const response = await fetch(`/alterar-status-artigo/${articleId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status }), // Envie o novo status para o servidor
+        });
+
+        if (response.ok) {
+          // Status do artigo alterado com sucesso
+          alert(`Artigo ${status === 'aprovado' ? 'aprovado' : 'reprovado'} com sucesso!`);
+          // Recarregue a página ou faça outras ações necessárias após a alteração do status
+          window.location.reload();
+        } else {
+          throw new Error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'reprovar'} o artigo`);
+        }
+      } catch (error) {
+        console.error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'reprovar'} o artigo:`, error);
       }
     }
   }
