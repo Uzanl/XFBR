@@ -93,7 +93,10 @@ body {
   border: 1px solid #999999;
 }
 
-.edit-image-container::after, .delete-image-container::after {
+.edit-image-container::after,
+ .delete-image-container::after,
+ .approve-image-container::after,
+ .decline-image-container::after {
   content: attr(data-tooltip);
   position: absolute;
   /*top: 80px;*/
@@ -110,11 +113,17 @@ body {
   border: 1px solid #999999;
 }
 
-.edit-image-container:hover::after, .delete-image-container:hover::after {
+.edit-image-container:hover::after,
+ .delete-image-container:hover::after, 
+ .approve-image-container:hover::after,
+  .decline-image-container:hover::after{
   opacity: 1;
 }
 
-.delete-image-container, .edit-image-container{
+.delete-image-container,
+ .edit-image-container,
+ .approve-image-container, 
+ .decline-image-container{
   width: 50px;
   height: 50px;
   display: flex;
@@ -122,12 +131,18 @@ body {
   justify-content: center;
 }
 
-.edit-image, .delete-image{
+.edit-image,
+ .delete-image,
+  .approve-image,
+   .decline-image{
   height:30px;
   width: 30px;
 }
 
-.edit-image-container:hover, .delete-image-container:hover{
+.edit-image-container:hover, 
+.delete-image-container:hover,
+.approve-image-container:hover,
+ .decline-image-container:hover{
   background-color: #333333;
   cursor: pointer;
 }

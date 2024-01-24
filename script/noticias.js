@@ -162,7 +162,6 @@ async function verificarTipoUsuario() {
 
     // Verifique se o tipo do usuário é "administrador" e exiba a div se for verdadeiro
     if (tipoUsuario === "administrador") {
-      console.log("chegou aqui")
       const divStatusNews = document.querySelector(".status-news");
       divStatusNews.style.display = "flex";
     }

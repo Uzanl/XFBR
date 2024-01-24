@@ -8,8 +8,7 @@
 
 
 body {
-  font-family: 'Sugoi UI', sans-serif;
- 
+ font-family: 'Sugoi UI', sans-serif;
   display: flex;
   flex-direction: column;
   height: auto;
@@ -17,8 +16,6 @@ body {
   color: #f2f2f2;
 
 }
-
-
 
 .login-image,
 .logout-image,
