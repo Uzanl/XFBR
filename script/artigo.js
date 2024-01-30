@@ -75,11 +75,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    const temPermissao = await verificarPermissaoEditarArtigo(id);
+     verificarPermissaoEditarArtigo(id);
 
-    if (temPermissao) {
-      handlePermissaoEditar();
-    } 
+    //if (temPermissao) {
+     // handlePermissaoEditar();
+    //} 
 
     await getArticleDetails(id);
   } catch (error) {
@@ -91,16 +91,42 @@ async function verificarPermissaoEditarArtigo(id) {
   try {
     const response = await fetch(`/verificar-permissao-editar-artigo/${id}`);
     const result = await response.json();
-    return result.temPermissao;
+
+    const editContainer = document.querySelector('.edit-container');
+    const editButtons = editContainer.querySelectorAll('.edit-image-container, .delete-image-container');
+
+    if (result.temPermissao) {
+      // Se o usuário tem permissão
+      editContainer.style.display = 'flex';  // ou editContainer.style.visibility = 'visible';
+      
+      // Verificar se é um administrador
+      if (result.isAdmin) {
+        // Exibir todos os botões (editar, excluir, aprovar, reprovar)
+        editButtons.forEach(button => {
+          button.style.display = 'flex';  // ou button.style.visibility = 'visible';
+        });
+      } else {
+        // Esconder botões de aprovação e reprovação, se não for administrador
+        const approveButton = editContainer.querySelector('.approve-image-container');
+        const declineButton = editContainer.querySelector('.decline-image-container');
+        
+        approveButton.style.display = 'none';  // ou approveButton.style.visibility = 'hidden';
+        declineButton.style.display = 'none';  // ou declineButton.style.visibility = 'hidden';
+      }
+    } else {
+      // Se o usuário não tem permissão, esconder todo o container
+      editContainer.style.display = 'none';  // ou editContainer.style.visibility = 'hidden';
+    }
   } catch (error) {
+    console.error('Erro ao verificar permissão de edição do artigo:', error);
     throw new Error('Erro ao verificar permissão de edição do artigo');
   }
 }
 
-function handlePermissaoEditar() {
-  const editContainer = document.querySelector('.edit-container');
-  editContainer.style.display = 'flex';
-}
+//function handlePermissaoEditar() {
+  //const editContainer = document.querySelector('.edit-container');
+  //editContainer.style.display = 'flex';
+//}
 
 async function getArticleDetails(id) {
   try {

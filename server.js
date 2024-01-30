@@ -178,7 +178,7 @@ app.get('/getTipoUsuario', async (req, res) => {
 
     // Consulta SQL para obter o tipo do usuário com base no ID
     const sql = 'SELECT tipo FROM usuario WHERE id_usu = ?';
-    
+
     // Promessa para obter o tipo do usuário
     const tipoUsuario = await getUserType(userId);
 
@@ -242,9 +242,10 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
 
     userId = req.session.user.id_usu;
   } else if (req.session.profileData) {
-    const XboxUserId = req.session.profileData.profileUsers[0].id;
 
-    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+
+    const XboxUserId = req.session.profileData.profileUsers[0].id;
+    const getUserIdQuery = 'SELECT id_usu,tipo FROM usuario WHERE id_usu_xbox = ?';
 
     connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
       if (err) {
@@ -254,8 +255,10 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
 
       if (result.length > 0) {
         userId = result[0].id_usu;
+        req.session.userType = result[0].tipo;
 
         if (!userId) {
+
           return res.json({ temPermissao: false });
         }
 
@@ -270,21 +273,21 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
 
   app.delete('/excluir-artigo/:artigoId', (req, res) => {
     const artigoId = req.params.artigoId;
-  
+
     // Verificar se o usuário está autenticado
     if (req.session.user || req.session.profileData) {
       const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
       const countImageURLQuery = 'SELECT COUNT(*) AS count FROM artigo WHERE imagem_url = ?';
-  
+
       // Obter a URL da imagem do artigo que será excluído
       connection.query(selectImageURLQuery, [artigoId], (err, imageResult) => {
         if (err) {
           console.error('Erro ao obter a URL da imagem:', err);
           return res.status(500).json({ error: 'Erro ao obter a URL da imagem' });
         }
-  
+
         const imageUrl = imageResult[0]?.imagem_url;
-  
+
         if (imageUrl) {
           // Verificar a quantidade de artigos com a mesma imagem_url
           connection.query(countImageURLQuery, [imageUrl], (err, countResult) => {
@@ -292,9 +295,9 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
               console.error('Erro ao contar a quantidade de imagens:', err);
               return res.status(500).json({ error: 'Erro ao contar a quantidade de imagens' });
             }
-  
+
             const count = countResult[0]?.count || 0;
-  
+
             if (count === 1) {
               // Apenas um artigo com essa imagem, então exclui o artigo e suas imagens
               const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
@@ -302,20 +305,20 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
               const imageName = imageUrl.split('/').pop();
               const imageBaseName = imageName.split('.webp')[0];
               const variations = ['_720', '_432', '_firstchild'];
-  
+
               connection.query(deleteArtigoQuery, [artigoId], (err) => {
                 if (err) {
                   console.error('Erro ao excluir o artigo:', err);
                   return res.status(500).json({ error: 'Erro ao excluir o artigo' });
                 }
-  
+
                 // Excluir as imagens do sistema de arquivos
                 fs.unlinkSync(`${imagePath}/${imageName}`);
                 variations.forEach((variation) => {
                   const variationImageName = `${imageBaseName}${variation}.webp`;
                   fs.unlinkSync(`${imagePath}/${variationImageName}`);
                 });
-  
+
                 return res.json({ message: 'Artigo e imagens excluídos com sucesso' });
               });
             } else {
@@ -338,7 +341,7 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
       return res.status(401).json({ error: 'Usuário não autenticado' });
     }
   });
-  
+
 
 
   app.post('/update-article/:id', (req, res) => {
@@ -358,7 +361,7 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
 
     if (image !== undefined && image !== null) {
       const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
-  
+
       sharp(image.data)
         .resize(256, 144)
         .webp({ quality: 100 })
@@ -373,10 +376,10 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
               { width: 432, height: 243, suffix: '_432' },
               { width: 720, height: 405, suffix: '_720' }
             ];
-  
+
             resolutions.forEach(({ width, height, suffix }) => {
               const uploadPath = `${__dirname}/images-preview/${newImageName.replace(/\.[^/.]+$/, "")}${suffix}.webp`;
-  
+
               sharp(image.data)
                 .resize(width, height)
                 .webp({ quality: 100 })
@@ -384,11 +387,11 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
                   if (err) console.error(`Erro ao salvar imagem de resolução ${width}x${height}:`, err);
                 });
             });
-  
+
             // Após salvar todas as diferentes resoluções, realizar a atualização no banco de dados
             const sqlUpdate = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
             const valuesUpdate = [title, newImageName, contentpreview, content, idArtigo];
-  
+
             connection.query(sqlUpdate, valuesUpdate, (errorUpdate, resultsUpdate) => {
               if (errorUpdate) {
                 console.error('Erro ao atualizar o artigo:', errorUpdate);
@@ -428,9 +431,15 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
     const artigoAuthorId = results[0].id_usu;
 
     // Verificar se o usuário é o autor do artigo ou se é um administrador
-    if (userId === artigoAuthorId || req.session.userType === 'administrador') {
-      return res.json({ temPermissao: true });
+    if ( req.session.userType === 'administrador') {
+      
+      // Usuário é o autor do artigo
+      return  res.json({ temPermissao: true, isAdmin: true });
+    } else if (userId === artigoAuthorId ) {
+      // Usuário é um administrador, mas não é o autor do artigo
+      return res.json({ temPermissao: true }); 
     } else {
+      // Usuário não tem permissão
       return res.json({ temPermissao: false });
     }
   });
@@ -491,7 +500,7 @@ app.post('/insert-news', (req, res) => {
           const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
           const publicationDate = new Date();
           const status = 'Enviado'; // Definindo o status como 'Enviado'
-          
+
           connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview, status], (err, result) => {
             if (err) {
               console.error('Erro ao inserir artigo:', err);
@@ -502,17 +511,17 @@ app.post('/insert-news', (req, res) => {
                 { width: 432, height: 243, suffix: '_432' },
                 { width: 720, height: 405, suffix: '_720' }
               ];
-              
+
               resolutions.forEach(({ width, height, suffix }) => {
                 const uploadPath = `${__dirname}/images-preview/${image.name.replace(/\.[^/.]+$/, "")}${suffix}.webp`;
-              
+
                 sharp(image.data)
                   .resize(width, height)
                   .webp({ quality: 100 })
                   .toFile(uploadPath, (err) => {
                     if (err) console.error(`Erro ao salvar imagem de resolução ${width}x${height}:`, err);
                   });
-              });              
+              });
               res.status(200).json({ message: 'Artigo inserido com sucesso' });
             }
           });
@@ -565,7 +574,7 @@ app.get('/get-articles/:page', compression(), (req, res) => {
   const currentPage = req.params.page || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   let statusFilter = 'aprovado'; // Valor padrão
-  
+
   switch (req.query.status) {
     case 'reprovado':
       statusFilter = 'reprovado';
@@ -1119,7 +1128,7 @@ app.get('/auth', (req, res) => {
 
 app.get('/profile', (req, res) => {
   client.isAuthenticated().then(() => {
-   
+
     client.getProvider('profile').getUserProfile().then(result => {
       /*  console.log('Profile:', result);*/
 
