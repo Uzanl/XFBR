@@ -564,17 +564,36 @@ app.get('/get-articles/:page', compression(), (req, res) => {
   const itemsPerPage = 8;
   const currentPage = req.params.page || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
+  let statusFilter = 'aprovado'; // Valor padrão
+  
+  switch (req.query.status) {
+    case 'reprovado':
+      statusFilter = 'reprovado';
+      break;
+    case 'analise':
+      statusFilter = 'analise';
+      break;
+    case 'enviado':
+      statusFilter = 'enviado';
+      break;
+    // Adicione outros casos conforme necessário
 
-  // Consulta para obter os artigos da página atual
+    default:
+      // Nenhum filtro específico, manter o padrão (aprovado)
+      break;
+  }
+
+  // Consulta para obter os artigos da página atual com base no filtro de status
   const articlesQuery = `
     SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
     FROM artigo a
     INNER JOIN usuario u ON a.id_usu = u.id_usu 
     LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
+    WHERE a.status = ?
     ORDER BY data_publicacao DESC LIMIT ?, ?
   `;
 
-  connection.query(articlesQuery, [startIndex, itemsPerPage], (err, articles) => {
+  connection.query(articlesQuery, [statusFilter, startIndex, itemsPerPage], (err, articles) => {
     if (err) {
       console.error('Erro ao obter as notícias do banco de dados:', err);
       return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
@@ -595,6 +614,7 @@ app.get('/get-articles/:page', compression(), (req, res) => {
     });
   });
 });
+
 
 
 app.get('/get-articles-profile', (req, res) => {
@@ -1099,8 +1119,7 @@ app.get('/auth', (req, res) => {
 
 app.get('/profile', (req, res) => {
   client.isAuthenticated().then(() => {
-    console.log('cheguei aqui!.');
-
+   
     client.getProvider('profile').getUserProfile().then(result => {
       /*  console.log('Profile:', result);*/
 

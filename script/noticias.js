@@ -120,10 +120,19 @@ const handlePageButtonClick = (offset, totalPages) => async () => {
   }
 };
 
+// Adicione o evento onchange ao combobox
+$('#cmbStatus').on('change', function() {
+  loadArticles(currentPage);
+});
+
 async function fetchArticles(pageNumber) {
+
+  const selectedStatus = $('#cmbStatus').val();
+  console.log(selectedStatus)
+
   try {
     let itemsPerPage = 8
-    const response = await fetch(`/get-articles/${pageNumber}`);
+    const response = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
     const data = await response.json();
     return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
   } catch (error) {
@@ -131,6 +140,7 @@ async function fetchArticles(pageNumber) {
     return { articles: [], totalPages: 0 };
   }
 }
+
 
 async function loadArticles(pageNumber) {
   const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);

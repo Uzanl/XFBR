@@ -19,7 +19,9 @@
   <script  src="/script/auth.js" defer></script>
   <script  src="/script/articleRedirect.js" defer></script>
   <script  src="/script/noticias.js" defer></script>
-  
+  <!-- Adicione o jQuery ao seu HTML -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 </head>
 <body>
   <header class="navbar">
@@ -118,10 +120,10 @@
       <div class="status-news">
         <label for="cmbStatus">Status:</label>
         <select id="cmbStatus" name="cmbStatus">
-          <option value="analise">Enviado</option>
-          <option value="analise">Em Análise</option>
           <option value="aprovado">Aprovados</option>
           <option value="reprovado">Reprovados</option>
+          <option value="analise">Em Análise</option>
+          <option value="enviado">Enviados</option>
       </select>
       </div>
     
