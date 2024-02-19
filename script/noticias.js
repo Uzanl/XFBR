@@ -1,21 +1,17 @@
 const articleContainer = document.querySelector(".article-container");
 const paginationContainer = document.querySelector(".pagination-container");
 
-window.addEventListener("resize", handleImageResolution);
-
-function handleImageResolution() {
+const handleImageResolution = () => {
   const screenWidth = window.innerWidth;
   const images = document.querySelectorAll(".article img");
 
-  images.forEach(function(image, index){
+  images.forEach((image, index) => {
     const originalSrc = image.dataset.originalSrc;
     if (screenWidth > 1199) {
-      (index === 0) ? image.src = originalSrc.replace(".webp", "_firstchild.webp") : image.src = originalSrc.replace("_firstchild.webp", ".webp");
-
+      image.src = index === 0 ? originalSrc.replace(".webp", "_firstchild.webp") : originalSrc.replace("_firstchild.webp", ".webp");
     } else if (screenWidth > 768 && screenWidth < 992) {
       image.src = originalSrc.replace(".webp", "_firstchild.webp");
-    }
-    else if (screenWidth >= 992 && screenWidth <= 1199) {
+    } else if (screenWidth >= 992 && screenWidth <= 1199) {
       image.src = originalSrc.replace(".webp", "_firstchild.webp");
     } else if (screenWidth > 320 && screenWidth <= 480) {
       image.src = originalSrc.replace(".webp", "_432.webp");
@@ -25,43 +21,38 @@ function handleImageResolution() {
       image.src = originalSrc.replace("_firstchild.webp", ".webp");
     }
   });
-}
+};
+
+window.addEventListener("resize", handleImageResolution);
 
 class Article {
   constructor(articleData) {
     Object.assign(this, articleData);
   }
+
   async render(index) {
     const originalSrc = this.imagem_url;
-    const newSrc = (index === 0 ? originalSrc.replace(".webp", "_firstchild.webp") : originalSrc);
-    const imageElement = `<img src="${newSrc}" alt="${this.titulo}" width="860" height="483" data-original-src="${originalSrc}">`;
-    const titleElement = `<h1>${this.titulo}</h1>`;
-    const previewElement = `<p>${this.previa_conteudo}</p>`;
-    const userInfoElement = `<p2>Postado por ${this.login_usu} em ${this.data_formatada}</p2>`;
-    const openArticleHandler = `openArticle(${this.id_artigo})`;
-    const articleHTML = `<div class="article" data-id="${this.id_artigo}" onclick="${openArticleHandler}">
-                          ${imageElement}
-                          ${titleElement}
-                          ${previewElement}
-                          ${userInfoElement}
-                        </div>`;
-    return articleHTML;
+    const newSrc = index === 0 ? originalSrc.replace(".webp", "_firstchild.webp") : originalSrc;
+    return `
+      <div class="article" data-id="${this.id_artigo}" onclick="openArticle(${this.id_artigo})">
+        <img src="${newSrc}" alt="${this.titulo}" width="860" height="483" data-original-src="${originalSrc}">
+        <h1>${this.titulo}</h1>
+        <p>${this.previa_conteudo}</p>
+        <p2>Postado por ${this.login_usu} em ${this.data_formatada}</p2>
+      </div>
+    `;
   }
 }
 
-function getCurrentPageFromURL() {
+const getCurrentPageFromURL = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const pageParam = urlParams.get("page");
-  if (pageParam && /^(?:\d)+$/.test(pageParam)) {
-    const parsedPage = parseInt(pageParam, 10);
-    return parsedPage > 0 ? parsedPage : 1;
-  }
-  return 1;
-}
+  return pageParam && /^(?:\d)+$/.test(pageParam) ? Math.max(parseInt(pageParam, 10), 1) : 1;
+};
 
 let currentPage = getCurrentPageFromURL();
 
-function updatePageNumbers(totalPages) {
+const updatePageNumbers = (totalPages) => {
   const pageNumbersContainer = document.querySelector(".page-numbers");
   pageNumbersContainer.innerHTML = "";
 
@@ -74,13 +65,12 @@ function updatePageNumbers(totalPages) {
     startPage = Math.max(1, endPage - maxPageIndices + 1);
   }
 
-  const fragment = document.createDocumentFragment();
+  const fragment = new DocumentFragment();
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement("a");
     pageLink.href = `not%C3%ADcias.html?page=${i}`;
     pageLink.textContent = i;
     pageLink.classList.toggle("active", i === currentPage);
-    pageLink.classList.add("page-link");
     fragment.appendChild(pageLink);
   }
 
@@ -101,7 +91,7 @@ function updatePageNumbers(totalPages) {
   nextPageButton.style.display = currentPage < totalPages ? "block" : "none";
 
   pageNumbersContainer.appendChild(fragment);
-}
+};
 
 const handlePageButtonClick = (offset, totalPages) => async () => {
   const nextPage = currentPage + offset;
@@ -110,16 +100,12 @@ const handlePageButtonClick = (offset, totalPages) => async () => {
   }
 };
 
-// Adicione o evento onchange ao combobox
-$('#cmbStatus').on('change', function() {
-  loadArticles(currentPage);
-});
+$('#cmbStatus').on('change', () => loadArticles(currentPage));
 
-async function fetchArticles(pageNumber) {
-
+const fetchArticles = async (pageNumber) => {
   const selectedStatus = $('#cmbStatus').val();
   try {
-    let itemsPerPage = 8
+    const itemsPerPage = 8;
     const response = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
     const data = await response.json();
     return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
@@ -127,11 +113,11 @@ async function fetchArticles(pageNumber) {
     console.error("Error fetching articles:", error);
     return { articles: [], totalPages: 0 };
   }
-}
+};
 
-async function loadArticles(pageNumber) {
+const loadArticles = async (pageNumber) => {
   const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
-  let articlesHTML = '';
+  let articlesHTML = "";
   for (const article of newArticles) {
     const articleInstance = new Article(article);
     articlesHTML += await articleInstance.render();
@@ -142,38 +128,27 @@ async function loadArticles(pageNumber) {
   updatePageNumbers(newTotalPages);
   window.history.pushState({}, "", `not%C3%ADcias.html?page=${pageNumber}`);
   paginationContainer.style.display = "flex";
-}
+};
 
-async function verificarTipoUsuario() {
+const verificarTipoUsuario = async () => {
   try {
-    // Faça uma solicitação HTTP para obter o tipo do usuário
     const response = await fetch('/getTipoUsuario');
-    
     if (!response.ok) throw new Error(`Erro na solicitação: ${response.status}`);
-    
     const data = await response.json();
-    const tipoUsuario = data.tipoUsuario;
-
-    // Verifique se o tipo do usuário é "administrador" e exiba a div se for verdadeiro
-    if (tipoUsuario === "administrador") {
-      const divStatusNews = document.querySelector(".status-news");
-      divStatusNews.style.display = "flex";
+    if (data.tipoUsuario === "administrador") {
+      document.querySelector(".status-news").style.display = "flex";
     }
   } catch (error) {
     console.error('Erro ao obter o tipo do usuário:', error);
   }
-}
+};
 
-function openArticle(id) {
+const openArticle = (id) => {
   window.location.href = `artigo.html?id=${id}`;
-}
+};
 
-(async function () {
-  const currentPage = getCurrentPageFromURL();
+(async () => {
+  currentPage = getCurrentPageFromURL();
   await loadArticles(currentPage);
   await verificarTipoUsuario();
 })();
-
-
-
-
