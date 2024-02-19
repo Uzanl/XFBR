@@ -148,14 +148,8 @@ function displayArticleDetails(articleData) {
   const gamertagElement = document.querySelector('.gamertag');
   const gamerscoreElement = document.querySelector('.gamerscore');
 
-  if (gamertag) {
-    gamertagElement.textContent = gamertag;
-  }
-
-  if (gamerscore) {
-    gamerscoreElement.textContent = gamerscore;
-  }
-
+  if (gamertag) gamertagElement.textContent = gamertag;
+  if (gamerscore) gamerscoreElement.textContent = gamerscore;
   tituloElement.textContent = titulo;
   conteudoElement.innerHTML = conteudo;
   (!imagem_url)?imagemPerfil.src = imagem_url_xbox: imagemPerfil.src = imagem_url;

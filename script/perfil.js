@@ -3,6 +3,33 @@
 const articleContainer = document.querySelector('.article-container');
 const paginationContainer = document.querySelector('.pagination-container');
 
+window.addEventListener("resize", handleImageResolution);
+
+function handleImageResolution() {
+  const screenWidth = window.innerWidth;
+  const images = document.querySelectorAll(".article img");
+
+  images.forEach(function(image, index){
+    const originalSrc = image.dataset.originalSrc;
+    if (screenWidth > 1199) {
+      (index === 0) ? image.src = originalSrc.replace(".webp", "_firstchild.webp") : image.src = originalSrc.replace("_firstchild.webp", ".webp");
+
+    } else if (screenWidth > 768 && screenWidth < 992) {
+      image.src = originalSrc.replace(".webp", "_firstchild.webp");
+    }
+    else if (screenWidth >= 992 && screenWidth <= 1199) {
+      image.src = originalSrc.replace(".webp", "_firstchild.webp");
+    } else if (screenWidth > 320 && screenWidth <= 480) {
+      image.src = originalSrc.replace(".webp", "_432.webp");
+    } else if (screenWidth > 480 && screenWidth <= 768) {
+      image.src = originalSrc.replace(".webp", "_720.webp");
+    } else if (screenWidth <= 320) {
+      image.src = originalSrc.replace("_firstchild.webp", ".webp");
+    }
+  });
+}
+
+
 class Article {
   constructor(id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu) {
     Object.assign(this, { id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu });
@@ -134,6 +161,7 @@ async function loadArticles(pageNumber,id) {
   }
 
   currentPage = pageNumber;
+  handleImageResolution();
   updatePageNumbers(newTotalPages);
   paginationContainer.style.display = 'block';
 }

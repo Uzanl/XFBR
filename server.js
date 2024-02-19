@@ -120,34 +120,23 @@ const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
 app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   const missingFields = [];
-  console.log(req.body)
   // Verificação de campos vazios
-  if (!name) {
-    missingFields.push('Nome');
-  }
-
-  if (!email) {
-    missingFields.push('Email');
-  }
-
-  if (!password) {
-    missingFields.push('Senha');
-  }
-
-  if (!confirmPassword) {
-    missingFields.push('Confirmar Senha');
-  }
-
+  if (!name) missingFields.push('Nome');
+  
+  if (!email)  missingFields.push('Email');
+  
+  if (!password) missingFields.push('Senha');
+  
+  if (!confirmPassword) missingFields.push('Confirmar Senha');
+  
   if (missingFields.length > 0) {
     const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
     return res.status(400).json({ error: errorMessage });
   }
 
   // Verificação se as senhas coincidem
-  if (password !== confirmPassword) {
-    return res.status(400).json({ error: 'As senhas não coincidem' });
-  }
-
+  if (password !== confirmPassword) return res.status(400).json({ error: 'As senhas não coincidem' });
+  
   // Inserir dados no banco de dados MySQL
   const sql = 'INSERT INTO usuario (id_usu, login_usu, email, senha_usu, tipo, status) VALUES (?, ?, ?, ?, ?, ?)';
   connection.query(sql, [0, name, email, password, 'escritor', 'ativo'], (err, result) => {

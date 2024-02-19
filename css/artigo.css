@@ -36,15 +36,13 @@ body {
 }
 
 .edit-container {
-  height: 50px;
-  width: 200px;
-  background-color: #555555;
-  margin-bottom: 20px;
+  height: auto;
+  width: auto;
   border-radius: 10px;
   align-items: center;
   justify-content: center;
   display: none;
-  
+  background-color: #333333;
 }
 
 .share{
@@ -66,6 +64,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: auto;
 }
 
 .img-share:hover{
@@ -143,7 +142,8 @@ body {
 .delete-image-container:hover,
 .approve-image-container:hover,
  .decline-image-container:hover{
-  background-color: #333333;
+ /* background-color: #555555;*/
+  filter: brightness(0.8);
   cursor: pointer;
 }
 
@@ -346,7 +346,8 @@ p.gamertag {
 
 .noticia-conteudo {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
+
 }
 
 .video-container {

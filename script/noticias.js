@@ -32,29 +32,20 @@ class Article {
     Object.assign(this, articleData);
   }
   async render(index) {
-    const articleElement = document.createElement("div");
-    articleElement.classList.add("article");
-    articleElement.setAttribute("data-id", this.id_artigo);
-    const imageElement = document.createElement("img");
-    imageElement.alt = this.titulo;
-    imageElement.width = "860";
-    imageElement.height = "483";
     const originalSrc = this.imagem_url;
     const newSrc = (index === 0 ? originalSrc.replace(".webp", "_firstchild.webp") : originalSrc);
-    imageElement.src = newSrc;
-    imageElement.dataset.originalSrc = originalSrc;
-    const titleElement = document.createElement("h1");
-    titleElement.textContent = this.titulo;
-    const openArticleHandler = () => openArticle(this.id_artigo);
-    [imageElement, titleElement].forEach(elem => elem.addEventListener("click", openArticleHandler));
-    const previewElement = document.createElement("p");
-    previewElement.textContent = this.previa_conteudo;
-
-    const userInfoElement = document.createElement("p2");
-    userInfoElement.textContent = `Postado por ${this.login_usu} em ${this.data_formatada}`;
-
-    [imageElement, titleElement, previewElement, userInfoElement].forEach(elem => articleElement.appendChild(elem));
-    return articleElement;
+    const imageElement = `<img src="${newSrc}" alt="${this.titulo}" width="860" height="483" data-original-src="${originalSrc}">`;
+    const titleElement = `<h1>${this.titulo}</h1>`;
+    const previewElement = `<p>${this.previa_conteudo}</p>`;
+    const userInfoElement = `<p2>Postado por ${this.login_usu} em ${this.data_formatada}</p2>`;
+    const openArticleHandler = `openArticle(${this.id_artigo})`;
+    const articleHTML = `<div class="article" data-id="${this.id_artigo}" onclick="${openArticleHandler}">
+                          ${imageElement}
+                          ${titleElement}
+                          ${previewElement}
+                          ${userInfoElement}
+                        </div>`;
+    return articleHTML;
   }
 }
 
@@ -72,19 +63,16 @@ let currentPage = getCurrentPageFromURL();
 
 function updatePageNumbers(totalPages) {
   const pageNumbersContainer = document.querySelector(".page-numbers");
-  pageNumbersContainer.innerHTML = " ";
+  pageNumbersContainer.innerHTML = "";
 
   const maxPageIndices = 8;
   const halfMaxIndices = Math.floor(maxPageIndices / 2);
+  let startPage = Math.max(1, currentPage - halfMaxIndices);
+  let endPage = Math.min(totalPages, startPage + maxPageIndices - 1);
 
-  let startPage = currentPage - halfMaxIndices;
-  let endPage = currentPage + halfMaxIndices;
-
-  startPage = startPage <= 0 ? 1 : startPage;
-  endPage = startPage <= 0 ? Math.min(maxPageIndices, totalPages) : endPage;
-
-  endPage = endPage > totalPages ? totalPages : endPage;
-  startPage = endPage > totalPages ? Math.max(1, totalPages - maxPageIndices + 1) : startPage;
+  if (endPage - startPage < maxPageIndices - 1) {
+    startPage = Math.max(1, endPage - maxPageIndices + 1);
+  }
 
   const fragment = document.createDocumentFragment();
   for (let i = startPage; i <= endPage; i++) {
@@ -92,6 +80,7 @@ function updatePageNumbers(totalPages) {
     pageLink.href = `not%C3%ADcias.html?page=${i}`;
     pageLink.textContent = i;
     pageLink.classList.toggle("active", i === currentPage);
+    pageLink.classList.add("page-link");
     fragment.appendChild(pageLink);
   }
 
@@ -104,12 +93,13 @@ function updatePageNumbers(totalPages) {
     } else if (event.target.classList.contains("next-page")) {
       handlePageButtonClick(1, totalPages)();
     }
-  })
+  });
 
   const prevPageButton = paginationContainer.querySelector(".prev-page");
   const nextPageButton = paginationContainer.querySelector(".next-page");
   prevPageButton.style.display = currentPage > 1 ? "block" : "none";
   nextPageButton.style.display = currentPage < totalPages ? "block" : "none";
+
   pageNumbersContainer.appendChild(fragment);
 }
 
@@ -128,8 +118,6 @@ $('#cmbStatus').on('change', function() {
 async function fetchArticles(pageNumber) {
 
   const selectedStatus = $('#cmbStatus').val();
-  console.log(selectedStatus)
-
   try {
     let itemsPerPage = 8
     const response = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
@@ -141,16 +129,14 @@ async function fetchArticles(pageNumber) {
   }
 }
 
-
 async function loadArticles(pageNumber) {
   const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
-  const fragment = document.createDocumentFragment();
+  let articlesHTML = '';
   for (const article of newArticles) {
     const articleInstance = new Article(article);
-    fragment.appendChild(await articleInstance.render());
+    articlesHTML += await articleInstance.render();
   }
-  articleContainer.innerHTML = "";
-  articleContainer.appendChild(fragment);
+  articleContainer.innerHTML = articlesHTML;
   handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(newTotalPages);
@@ -163,10 +149,8 @@ async function verificarTipoUsuario() {
     // Faça uma solicitação HTTP para obter o tipo do usuário
     const response = await fetch('/getTipoUsuario');
     
-    if (!response.ok) {
-      throw new Error(`Erro na solicitação: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`Erro na solicitação: ${response.status}`);
+    
     const data = await response.json();
     const tipoUsuario = data.tipoUsuario;
 
@@ -179,7 +163,6 @@ async function verificarTipoUsuario() {
     console.error('Erro ao obter o tipo do usuário:', error);
   }
 }
-
 
 function openArticle(id) {
   window.location.href = `artigo.html?id=${id}`;
