@@ -1151,8 +1151,13 @@ app.get('/profile', (req, res) => {
                 const newImageName = id + '.webp';
                 // Insere a imagem redimensionada e convertida no banco de dados
                 const insertImageQuery = `
-            INSERT IGNORE INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) VALUES (?, ?, ?, ?);
-          `;
+                INSERT INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) 
+                VALUES (?, ?, ?, ?) 
+                ON DUPLICATE KEY UPDATE 
+                gamertag = VALUES(gamertag), 
+                gamerscore = VALUES(gamerscore), 
+                imagem_url = VALUES(imagem_url);
+            `;
 
                 connection.query(insertImageQuery, [id, userGamertag, userGamerscore, newImageName], (err, result) => {
                   if (err) {
