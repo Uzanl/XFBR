@@ -10,8 +10,9 @@
   align-items: center;
   justify-content: flex-start;
   color: #f2f2f2;
-  margin-left: 40px;
-  margin-top: 20px;
+  /*margin-left: 40px;
+  margin-top: 20px;*/
+  background-color: #555555;
 }
 
 .login-list-item,
@@ -24,6 +25,10 @@
 
 .navbar {
   display: block;
+}
+
+.lblStatus{
+  margin-left: 20px;
 }
 
 body {
@@ -53,6 +58,7 @@ body {
   align-items: center;
   display: flex;
   justify-content: center;
+  background-color: #555555;
 }
 
 .status {
@@ -140,7 +146,7 @@ body {
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
   width: 900px;
-  background-color: #555555;
+ /* background-color: #555555;*/
 }
 
 .container-row {
@@ -354,6 +360,7 @@ p2 {
     justify-content: flex-start;
     width: 900px;
     margin: 0 auto;
+    background-color: #555555;
   }
 
   .pagination-container {

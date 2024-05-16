@@ -261,9 +261,25 @@ footer a img {
  
 }
 
+.profile2{
+  cursor: pointer;
+}
+
+.desc-profile2 {
+  width: calc(100% - 20px); /* Ajusta a largura para preencher o espaço disponível */
+  border: none; /* Remove a borda */
+  resize: none; /* Impede o redimensionamento da caixa de texto */
+  background-color: transparent; /* Define o fundo como transparente */
+  border: none; /* Remove a borda */
+  outline: none; /* Remove o contorno ao redor da caixa de texto */
+  font-size: 1.2em;
+  color: #888;
+  text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
+}
 
 
 .profile, .profile2{
+ 
   display: flex;
   justify-content: center;
   justify-items: center;

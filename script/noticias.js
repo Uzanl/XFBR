@@ -24,8 +24,10 @@ const handleImageResolution = () => {
 };
 
 window.addEventListener("resize", handleImageResolution);
+$('#cmbStatus').on('change', () => loadArticles(currentPage));
 
 class Article {
+  
   constructor(articleData) {
     Object.assign(this, articleData);
   }
@@ -40,7 +42,8 @@ class Article {
         <p>${this.previa_conteudo}</p>
         <p2>Postado por ${this.login_usu} em ${this.data_formatada}</p2>
       </div>
-    `;
+      
+    ` ;
   }
 }
 
@@ -100,35 +103,44 @@ const handlePageButtonClick = (offset, totalPages) => async () => {
   }
 };
 
-$('#cmbStatus').on('change', () => loadArticles(currentPage));
-
 const fetchArticles = async (pageNumber) => {
-  const selectedStatus = $('#cmbStatus').val();
   try {
     const itemsPerPage = 8;
-    const response = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
-    const data = await response.json();
-    return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
+    const selectedStatus = $('#cmbStatus').val();
+    const responseArticles = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
+    const { articles, totalCount, counts } = await responseArticles.json();
+    return { counts, articles, totalPages: Math.ceil(totalCount / itemsPerPage) };
   } catch (error) {
     console.error("Error fetching articles:", error);
-    return { articles: [], totalPages: 0 };
+    return { counts: {}, articles: [], totalPages: 0 };
   }
 };
 
 const loadArticles = async (pageNumber) => {
-  const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
-  let articlesHTML = "";
+  const { counts: articleCounts, articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
+  document.querySelector(".status-item-container:nth-child(1) p").textContent = `Enviados: ${articleCounts.enviado || 0}`;
+  document.querySelector(".status-item-container:nth-child(2) p").textContent = `Em Análise: ${articleCounts.em_analise || 0}`;
+  document.querySelector(".status-item-container:nth-child(3) p").textContent = `Produzidos: ${articleCounts.aprovado || 0}`;
+
+  const fragment = document.createDocumentFragment(); // Criar o DocumentFragment
+
   for (const article of newArticles) {
     const articleInstance = new Article(article);
-    articlesHTML += await articleInstance.render();
+    const articleHTML = await articleInstance.render();
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = articleHTML.trim(); // Converta a string HTML em elementos DOM
+    fragment.appendChild(tempDiv.firstChild); // Adicione o elemento filho ao fragmento
   }
-  articleContainer.innerHTML = articlesHTML;
+
+  articleContainer.innerHTML = ''; // Limpe o conteúdo atual
+  articleContainer.appendChild(fragment); // Adicione o fragmento com os novos elementos
   handleImageResolution();
   currentPage = pageNumber;
   updatePageNumbers(newTotalPages);
   window.history.pushState({}, "", `not%C3%ADcias.html?page=${pageNumber}`);
   paginationContainer.style.display = "flex";
 };
+
 
 const verificarTipoUsuario = async () => {
   try {
@@ -148,7 +160,14 @@ const openArticle = (id) => {
 };
 
 (async () => {
+  console.time("ss")
   currentPage = getCurrentPageFromURL();
   await loadArticles(currentPage);
-  await verificarTipoUsuario();
+  // Verifica se o usuário está logado
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  
+  // Se o usuário estiver logado, executa verificarTipoUsuario()
+  if (isLoggedIn) await verificarTipoUsuario();
+  
+  console.timeEnd("ss")
 })();

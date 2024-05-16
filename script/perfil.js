@@ -1,7 +1,6 @@
-
-
 const articleContainer = document.querySelector('.article-container');
 const paginationContainer = document.querySelector('.pagination-container');
+const textarea = document.querySelector('.desc-profile2');
 
 window.addEventListener("resize", handleImageResolution);
 
@@ -179,7 +178,6 @@ async function GetPageData() {
 
 GetPageData();
 
-
 async function LoadProfile(id) {
   try {
     const response = await fetch(`/get-user-info/${id}`, {
@@ -187,45 +185,61 @@ async function LoadProfile(id) {
       credentials: 'same-origin'
     });
 
-    if (!response.ok) {
-      throw new Error('Erro ao obter informações do usuário');
-    }
-
+    if (!response.ok) throw new Error('Erro ao obter informações do usuário');
+    
     const data = await response.json();
+    console.log(data); // Adiciona esta linha para visualizar o resultado da resposta JSON
 
-    const descriptionParagraph = document.querySelector('.profile-description p');
+    const descriptionParagraph = document.querySelector('.desc-profile2');
     const profileImage = document.querySelector('.imagem-perfil');
     const gamertag = document.querySelector('.gamertag');
     const gamerscoreValue = document.querySelector('.gamerscore-value');
     const descProfile = document.querySelector('.desc-profile');
-    const largeTextBox = document.getElementById('description-input');
-    const BtnUpdateDescription = document.getElementById('update-description-button');
     const ImgEditIcon = document.querySelector('.image-edit-icon');
 
-    if (data.gamertag) {
       gamertag.textContent = data.gamertag;
       gamerscoreValue.textContent = data.gamerscore;
       profileImage.src = data.imageUrl;
       descProfile.style.display = 'none';
-      largeTextBox.style.display = 'none';
-      BtnUpdateDescription.style.display = 'none';
       ImgEditIcon.style.display = 'none';
-    } else {
-      if (data.description) {
-        descriptionParagraph.textContent = data.description;
-      } else {
-        descriptionParagraph.textContent = "Sua descrição atual do perfil está vazia. Atualize sua descrição.";
-        descriptionParagraph.style.color = "red";
-      }
+      descriptionParagraph.textContent= data.description;
 
-      if (data.imageUrl) {
-        profileImage.src = data.imageUrl;
+      if (data.imageUrl) profileImage.src = data.imageUrl;
+
+ // Adiciona um ouvinte de evento de entrada à descrição do perfil
+    descriptionParagraph.addEventListener('input', async (event) => {
+      // Aqui você pode fazer a chamada de API para atualizar a descrição no servidor
+      try {
+        const newDescription = event.target.value;
+        
+       
+        // Fazer a chamada de API para atualizar a descrição
+        const updateResponse = await fetch(`/update-description/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ description: newDescription })
+        });
+
+        if (!updateResponse.ok) throw new Error('Erro ao atualizar a descrição do perfil');
+
+        console.log('Descrição atualizada com sucesso:', newDescription);
+      } catch (error) {
+        console.error('Erro ao atualizar a descrição do perfil:', error);
       }
-    }
+    });
+      
   } catch (error) {
     console.error("Erro na solicitação de informações do usuário:", error);
   }
 }
+    // Adiciona um ouvinte de evento de clique à div que contém a textarea
+    textarea.parentElement.addEventListener('click', () => {
+      // Remove o atributo readonly quando clicar
+      textarea.removeAttribute('readonly');
+    });
+
 
     
 

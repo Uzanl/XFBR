@@ -122,13 +122,13 @@ app.post('/submit', (req, res) => {
   const missingFields = [];
   // Verificação de campos vazios
   if (!name) missingFields.push('Nome');
-  
-  if (!email)  missingFields.push('Email');
-  
+
+  if (!email) missingFields.push('Email');
+
   if (!password) missingFields.push('Senha');
-  
+
   if (!confirmPassword) missingFields.push('Confirmar Senha');
-  
+
   if (missingFields.length > 0) {
     const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
     return res.status(400).json({ error: errorMessage });
@@ -136,7 +136,7 @@ app.post('/submit', (req, res) => {
 
   // Verificação se as senhas coincidem
   if (password !== confirmPassword) return res.status(400).json({ error: 'As senhas não coincidem' });
-  
+
   // Inserir dados no banco de dados MySQL
   const sql = 'INSERT INTO usuario (id_usu, login_usu, email, senha_usu, tipo, status) VALUES (?, ?, ?, ?, ?, ?)';
   connection.query(sql, [0, name, email, password, 'escritor', 'ativo'], (err, result) => {
@@ -420,13 +420,13 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
     const artigoAuthorId = results[0].id_usu;
 
     // Verificar se o usuário é o autor do artigo ou se é um administrador
-    if ( req.session.userType === 'administrador') {
-      
+    if (req.session.userType === 'administrador') {
+
       // Usuário é o autor do artigo
-      return  res.json({ temPermissao: true, isAdmin: true });
-    } else if (userId === artigoAuthorId ) {
+      return res.json({ temPermissao: true, isAdmin: true });
+    } else if (userId === artigoAuthorId) {
       // Usuário é um administrador, mas não é o autor do artigo
-      return res.json({ temPermissao: true }); 
+      return res.json({ temPermissao: true });
     } else {
       // Usuário não tem permissão
       return res.json({ temPermissao: false });
@@ -559,6 +559,8 @@ app.post('/upload', (req, res) => {
 });
 
 app.get('/get-articles/:page', compression(), (req, res) => {
+  console.time("get-articles");
+
   const itemsPerPage = 8;
   const currentPage = req.params.page || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -583,7 +585,7 @@ app.get('/get-articles/:page', compression(), (req, res) => {
 
   // Consulta para obter os artigos da página atual com base no filtro de status
   const articlesQuery = `
-    SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
+    SELECT SQL_CALC_FOUND_ROWS a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
     FROM artigo a
     INNER JOIN usuario u ON a.id_usu = u.id_usu 
     LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
@@ -596,42 +598,56 @@ app.get('/get-articles/:page', compression(), (req, res) => {
       console.error('Erro ao obter as notícias do banco de dados:', err);
       return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
     }
+  
+    // Consulta para obter a contagem total de artigos e a contagem por status
+    const countQuery = `
+      SELECT
+        COUNT(*) AS total_count,
+        SUM(status = 'enviado') AS enviado,
+        SUM(status = 'em analise') AS em_analise,
+        SUM(status = 'aprovado') AS aprovado
+      FROM artigo
+    `;
 
-    // Consulta para obter o total de artigos
-    const countQuery = 'SELECT COUNT(*) AS total_count FROM artigo';
     connection.query(countQuery, (err, countResult) => {
       if (err) {
-        console.error('Erro ao obter o número total de artigos:', err);
-        return res.status(500).json({ error: 'Erro ao obter o número total de artigos' });
+        console.error('Erro ao obter a contagem de artigos:', err);
+        return res.status(500).json({ error: 'Erro ao obter a contagem de artigos' });
       }
-
-      const totalCount = countResult[0].total_count;
+    
+      const { total_count, enviado, em_analise, aprovado } = countResult[0];
       const hasNextPage = articles.length === itemsPerPage;
-
-      res.json({ articles, hasNextPage, currentPage, totalCount });
+      res.json({ articles, hasNextPage, currentPage, totalCount: total_count, counts: { enviado, em_analise, aprovado } });
+      console.timeEnd("get-articles"); // Termina a medição do tempo
     });
   });
 });
 
-
-
 app.get('/get-articles-profile', (req, res) => {
 
-  let userId;
+  let postuserId; // vou precisar de mais uma variável dessa, pois ela é sobreposta mais à frente e eu vou precisar do primeiro valor para comparar
+  let loggeduserId;
 
   //console.log(req.query.id);
   const id = parseInt(req.query.id);
 
-  if (!isNaN(id) && id > 1) {
-    //console.log("chegou aqui")
-    userId = id;
-    processArticlesQuery(userId);
-  } else {
+  if (req.session.profileData) {
+    console.log("perfil xbox logado")
+  }
 
+  if (!isNaN(id) && id > 1) {
+    //para quem não está logado
+    //console.log("chegou aqui") 
+    postuserId = id; // id do usuario que postou(não é o id de quem está logado)
+    console.log("entrei no primeiro if ")
+    processArticlesQuery(postuserId);
+  } else {
+    //aqui é no caso de ser um usuário sem ser da xbox live
     if (req.session.user) {
       userId = req.session.user.id_usu;
       processArticlesQuery(userId);
     } else if (req.session.profileData) {
+      console.log("entrei no terceiro if")
       const XboxUserId = req.session.profileData.profileUsers[0].id;
       const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
 
@@ -642,8 +658,8 @@ app.get('/get-articles-profile', (req, res) => {
         }
 
         if (result.length > 0) {
-          userId = result[0].id_usu;
-          processArticlesQuery(userId);
+          loggeduserId = result[0].id_usu;
+          processArticlesQuery(loggeduserId);
         } else {
           return res.status(404).json({ error: 'Usuário não encontrado' });
         }
@@ -658,44 +674,97 @@ app.get('/get-articles-profile', (req, res) => {
     const currentPage = req.query.page || 1;
     const startIndex = (currentPage - 1) * itemsPerPage;
 
-    const sqlCount = `
-    SELECT COUNT(*) AS total_count 
-    FROM artigo a
-    WHERE a.id_usu = ?
-  `;
 
-    const sql = `
-    SELECT 
-      a.id_artigo, a.titulo, a.data_publicacao, a.id_usu, a.imagem_url, a.previa_conteudo, 
-      IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
-    FROM artigo a
-    LEFT JOIN usuario ON a.id_usu = usuario.id_usu
-    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-    WHERE a.id_usu = ?
-    ORDER BY a.data_publicacao DESC LIMIT ?, ?
-    
-  `;
-    connection.query(sqlCount, [userId], (err, countResults) => {
-      if (err) {
-        console.error('Erro ao contar o número total de artigos:', err);
-        return res.status(500).json({ error: 'Erro ao contar o número total de artigos' });
-      }
+    if (userId == loggeduserId) {
+     console.log(userId, loggeduserId);
+      console.log("Está acessando seu próprio perfil");
 
-      const totalCount = countResults[0].total_count;
+      // Consultas SQL para recuperar todos os artigos do próprio perfil
+      const sqlCount = `
+SELECT COUNT(*) AS total_count 
+FROM artigo
+WHERE artigo.id_usu = ?
+`;
 
-      connection.query(sql, [userId, startIndex, itemsPerPage], (err, results) => {
+      const sql = `
+SELECT 
+  artigo.id_artigo, artigo.titulo, artigo.data_publicacao, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+  IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+FROM artigo
+LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+WHERE artigo.id_usu = ?
+ORDER BY artigo.data_publicacao DESC LIMIT ?, ?
+`;
+
+      connection.query(sqlCount, [userId], (err, countResults) => {
         if (err) {
-          console.error('Erro ao obter as notícias do banco de dados:', err);
-          return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+          console.error('Erro ao contar o número total de artigos:', err);
+          return res.status(500).json({ error: 'Erro ao contar o número total de artigos' });
         }
 
-        const articles = results;
+        const totalCount = countResults[0].total_count;
 
-        const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
+        connection.query(sql, [userId, startIndex, itemsPerPage], (err, results) => {
+          if (err) {
+            console.error('Erro ao obter as notícias do banco de dados:', err);
+            return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+          }
 
-        res.json({ articles, totalCount, hasNextPage });
+          const articles = results;
+
+          const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
+
+          res.json({ articles, totalCount, hasNextPage });
+        });
       });
-    });
+      // Executar as consultas SQL...
+    } else {
+      console.log(userId, loggeduserId);
+      console.log("Está acessando o perfil de outro usuário");
+
+      // Consultas SQL para recuperar todos os artigos do próprio perfil
+      const sqlCount = `
+  SELECT COUNT(*) AS total_count 
+  FROM artigo
+  WHERE artigo.id_usu = ?
+`;
+
+      const sql = `
+  SELECT 
+    artigo.id_artigo, artigo.titulo, artigo.data_publicacao, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+    IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+  FROM artigo
+  LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+  LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+  WHERE artigo.id_usu = ? AND artigo.status = 'aprovado'
+  ORDER BY artigo.data_publicacao DESC LIMIT ?, ?
+`;
+
+
+      connection.query(sqlCount, [postuserId], (err, countResults) => {
+        if (err) {
+          console.error('Erro ao contar o número total de artigos:', err);
+          return res.status(500).json({ error: 'Erro ao contar o número total de artigos' });
+        }
+
+        const totalCount = countResults[0].total_count;
+
+        connection.query(sql, [postuserId, startIndex, itemsPerPage], (err, results) => {
+          if (err) {
+            console.error('Erro ao obter as notícias do banco de dados:', err);
+            return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+          }
+
+          const articles = results;
+
+          const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
+
+          res.json({ articles, totalCount, hasNextPage });
+        });
+      });
+     
+    }
   }
 });
 
@@ -955,6 +1024,8 @@ app.get('/get-user-info', (req, res) => {
       }
     });
   } else if (req.session.profileData) {
+    
+    
     // Aqui, você pode acessar os detalhes do perfil do Xbox Live
     const data = req.session.profileData;
 
@@ -967,7 +1038,7 @@ app.get('/get-user-info', (req, res) => {
     const userProfilePic = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
     //console.log('User Profile Picture URL:', userProfilePic);
 
-    res.status(200).json({ gamertag: userGamertag, gamerscore: userGamerscore, profilepic: userProfilePic });
+    res.status(200).json({ gamertag: userGamertag, gamerscore: userGamerscore, profilepic: userProfilePic, description });
   } else {
     // Caso nenhum dos dois esteja definido
     console.error('Usuário não autenticado ou dados de perfil do Xbox Live ausentes');
@@ -976,6 +1047,7 @@ app.get('/get-user-info', (req, res) => {
 });
 
 app.get('/get-user-info/:id', (req, res) => {
+
   // Verificar se req.session.user está definido
   let userId;
   const id = parseInt(req.params.id);
@@ -1011,6 +1083,7 @@ app.get('/get-user-info/:id', (req, res) => {
     }
   }
   function processUserQuery(userId) {
+  
     const selectQuery = `
   SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
   IFNULL(u.descricao, "") AS descricao,
@@ -1043,32 +1116,74 @@ app.get('/get-user-info/:id', (req, res) => {
 });
 
 // Rota para atualizar a descrição do usuário
-app.post('/update-description', (req, res) => {
+app.put('/update-description/:id', (req, res) => {
   const newDescription = req.body.description;
 
-  // Recupere o ID do usuário a partir de suas credenciais ou da sessão (dependendo de como você implementou)
-  const userId = req.session.user.id_usu;
 
-  if (!userId) {
-    return res.status(401).json({ error: 'Usuário não autenticado' });
+  const id = parseInt(req.params.id);
+  let userId; // vou precisar de mais uma variável dessa, pois ela é sobreposta mais à frente e eu vou precisar do primeiro valor para comparar
+  let loggeduserId;
+
+  if (!isNaN(id) && id > 1) {
+
+       //para quem não está logado
+    //console.log("chegou aqui") 
+    postuserId = id; // id do usuario que postou(não é o id de quem está logado)
+    console.log("entrei no primeiro if ")
+    processArticlesQuery(postuserId);
+  } else {
+
+    if (req.session.user) {
+      userId = req.session.user.id_usu;
+      processArticlesQuery(userId);
+    } else if (req.session.profileData) {
+      const XboxUserId = req.session.profileData.profileUsers[0].id;
+      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+  
+      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
+        if (err) {
+          console.error('Erro ao obter userId:', err);
+          return res.status(500).json({ error: 'Erro ao obter userId' });
+        }
+  
+        if (result.length > 0) {
+          loggeduserId = result[0].id_usu;
+          processArticlesQuery(loggeduserId);
+        } else {
+          return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+      });
+    } else {
+      return res.status(401).json({ redirect: '/login.html' });
+    }   
+
+
   }
 
-  const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
 
-  connection.query(sql, [newDescription, userId], (err, result) => {
-    if (err) {
-      console.error('Erro ao atualizar descrição:', err);
-      return res.status(500).json({ error: 'Erro ao atualizar a descrição' });
-    } session
+  function processArticlesQuery(userId) {
 
-    if (result.affectedRows === 1) {
-      return res.json({ success: true });
-    } else {
-      return res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+    if (userId == loggeduserId) {
+
+      console.log(userId, loggeduserId);
+      const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
+     
+      connection.query(sql, [newDescription, userId], (err, result) => {
+        if (err) {
+          console.error('Erro ao atualizar descrição:', err);
+          return res.status(500).json({ error: 'Erro ao atualizar a descrição' });
+        } session
+    
+        if (result.affectedRows === 1) {
+          return res.json({ success: true });
+        } else {
+          return res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+        }
+      });
     }
-  });
-});
+  }
 
+});
 
 // Rota para alterar o status do artigo
 app.put('/alterar-status-artigo/:id', (req, res) => {
@@ -1094,10 +1209,6 @@ app.put('/alterar-status-artigo/:id', (req, res) => {
     }
   );
 });
-
-
-
-
 
 // Rota de autenticação
 app.get('/auth', (req, res) => {
