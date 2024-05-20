@@ -15,14 +15,13 @@ const app = express();
 const dbConfig = require('./script/dbConfig');
 const config = require('./script/xbApiConfig.js');
 const cors = require('cors');
-
+const zlib = require('zlib');
 
 // Use as chaves do arquivo de configuração
 const client = XboxApiClient({
   clientId: config.clientId,
   clientSecret: config.clientSecret
 });
-
 
 app.use(
   session({
@@ -36,7 +35,16 @@ app.use(cors());
 
 app.use(express.json({ limit: '200mb' }));
 
-app.use(compression());
+app.use(compression({
+  brotli: {
+    enabled: true,
+    zlib: {
+      params: {
+        [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+      }
+    }
+  }
+}));
 
 app.use(express.json());
 
@@ -60,7 +68,6 @@ app.use(express.static(path.join(__dirname, 'views')));
 
 // Create a connection to the MySQL database
 const connection = mysql.createConnection(dbConfig);
-
 
 // Connect to the database
 connection.connect((err) => {
@@ -117,7 +124,7 @@ const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
   }
 })();
 
-app.post('/submit', (req, res) => {
+/*app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   const missingFields = [];
   // Verificação de campos vazios
@@ -148,114 +155,52 @@ app.post('/submit', (req, res) => {
     console.log('Dados inseridos no banco de dados:', result);
     return res.status(200).json({ success: true });
   });
-});
+});*/
 
-app.get('/getTipoUsuario', async (req, res) => {
-  let userId;
-
+// Rota para obter o tipo do usuário e verificar o status de login
+app.get('/getUserStatus', (req, res) => {
   try {
+    let userId;
+
     if (req.session.user) {
       userId = req.session.user.id_usu;
+      const sql = 'SELECT tipo FROM usuario WHERE id_usu = ?';
+      connection.query(sql, [userId], (err, results) => {
+        if (err) {
+          console.error('Erro ao obter tipo de usuário:', err);
+          return res.status(500).send('Erro interno do servidor');
+        }
+
+        if (results.length > 0) {
+          const tipoUsuario = results[0].tipo;
+          const isLoggedIn = req.session.isAuth;
+          res.json({ tipoUsuario, isLoggedIn });
+        } else {
+          res.status(404).send('Usuário não encontrado');
+        }
+      });
     } else if (req.session.profileData) {
-      const XboxUserId = req.session.profileData.profileUsers[0].id;
-
-      // Promessa para obter o userId
-      userId = await getUserId(XboxUserId);
+              const tipoUsuario = req.session.userType;
+              const isLoggedIn = req.session.isAuth;
+            return  res.json({ tipoUsuario, isLoggedIn });
     } else {
-      return res.status(401).json({ redirect: '/login.html' });
+      return res.status(401).json({ isLoggedIn: false, redirect: '/login.html' });
     }
-
-    // Consulta SQL para obter o tipo do usuário com base no ID
-    const sql = 'SELECT tipo FROM usuario WHERE id_usu = ?';
-
-    // Promessa para obter o tipo do usuário
-    const tipoUsuario = await getUserType(userId);
-
-    // Enviar o tipo do usuário como resposta
-    res.json({ tipoUsuario });
   } catch (error) {
-    console.error('Erro ao obter tipo de usuário:', error);
+    console.error('Erro ao obter tipo de usuário e status de login:', error);
     res.status(500).send('Erro interno do servidor');
   }
 });
 
-// Função assíncrona para obter userId com base no XboxUserId
-async function getUserId(XboxUserId) {
-  return new Promise((resolve, reject) => {
-    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
-
-    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-      if (err) {
-        console.error('Erro ao obter userId:', err);
-        reject('Erro ao obter userId');
-      }
-
-      if (result.length > 0) {
-        resolve(result[0].id_usu);
-      } else {
-        reject('Usuário não encontrado');
-      }
-    });
-  });
-}
-
-// Função assíncrona para obter tipo de usuário com base no userId
-async function getUserType(userId) {
-  return new Promise((resolve, reject) => {
-    const sql = 'SELECT tipo FROM usuario WHERE id_usu = ?';
-
-    connection.query(sql, [userId], (err, result) => {
-      if (err) {
-        console.error('Erro na consulta SQL:', err);
-        reject('Erro na consulta SQL');
-      }
-
-      if (result.length > 0) {
-        resolve(result[0].tipo);
-      } else {
-        reject('Usuário não encontrado');
-      }
-    });
-  });
-}
-
-
 app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
-  //console.log("chegou aqui!")
   const artigoId = req.params.artigoId;
   // const userIdFromSession = req.session.user.id_usu; // Obtém o ID do usuário da sessão
-
   let userId;
-
+  // aqui é pra pegar o id do usuário da sessão
   if (req.session.user) {
-
     userId = req.session.user.id_usu;
   } else if (req.session.profileData) {
-
-
-    const XboxUserId = req.session.profileData.profileUsers[0].id;
-    const getUserIdQuery = 'SELECT id_usu,tipo FROM usuario WHERE id_usu_xbox = ?';
-
-    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-      if (err) {
-        console.error('Erro ao obter userId:', err);
-        return res.status(500).json({ error: 'Erro ao obter userId' });
-      }
-
-      if (result.length > 0) {
-        userId = result[0].id_usu;
-        req.session.userType = result[0].tipo;
-
-        if (!userId) {
-
-          return res.json({ temPermissao: false });
-        }
-
-
-      } else {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
-      }
-    });
+      userId = req.session.userId;
   } else {
     return res.status(401).json({ redirect: '/login.html' });
   }
@@ -263,75 +208,54 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   app.delete('/excluir-artigo/:artigoId', (req, res) => {
     const artigoId = req.params.artigoId;
 
-    // Verificar se o usuário está autenticado
-    if (req.session.user || req.session.profileData) {
-      const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
-      const countImageURLQuery = 'SELECT COUNT(*) AS count FROM artigo WHERE imagem_url = ?';
+    if (!req.session.user && !req.session.profileData) return res.status(401).json({ error: 'Usuário não autenticado' });
 
-      // Obter a URL da imagem do artigo que será excluído
-      connection.query(selectImageURLQuery, [artigoId], (err, imageResult) => {
+    const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
+    const countImageURLQuery = 'SELECT COUNT(*) AS count FROM artigo WHERE imagem_url = ?';
+
+    connection.query(selectImageURLQuery, [artigoId], (err, imageResult) => {
+      if (err) {
+        console.error('Erro ao obter a URL da imagem:', err);
+        return res.status(500).json({ error: 'Erro ao obter a URL da imagem' });
+      }
+
+      const imageUrl = imageResult[0]?.imagem_url;
+
+      if (!imageUrl) return res.json({ message: 'Artigo não encontrado ou sem imagem associada' });
+
+      connection.query(countImageURLQuery, [imageUrl], (err, countResult) => {
         if (err) {
-          console.error('Erro ao obter a URL da imagem:', err);
-          return res.status(500).json({ error: 'Erro ao obter a URL da imagem' });
+          console.error('Erro ao contar a quantidade de imagens:', err);
+          return res.status(500).json({ error: 'Erro ao contar a quantidade de imagens' });
         }
 
-        const imageUrl = imageResult[0]?.imagem_url;
+        const count = countResult[0]?.count || 0;
+        const deleteMessage = count === 1 ? 'Artigo e imagens excluídos com sucesso' : 'Artigo excluído com sucesso';
+        const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
 
-        if (imageUrl) {
-          // Verificar a quantidade de artigos com a mesma imagem_url
-          connection.query(countImageURLQuery, [imageUrl], (err, countResult) => {
-            if (err) {
-              console.error('Erro ao contar a quantidade de imagens:', err);
-              return res.status(500).json({ error: 'Erro ao contar a quantidade de imagens' });
-            }
+        connection.query(deleteArtigoQuery, [artigoId], (err) => {
+          if (err) {
+            console.error('Erro ao excluir o artigo:', err);
+            return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+          }
 
-            const count = countResult[0]?.count || 0;
+          const imagePath = __dirname + '/images-preview/';
+          const imageName = imageUrl.split('/').pop();
+          const imageBaseName = imageName.split('.webp')[0];
+          const variations = ['_720', '_432', '_firstchild'];
 
-            if (count === 1) {
-              // Apenas um artigo com essa imagem, então exclui o artigo e suas imagens
-              const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
-              const imagePath = __dirname + '/images-preview/';
-              const imageName = imageUrl.split('/').pop();
-              const imageBaseName = imageName.split('.webp')[0];
-              const variations = ['_720', '_432', '_firstchild'];
+          fs.unlinkSync(`${imagePath}/${imageName}`);
 
-              connection.query(deleteArtigoQuery, [artigoId], (err) => {
-                if (err) {
-                  console.error('Erro ao excluir o artigo:', err);
-                  return res.status(500).json({ error: 'Erro ao excluir o artigo' });
-                }
-
-                // Excluir as imagens do sistema de arquivos
-                fs.unlinkSync(`${imagePath}/${imageName}`);
-                variations.forEach((variation) => {
-                  const variationImageName = `${imageBaseName}${variation}.webp`;
-                  fs.unlinkSync(`${imagePath}/${variationImageName}`);
-                });
-
-                return res.json({ message: 'Artigo e imagens excluídos com sucesso' });
-              });
-            } else {
-              // Mais de um artigo com essa imagem, então exclui somente o artigo
-              const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
-              connection.query(deleteArtigoQuery, [artigoId], (err) => {
-                if (err) {
-                  console.error('Erro ao excluir o artigo:', err);
-                  return res.status(500).json({ error: 'Erro ao excluir o artigo' });
-                }
-                return res.json({ message: 'Artigo excluído com sucesso' });
-              });
-            }
+          variations.forEach((variation) => {
+            const variationImageName = `${imageBaseName}${variation}.webp`;
+            fs.unlinkSync(`${imagePath}/${variationImageName}`);
           });
-        } else {
-          return res.json({ message: 'Artigo não encontrado ou sem imagem associada' });
-        }
+
+          return res.json({ message: deleteMessage });
+        });
       });
-    } else {
-      return res.status(401).json({ error: 'Usuário não autenticado' });
-    }
+    });
   });
-
-
 
   app.post('/update-article/:id', (req, res) => {
     const idArtigo = req.params.id;
@@ -407,9 +331,7 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
       });
     }
   });
-
   // Verificar se o usuário está autenticado (se a sessão está ativa)
-
   // Consultar o banco de dados para obter o ID do autor do artigo
   connection.query('SELECT id_usu FROM artigo WHERE id_artigo = ?', [artigoId], (err, results) => {
     if (err) {
@@ -419,18 +341,15 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
 
     const artigoAuthorId = results[0].id_usu;
 
-    // Verificar se o usuário é o autor do artigo ou se é um administrador
-    if (req.session.userType === 'administrador') {
+    const isAdmin = req.session.userType === 'administrador';
+    const isAuthor = userId === artigoAuthorId;
+    const temPermissao = isAdmin || isAuthor;
 
-      // Usuário é o autor do artigo
-      return res.json({ temPermissao: true, isAdmin: true });
-    } else if (userId === artigoAuthorId) {
-      // Usuário é um administrador, mas não é o autor do artigo
-      return res.json({ temPermissao: true });
-    } else {
-      // Usuário não tem permissão
-      return res.json({ temPermissao: false });
-    }
+    return res.json({
+      temPermissao,
+      ...(isAdmin && { isAdmin }), // chave json e variável
+      ...(isAuthor && { isAuthor }) // chave json e variável
+    });
   });
 });
 
@@ -439,23 +358,9 @@ app.post('/insert-news', (req, res) => {
   if (req.session.user) {
     userId = req.session.user.id_usu;
   } else if (req.session.profileData) {
-    const XboxUserId = req.session.profileData.profileUsers[0].id;
+    userId = req.session.userId;
+    processInsert();
 
-    const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
-
-    connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-      if (err) {
-        console.error('Erro ao obter userId:', err);
-        return res.status(500).json({ error: 'Erro ao obter userId' });
-      }
-
-      if (result.length > 0) {
-        userId = result[0].id_usu;
-        processInsert();
-      } else {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
-      }
-    });
   } else {
     return res.status(401).json({ redirect: '/login.html' });
   }
@@ -519,7 +424,7 @@ app.post('/insert-news', (req, res) => {
   }
 });
 
-app.post('/upload', (req, res) => {
+/*app.post('/upload', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ redirect: '/login.html' });
   }
@@ -556,32 +461,26 @@ app.post('/upload', (req, res) => {
         }
       });
     });
-});
+});*/
 
-app.get('/get-articles/:page', compression(), (req, res) => {
-  console.time("get-articles");
+app.get('/get-articles/:page', async (req, res) => {
 
   const itemsPerPage = 8;
   const currentPage = req.params.page || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
-  let statusFilter = 'aprovado'; // Valor padrão
 
-  switch (req.query.status) {
-    case 'reprovado':
-      statusFilter = 'reprovado';
-      break;
-    case 'analise':
-      statusFilter = 'analise';
-      break;
-    case 'enviado':
-      statusFilter = 'enviado';
-      break;
-    // Adicione outros casos conforme necessário
-
-    default:
-      // Nenhum filtro específico, manter o padrão (aprovado)
-      break;
+  // Se o userType não for 'adm', ajusta o statusFilter para 'aprovado'
+  let statusFilter = 'aprovado';
+  if (req.session.userType === 'administrador') {
+    const statusMapping = {
+      'reprovado': 'reprovado',
+      'analise': 'analise',
+      'enviado': 'enviado',
+      // Adicione outros casos conforme necessário
+    };
+    statusFilter = statusMapping[req.query.status] || 'aprovado';
   }
+
 
   // Consulta para obter os artigos da página atual com base no filtro de status
   const articlesQuery = `
@@ -598,7 +497,7 @@ app.get('/get-articles/:page', compression(), (req, res) => {
       console.error('Erro ao obter as notícias do banco de dados:', err);
       return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
     }
-  
+
     // Consulta para obter a contagem total de artigos e a contagem por status
     const countQuery = `
       SELECT
@@ -614,11 +513,10 @@ app.get('/get-articles/:page', compression(), (req, res) => {
         console.error('Erro ao obter a contagem de artigos:', err);
         return res.status(500).json({ error: 'Erro ao obter a contagem de artigos' });
       }
-    
+
       const { total_count, enviado, em_analise, aprovado } = countResult[0];
       const hasNextPage = articles.length === itemsPerPage;
       res.json({ articles, hasNextPage, currentPage, totalCount: total_count, counts: { enviado, em_analise, aprovado } });
-      console.timeEnd("get-articles"); // Termina a medição do tempo
     });
   });
 });
@@ -639,7 +537,7 @@ app.get('/get-articles-profile', (req, res) => {
     //para quem não está logado
     //console.log("chegou aqui") 
     postuserId = id; // id do usuario que postou(não é o id de quem está logado)
-    console.log("entrei no primeiro if ")
+
     processArticlesQuery(postuserId);
   } else {
     //aqui é no caso de ser um usuário sem ser da xbox live
@@ -647,23 +545,9 @@ app.get('/get-articles-profile', (req, res) => {
       userId = req.session.user.id_usu;
       processArticlesQuery(userId);
     } else if (req.session.profileData) {
-      console.log("entrei no terceiro if")
-      const XboxUserId = req.session.profileData.profileUsers[0].id;
-      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+      loggeduserId = req.session.userId;
+      processArticlesQuery(loggeduserId);
 
-      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-        if (err) {
-          console.error('Erro ao obter userId:', err);
-          return res.status(500).json({ error: 'Erro ao obter userId' });
-        }
-
-        if (result.length > 0) {
-          loggeduserId = result[0].id_usu;
-          processArticlesQuery(loggeduserId);
-        } else {
-          return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-      });
     } else {
       return res.status(401).json({ redirect: '/login.html' });
     }
@@ -676,7 +560,7 @@ app.get('/get-articles-profile', (req, res) => {
 
 
     if (userId == loggeduserId) {
-     console.log(userId, loggeduserId);
+      console.log(userId, loggeduserId);
       console.log("Está acessando seu próprio perfil");
 
       // Consultas SQL para recuperar todos os artigos do próprio perfil
@@ -763,7 +647,7 @@ ORDER BY artigo.data_publicacao DESC LIMIT ?, ?
           res.json({ articles, totalCount, hasNextPage });
         });
       });
-     
+
     }
   }
 });
@@ -817,88 +701,14 @@ app.get('/get-article-by-id/:id', (req, res) => {
       return res.status(500).json({ error: 'Erro ao obter o artigo do banco de dados' });
     }
 
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Artigo não encontrado' });
-    }
+    if (results.length === 0) return res.status(404).json({ error: 'Artigo não encontrado' });
 
     const article = results[0];
     res.json(article);
   });
 });
 
-// Rota para obter a contagem total de artigos
-app.get('/get-article-count', (req, res) => {
-  const sql = 'SELECT COUNT(*) as count FROM artigo'; // Substitua 'artigo' pelo nome da sua tabela de artigos
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Erro ao obter a contagem total de artigos:', err);
-      return res.status(500).json({ error: 'Erro ao obter a contagem total de artigos' });
-    }
-
-    const count = results[0].count;
-
-    //console.log(count)
-    res.json({ count });
-  });
-});
-
-// Rota para obter a contagem total de artigos por perfil
-app.get('/get-article-count-profile', (req, res) => {
-
-  let userId;
-
-  //console.log(req.query.id);
-  const id = parseInt(req.query.id);
-
-  if (!isNaN(id) && id > 1) {
-    //console.log("chegou aqui")
-    userId = id;
-    processArticlesQuery(userId);
-  } else {
-
-    if (req.session.user) {
-      userId = req.session.user.id_usu;
-      processArticlesQuery(userId);
-    } else if (req.session.profileData) {
-      const XboxUserId = req.session.profileData.profileUsers[0].id;
-      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
-
-      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-        if (err) {
-          console.error('Erro ao obter userId:', err);
-          return res.status(500).json({ error: 'Erro ao obter userId' });
-        }
-
-        if (result.length > 0) {
-          userId = result[0].id_usu;
-          processArticlesQuery(userId);
-        } else {
-          return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-      });
-    } else {
-      return res.status(401).json({ redirect: '/login.html' });
-    }
-  }
-
-  function processArticlesQuery(userId) {
-    const sql = 'SELECT COUNT(*) as count FROM artigo WHERE id_usu = ?';
-    connection.query(sql, [userId], (err, results) => {
-      if (err) {
-        console.error('Erro ao obter a contagem total de artigos:', err);
-        return res.status(500).json({ error: 'Erro ao obter a contagem total de artigos' });
-      }
-
-      const count = results[0].count;
-
-      //console.log(count)
-      res.json({ count });
-    });
-  }
-
-});
-
-app.post('/login', (req, res) => {
+/*app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
   console.log('Received login request with email:', email);
@@ -941,7 +751,7 @@ app.post('/login', (req, res) => {
     res.json({ success: true, redirect: '/notícias.html' });
     // console.log('Login successful for user:', result[0]);
   });
-});
+});*/
 
 app.get('/get-username/:userId', (req, res) => {
   const userId = req.params.userId;
@@ -979,7 +789,6 @@ app.get('/logout', (req, res) => {
 
   if (microsoftAccessToken) {
     // Chame a função de revogação do token de acesso, se disponível
-    console.log(microsoftAccessToken.access_token);
     req.session.authData = null;
     client.clearTokens();
     res.clearCookie('connect.sid');
@@ -1024,8 +833,7 @@ app.get('/get-user-info', (req, res) => {
       }
     });
   } else if (req.session.profileData) {
-    
-    
+
     // Aqui, você pode acessar os detalhes do perfil do Xbox Live
     const data = req.session.profileData;
 
@@ -1062,28 +870,15 @@ app.get('/get-user-info/:id', (req, res) => {
       userId = req.session.user.id_usu;
       processUserQuery(userId);
     } else if (req.session.profileData) {
-      const XboxUserId = req.session.profileData.profileUsers[0].id;
-      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
+      userId = req.session.userId;
+      processUserQuery(userId);
 
-      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-        if (err) {
-          console.error('Erro ao obter userId:', err);
-          return res.status(500).json({ error: 'Erro ao obter userId' });
-        }
-
-        if (result.length > 0) {
-          userId = result[0].id_usu;
-          processUserQuery(userId);
-        } else {
-          return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-      });
     } else {
       return res.status(401).json({ redirect: '/login.html' });
     }
   }
   function processUserQuery(userId) {
-  
+
     const selectQuery = `
   SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
   IFNULL(u.descricao, "") AS descricao,
@@ -1126,7 +921,7 @@ app.put('/update-description/:id', (req, res) => {
 
   if (!isNaN(id) && id > 1) {
 
-       //para quem não está logado
+    //para quem não está logado
     //console.log("chegou aqui") 
     postuserId = id; // id do usuario que postou(não é o id de quem está logado)
     console.log("entrei no primeiro if ")
@@ -1137,29 +932,12 @@ app.put('/update-description/:id', (req, res) => {
       userId = req.session.user.id_usu;
       processArticlesQuery(userId);
     } else if (req.session.profileData) {
-      const XboxUserId = req.session.profileData.profileUsers[0].id;
-      const getUserIdQuery = 'SELECT id_usu FROM usuario WHERE id_usu_xbox = ?';
-  
-      connection.query(getUserIdQuery, [XboxUserId], (err, result) => {
-        if (err) {
-          console.error('Erro ao obter userId:', err);
-          return res.status(500).json({ error: 'Erro ao obter userId' });
-        }
-  
-        if (result.length > 0) {
-          loggeduserId = result[0].id_usu;
-          processArticlesQuery(loggeduserId);
-        } else {
-          return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-      });
+      loggeduserId = req.session.userId;
+      processArticlesQuery(loggeduserId);
     } else {
       return res.status(401).json({ redirect: '/login.html' });
-    }   
-
-
+    }
   }
-
 
   function processArticlesQuery(userId) {
 
@@ -1167,13 +945,13 @@ app.put('/update-description/:id', (req, res) => {
 
       console.log(userId, loggeduserId);
       const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
-     
+
       connection.query(sql, [newDescription, userId], (err, result) => {
         if (err) {
           console.error('Erro ao atualizar descrição:', err);
           return res.status(500).json({ error: 'Erro ao atualizar a descrição' });
         } session
-    
+
         if (result.affectedRows === 1) {
           return res.json({ success: true });
         } else {
@@ -1182,32 +960,34 @@ app.put('/update-description/:id', (req, res) => {
       });
     }
   }
-
 });
 
 // Rota para alterar o status do artigo
-app.put('/alterar-status-artigo/:id', (req, res) => {
+app.put('/alterar-status-artigo/:id', async (req, res) => {
   const articleId = req.params.id;
   const newStatus = req.body.status;
 
-  // Substitua 'conexaoBancoDados' pela variável que armazena sua conexão real com o banco de dados
-  connection.query(
-    'UPDATE artigo SET status = ? WHERE id_artigo = ?',
-    [newStatus, articleId],
-    (err, result) => {
-      if (err) {
-        console.error('Erro ao atualizar o status do artigo:', err);
-        return res.status(500).json({ error: 'Erro interno do servidor' });
-      }
+  if (req.session.isAuth) {
+    // O usuário é administrador, permitir a atualização do status do artigo
+    connection.query(
+      'UPDATE artigo SET status = ? WHERE id_artigo = ?',
+      [newStatus, articleId],
+      (err, result) => {
+        if (err) {
+          console.error('Erro ao atualizar o status do artigo:', err);
+          return res.status(500).json({ error: 'Erro interno do servidor' });
+        }
 
-      // Verificar se a atualização foi bem-sucedida
-      if (result.affectedRows > 0) {
-        res.status(200).json({ message: `Status do artigo ${articleId} alterado para ${newStatus}` });
-      } else {
-        res.status(404).json({ error: 'Artigo não encontrado ou status não alterado.' });
+        // Verificar se a atualização foi bem-sucedida
+        if (result.affectedRows > 0) {
+          res.status(200).json({ message: `Status do artigo ${articleId} alterado para ${newStatus}` });
+        } else {
+          res.status(404).json({ error: 'Artigo não encontrado ou status não alterado.' });
+        }
       }
-    }
-  );
+    );
+  }
+
 });
 
 // Rota de autenticação
@@ -1228,10 +1008,7 @@ app.get('/auth', (req, res) => {
 
 app.get('/profile', (req, res) => {
   client.isAuthenticated().then(() => {
-
     client.getProvider('profile').getUserProfile().then(result => {
-      /*  console.log('Profile:', result);*/
-
       req.session.isAuth = true;
       req.session.profileData = result;
 
@@ -1244,8 +1021,7 @@ app.get('/profile', (req, res) => {
       const profileImageURL = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
       const imagePath = __dirname + '/profile-xbox-images/' + id + '.webp';
 
-      // ...
-      const download = https.get(profileImageURL, (response) => {
+      https.get(profileImageURL, (response) => {
         const chunks = [];
         response
           .on('data', (chunk) => chunks.push(chunk))
@@ -1262,24 +1038,41 @@ app.get('/profile', (req, res) => {
                 const newImageName = id + '.webp';
                 // Insere a imagem redimensionada e convertida no banco de dados
                 const insertImageQuery = `
-                INSERT INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) 
-                VALUES (?, ?, ?, ?) 
-                ON DUPLICATE KEY UPDATE 
-                gamertag = VALUES(gamertag), 
-                gamerscore = VALUES(gamerscore), 
-                imagem_url = VALUES(imagem_url);
-            `;
+                  INSERT INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) 
+                  VALUES (?, ?, ?, ?) 
+                  ON DUPLICATE KEY UPDATE 
+                  gamertag = VALUES(gamertag), 
+                  gamerscore = VALUES(gamerscore), 
+                  imagem_url = VALUES(imagem_url);
+                `;
 
                 connection.query(insertImageQuery, [id, userGamertag, userGamerscore, newImageName], (err, result) => {
                   if (err) {
                     console.error('Erro ao inserir a imagem no banco de dados:', err);
                     return;
                   }
+
+                  // Recupera o ID do usuário e o tipo do usuário
+                  const getUserQuery = 'SELECT id_usu, tipo FROM usuario WHERE id_usu_xbox = ?';
+                  connection.query(getUserQuery, [id], (err, userResult) => {
+                    if (err) {
+                      console.error('Erro ao obter dados do usuário:', err);
+                      return res.status(500).json({ error: 'Erro ao obter dados do usuário' });
+                    }
+
+                    if (userResult.length > 0) {
+                      req.session.userId = userResult[0].id_usu;
+                      req.session.userType = userResult[0].tipo;
+                      res.redirect('/notícias.html');
+                    } else {
+                      console.error('Usuário não encontrado após inserção/atualização.');
+                      res.status(500).json({ error: 'Usuário não encontrado' });
+                    }
+                  });
                 });
               });
           });
       });
-      res.redirect('/notícias.html');
 
     }).catch(error => {
       console.log('Error getting recent achievements:', error);
@@ -1294,6 +1087,7 @@ app.get('/profile', (req, res) => {
 
 app.get('/search', (req, res) => {
   const searchTerm = req.query.term; // Recebe o termo de busca da query string
+  const searchPattern = `%${searchTerm}%`; // Adiciona % para fazer a busca de termos parciais
 
   const sql = `
     SELECT 
@@ -1301,20 +1095,20 @@ app.get('/search', (req, res) => {
       'usuário' AS tipo, u.id_usu AS id
     FROM usuario u 
     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = u.id_usu_xbox
-    WHERE REGEXP_LIKE(IFNULL(u.login_usu, ux.gamertag), ?)
-
+    WHERE IFNULL(u.login_usu, ux.gamertag) LIKE ? 
+    
     UNION
-
+    
     SELECT 
       titulo AS resultado,
       'artigo' AS tipo, a.id_artigo AS id
     FROM artigo a
-    WHERE REGEXP_LIKE(titulo, ?)
-
+    WHERE titulo LIKE ?
+    
     LIMIT 7;
   `;
 
-  const params = [`(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`, `(^|\\s)${searchTerm}|\\b${searchTerm}\\w*`];
+  const params = [searchPattern, searchPattern];
 
   connection.query(sql, params, (err, results) => {
     if (err) {
