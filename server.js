@@ -6,6 +6,7 @@ const path = require('path');
 const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
 const https = require('https');
+const http2 = require('http2');
 const RSS = require('rss');
 const Parser = require('rss-parser');
 const fs = require('fs');
@@ -14,8 +15,10 @@ const port = 3000;
 const app = express();
 const dbConfig = require('./script/dbConfig');
 const config = require('./script/xbApiConfig.js');
+const { promisify } = require('util');
 const cors = require('cors');
 const zlib = require('zlib');
+
 
 // Use as chaves do arquivo de configuração
 const client = XboxApiClient({
@@ -78,7 +81,7 @@ connection.connect((err) => {
   console.log('Connected to the database!');
 });
 
-app.get('/feed.xml', (req, res) => {
+/*app.get('/feed.xml', (req, res) => {
   const feed = new RSS({
     title: 'Feed de Notícias',
     feed_url: 'http://localhost:3000/feed.xml',
@@ -109,8 +112,9 @@ app.get('/feed.xml', (req, res) => {
     res.type('application/rss+xml');
     res.send(xml);
   });
-});
+});*/
 
+/*
 const parser = new Parser();
 
 const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
@@ -122,7 +126,7 @@ const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
   } catch (err) {
     console.error('Erro ao validar o feed:', err);
   }
-})();
+})();*/
 
 /*app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
@@ -180,9 +184,9 @@ app.get('/getUserStatus', (req, res) => {
         }
       });
     } else if (req.session.profileData) {
-              const tipoUsuario = req.session.userType;
-              const isLoggedIn = req.session.isAuth;
-            return  res.json({ tipoUsuario, isLoggedIn });
+      const tipoUsuario = req.session.userType;
+      const isLoggedIn = req.session.isAuth;
+      return res.json({ tipoUsuario, isLoggedIn });
     } else {
       return res.status(401).json({ isLoggedIn: false, redirect: '/login.html' });
     }
@@ -200,7 +204,7 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   if (req.session.user) {
     userId = req.session.user.id_usu;
   } else if (req.session.profileData) {
-      userId = req.session.userId;
+    userId = req.session.userId;
   } else {
     return res.status(401).json({ redirect: '/login.html' });
   }
@@ -464,41 +468,35 @@ app.post('/insert-news', (req, res) => {
 });*/
 
 app.get('/get-articles/:page', async (req, res) => {
+  try {
+    const itemsPerPage = 8;
+    const currentPage = parseInt(req.params.page, 10) || 1;
+    const startIndex = (currentPage - 1) * itemsPerPage;
 
-  const itemsPerPage = 8;
-  const currentPage = req.params.page || 1;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-
-  // Se o userType não for 'adm', ajusta o statusFilter para 'aprovado'
-  let statusFilter = 'aprovado';
-  if (req.session.userType === 'administrador') {
-    const statusMapping = {
-      'reprovado': 'reprovado',
-      'analise': 'analise',
-      'enviado': 'enviado',
-      // Adicione outros casos conforme necessário
-    };
-    statusFilter = statusMapping[req.query.status] || 'aprovado';
-  }
-
-
-  // Consulta para obter os artigos da página atual com base no filtro de status
-  const articlesQuery = `
-    SELECT SQL_CALC_FOUND_ROWS a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
-    FROM artigo a
-    INNER JOIN usuario u ON a.id_usu = u.id_usu 
-    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
-    WHERE a.status = ?
-    ORDER BY data_publicacao DESC LIMIT ?, ?
-  `;
-
-  connection.query(articlesQuery, [statusFilter, startIndex, itemsPerPage], (err, articles) => {
-    if (err) {
-      console.error('Erro ao obter as notícias do banco de dados:', err);
-      return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
+    if (currentPage < 1) {
+      return res.status(400).json({ error: 'Página inválida' });
     }
 
-    // Consulta para obter a contagem total de artigos e a contagem por status
+    let statusFilter = 'aprovado';
+    if (req.session.userType === 'administrador') {
+      const statusMapping = {
+        'reprovado': 'reprovado',
+        'analise': 'analise',
+        'enviado': 'enviado',
+        // Adicione outros casos conforme necessário
+      };
+      statusFilter = statusMapping[req.query.status] || 'aprovado';
+    }
+
+    const articlesQuery = `
+      SELECT SQL_CALC_FOUND_ROWS a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
+      FROM artigo a
+      INNER JOIN usuario u ON a.id_usu = u.id_usu 
+      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
+      WHERE a.status = ?
+      ORDER BY data_publicacao DESC LIMIT ?, ?
+    `;
+
     const countQuery = `
       SELECT
         COUNT(*) AS total_count,
@@ -508,17 +506,23 @@ app.get('/get-articles/:page', async (req, res) => {
       FROM artigo
     `;
 
-    connection.query(countQuery, (err, countResult) => {
-      if (err) {
-        console.error('Erro ao obter a contagem de artigos:', err);
-        return res.status(500).json({ error: 'Erro ao obter a contagem de artigos' });
-      }
+    const query = promisify(connection.query).bind(connection);
 
-      const { total_count, enviado, em_analise, aprovado } = countResult[0];
-      const hasNextPage = articles.length === itemsPerPage;
-      res.json({ articles, hasNextPage, currentPage, totalCount: total_count, counts: { enviado, em_analise, aprovado } });
+    const [articles, countResult] = await Promise.all([
+      query(articlesQuery, [statusFilter, startIndex, itemsPerPage]),
+      query(countQuery)
+    ]);
+
+    const { total_count, enviado, em_analise, aprovado } = countResult[0];
+    const hasNextPage = articles.length === itemsPerPage;
+
+    res.json({
+      articles, hasNextPage, currentPage, totalCount: total_count, counts: { enviado, em_analise, aprovado }
     });
-  });
+  } catch (error) {
+    console.error('Erro ao obter os artigos:', error);
+    res.status(500).json({ error: 'Erro ao obter os artigos' });
+  }
 });
 
 app.get('/get-articles-profile', (req, res) => {
@@ -1086,8 +1090,12 @@ app.get('/profile', (req, res) => {
 });
 
 app.get('/search', (req, res) => {
-  const searchTerm = req.query.term; // Recebe o termo de busca da query string
-  const searchPattern = `%${searchTerm}%`; // Adiciona % para fazer a busca de termos parciais
+  let searchTerm = req.query.term;
+  if (!searchTerm || typeof searchTerm !== 'string' || searchTerm.length > 100) {
+    return res.status(400).json({ error: 'Termo de busca inválido' });
+  }
+
+  const searchPattern = `%${searchTerm.replace(/[%_]/g, '\\$&')}%`;
 
   const sql = `
     SELECT 
@@ -1120,6 +1128,18 @@ app.get('/search', (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+
+const options = {
+  key: fs.readFileSync('localhost-private.pem'), // Caminho para sua chave privada
+  cert: fs.readFileSync('localhost-cert.pem') // Caminho para seu certificado SSL
+};
+
+const server = https.createServer(options, app);
+
+server.listen(port, () => {
+  console.log(`Servidor HTTP/2 rodando em https://localhost:${port}`);
 });
+
+/*app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});*/
