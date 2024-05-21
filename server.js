@@ -6,7 +6,6 @@ const path = require('path');
 const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
 const https = require('https');
-const http2 = require('http2');
 const RSS = require('rss');
 const Parser = require('rss-parser');
 const fs = require('fs');
@@ -81,11 +80,11 @@ connection.connect((err) => {
   console.log('Connected to the database!');
 });
 
-/*app.get('/feed.xml', (req, res) => {
+app.get('/feed.xml', (req, res) => {
   const feed = new RSS({
     title: 'Feed de Notícias',
-    feed_url: 'http://localhost:3000/feed.xml',
-    site_url: 'http://localhost:3000',
+    feed_url: 'https://localhost:3000/feed.xml',
+    site_url: 'https://localhost:3000',
     description: 'Notícias do Meu Site'
   });
 
@@ -101,7 +100,7 @@ connection.connect((err) => {
     results.forEach(row => {
       feed.item({
         title: row.titulo,
-        url: `http://localhost:3000/artigo/${row.id_artigo}`,
+        url: `https://localhost:3000/artigo/${row.id_artigo}`,
         description: row.previa_conteudo,
         date: row.data_publicacao,
         enclosure: { url: row.imagem_url, type: 'image/webp' }
@@ -112,12 +111,11 @@ connection.connect((err) => {
     res.type('application/rss+xml');
     res.send(xml);
   });
-});*/
+});
 
-/*
 const parser = new Parser();
 
-const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
+const url = 'https://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
 
 (async () => {
   try {
@@ -126,7 +124,7 @@ const url = 'http://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
   } catch (err) {
     console.error('Erro ao validar o feed:', err);
   }
-})();*/
+})();
 
 /*app.post('/submit', (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
@@ -467,194 +465,122 @@ app.post('/insert-news', (req, res) => {
     });
 });*/
 
-app.get('/get-articles/:page', async (req, res) => {
-  try {
-    const itemsPerPage = 8;
-    const currentPage = parseInt(req.params.page, 10) || 1;
-    const startIndex = (currentPage - 1) * itemsPerPage;
+const asyncHandler = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
-    if (currentPage < 1) {
+app.get('/get-articles/:page', asyncHandler(async (req, res, next) => {
+  const itemsPerPage = 8;
+  const currentPage = parseInt(req.params.page, 10) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  if (currentPage < 1) {
       return res.status(400).json({ error: 'Página inválida' });
-    }
+  }
 
-    let statusFilter = 'aprovado';
-    if (req.session.userType === 'administrador') {
+  let statusFilter = 'aprovado';
+  if (req.session.userType === 'administrador') {
       const statusMapping = {
-        'reprovado': 'reprovado',
-        'analise': 'analise',
-        'enviado': 'enviado',
-        // Adicione outros casos conforme necessário
+          'reprovado': 'reprovado',
+          'analise': 'analise',
+          'enviado': 'enviado',
       };
       statusFilter = statusMapping[req.query.status] || 'aprovado';
-    }
+  }
 
-    const articlesQuery = `
+  const articlesQuery = `
       SELECT SQL_CALC_FOUND_ROWS a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
       FROM artigo a
       INNER JOIN usuario u ON a.id_usu = u.id_usu 
       LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
       WHERE a.status = ?
       ORDER BY data_publicacao DESC LIMIT ?, ?
-    `;
+  `;
 
-    const countQuery = `
+  const countQuery = `
       SELECT
-        COUNT(*) AS total_count,
-        SUM(status = 'enviado') AS enviado,
-        SUM(status = 'em analise') AS em_analise,
-        SUM(status = 'aprovado') AS aprovado
+          COUNT(*) AS total_count,
+          SUM(status = 'enviado') AS enviado,
+          SUM(status = 'em analise') AS em_analise,
+          SUM(status = 'aprovado') AS aprovado
       FROM artigo
-    `;
+  `;
 
-    const query = promisify(connection.query).bind(connection);
+  const query = promisify(connection.query).bind(connection);
 
-    const [articles, countResult] = await Promise.all([
+  const [articles, countResult] = await Promise.all([
       query(articlesQuery, [statusFilter, startIndex, itemsPerPage]),
       query(countQuery)
-    ]);
+  ]);
 
-    const { total_count, enviado, em_analise, aprovado } = countResult[0];
-    const hasNextPage = articles.length === itemsPerPage;
+  const { total_count, enviado, em_analise, aprovado } = countResult[0];
+  const hasNextPage = articles.length === itemsPerPage;
 
-    res.json({
+  res.json({
       articles, hasNextPage, currentPage, totalCount: total_count, counts: { enviado, em_analise, aprovado }
-    });
-  } catch (error) {
-    console.error('Erro ao obter os artigos:', error);
-    res.status(500).json({ error: 'Erro ao obter os artigos' });
-  }
-});
+  });
+}));
 
-app.get('/get-articles-profile', (req, res) => {
+app.get('/get-articles-profile', asyncHandler(async (req, res, next) => {
+  const userId = parseInt(req.query.id) || (req.session.user && req.session.user.id_usu) || (req.session.profileData && req.session.userId);
 
-  let postuserId; // vou precisar de mais uma variável dessa, pois ela é sobreposta mais à frente e eu vou precisar do primeiro valor para comparar
-  let loggeduserId;
-
-  //console.log(req.query.id);
-  const id = parseInt(req.query.id);
-
-  if (req.session.profileData) {
-    console.log("perfil xbox logado")
+  if (isNaN(userId) || userId < 1) {
+      return res.status(400).json({ error: 'ID inválido' });
   }
 
-  if (!isNaN(id) && id > 1) {
-    //para quem não está logado
-    //console.log("chegou aqui") 
-    postuserId = id; // id do usuario que postou(não é o id de quem está logado)
+  const selectUserQuery = `
+      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+             IFNULL(u.descricao, "") AS descricao,
+             IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
+             IFNULL(ux.gamerscore, 0) AS gamerscore
+      FROM usuario u
+      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE u.id_usu = ?;
+  `;
 
-    processArticlesQuery(postuserId);
-  } else {
-    //aqui é no caso de ser um usuário sem ser da xbox live
-    if (req.session.user) {
-      userId = req.session.user.id_usu;
-      processArticlesQuery(userId);
-    } else if (req.session.profileData) {
-      loggeduserId = req.session.userId;
-      processArticlesQuery(loggeduserId);
+  const query = promisify(connection.query).bind(connection);
+  const userResult = await query(selectUserQuery, [userId]);
 
-    } else {
-      return res.status(401).json({ redirect: '/login.html' });
-    }
+  if (userResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
   }
 
-  function processArticlesQuery(userId) {
-    const itemsPerPage = 8;
-    const currentPage = req.query.page || 1;
-    const startIndex = (currentPage - 1) * itemsPerPage;
+  const user = userResult[0];
 
+  const itemsPerPage = 8;
+  const currentPage = parseInt(req.query.page) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
 
-    if (userId == loggeduserId) {
-      console.log(userId, loggeduserId);
-      console.log("Está acessando seu próprio perfil");
+  const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
+  const viewingOwnProfile = userId === loggedUserId;
 
-      // Consultas SQL para recuperar todos os artigos do próprio perfil
-      const sqlCount = `
-SELECT COUNT(*) AS total_count 
-FROM artigo
-WHERE artigo.id_usu = ?
-`;
+  const sqlCount = `
+      SELECT COUNT(*) AS total_count 
+      FROM artigo
+      WHERE artigo.id_usu = ?;
+  `;
 
-      const sql = `
-SELECT 
-  artigo.id_artigo, artigo.titulo, artigo.data_publicacao, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
-  IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
-FROM artigo
-LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
-LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-WHERE artigo.id_usu = ?
-ORDER BY artigo.data_publicacao DESC LIMIT ?, ?
-`;
+  const sqlArticles = `
+      SELECT 
+          artigo.id_artigo, artigo.titulo, artigo.data_publicacao, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+          IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+      FROM artigo
+      LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+      LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+      WHERE artigo.id_usu = ? ${viewingOwnProfile ? "OR artigo.status != 'aprovado'" : "AND artigo.status = 'aprovado'"}
+      ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
+  `;
 
-      connection.query(sqlCount, [userId], (err, countResults) => {
-        if (err) {
-          console.error('Erro ao contar o número total de artigos:', err);
-          return res.status(500).json({ error: 'Erro ao contar o número total de artigos' });
-        }
+  const [countResults, articles] = await Promise.all([
+      query(sqlCount, [userId]),
+      query(sqlArticles, [userId, startIndex, itemsPerPage])
+  ]);
 
-        const totalCount = countResults[0].total_count;
+  const totalCount = countResults[0].total_count;
+  const hasNextPage = articles.length === itemsPerPage;
 
-        connection.query(sql, [userId, startIndex, itemsPerPage], (err, results) => {
-          if (err) {
-            console.error('Erro ao obter as notícias do banco de dados:', err);
-            return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
-          }
-
-          const articles = results;
-
-          const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
-
-          res.json({ articles, totalCount, hasNextPage });
-        });
-      });
-      // Executar as consultas SQL...
-    } else {
-      console.log(userId, loggeduserId);
-      console.log("Está acessando o perfil de outro usuário");
-
-      // Consultas SQL para recuperar todos os artigos do próprio perfil
-      const sqlCount = `
-  SELECT COUNT(*) AS total_count 
-  FROM artigo
-  WHERE artigo.id_usu = ?
-`;
-
-      const sql = `
-  SELECT 
-    artigo.id_artigo, artigo.titulo, artigo.data_publicacao, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
-    IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
-  FROM artigo
-  LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
-  LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-  WHERE artigo.id_usu = ? AND artigo.status = 'aprovado'
-  ORDER BY artigo.data_publicacao DESC LIMIT ?, ?
-`;
-
-
-      connection.query(sqlCount, [postuserId], (err, countResults) => {
-        if (err) {
-          console.error('Erro ao contar o número total de artigos:', err);
-          return res.status(500).json({ error: 'Erro ao contar o número total de artigos' });
-        }
-
-        const totalCount = countResults[0].total_count;
-
-        connection.query(sql, [postuserId, startIndex, itemsPerPage], (err, results) => {
-          if (err) {
-            console.error('Erro ao obter as notícias do banco de dados:', err);
-            return res.status(500).json({ error: 'Erro ao obter as notícias do banco de dados' });
-          }
-
-          const articles = results;
-
-          const hasNextPage = articles.length > 0; // Não é necessário verificar o comprimento dos resultados aqui, pois não há limite
-
-          res.json({ articles, totalCount, hasNextPage });
-        });
-      });
-
-    }
-  }
-});
+  res.json({ user, articles, totalCount, hasNextPage });
+}));
 
 // Rota para obter dados de um artigo por ID
 app.get('/get-article-edit-by-id/:id', (req, res) => {
@@ -757,35 +683,6 @@ app.get('/get-article-by-id/:id', (req, res) => {
   });
 });*/
 
-app.get('/get-username/:userId', (req, res) => {
-  const userId = req.params.userId;
-
-  const query = `
-    SELECT u.login_usu, ux.gamertag 
-    FROM usuario u 
-    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
-    WHERE u.id_usu_xbox = ? OR u.id_usu = ?;
-  `;
-
-  connection.query(query, [userId, userId], (err, result) => {
-    if (err) {
-      console.error('Erro ao obter nome de usuário e gamertag:', err);
-      res.status(500).json({ error: 'Erro ao obter nome de usuário e gamertag' });
-    } else {
-      if (result.length > 0) {
-        const username = result[0].login_usu || result[0].gamertag;
-
-        res.json({
-          username: username,
-          gamertag: result[0].gamertag
-        });
-      } else {
-        res.status(404).json({ error: 'Usuário não encontrado' });
-      }
-    }
-  });
-});
-
 // Rota para fazer logout
 app.get('/logout', (req, res) => {
   // Revogue o token de acesso na Microsoft
@@ -858,66 +755,9 @@ app.get('/get-user-info', (req, res) => {
   }
 });
 
-app.get('/get-user-info/:id', (req, res) => {
-
-  // Verificar se req.session.user está definido
-  let userId;
-  const id = parseInt(req.params.id);
-
-  if (!isNaN(id) && id > 1) {
-
-    userId = id;
-    processUserQuery(userId);
-  } else {
-
-    if (req.session.user) {
-      userId = req.session.user.id_usu;
-      processUserQuery(userId);
-    } else if (req.session.profileData) {
-      userId = req.session.userId;
-      processUserQuery(userId);
-
-    } else {
-      return res.status(401).json({ redirect: '/login.html' });
-    }
-  }
-  function processUserQuery(userId) {
-
-    const selectQuery = `
-  SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
-  IFNULL(u.descricao, "") AS descricao,
-  IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
-  IFNULL(ux.gamerscore, 0) AS gamerscore
-  FROM usuario u
-  LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
-  WHERE u.id_usu = ?;
-`;
-
-    connection.query(selectQuery, [userId], (err, result) => {
-      if (err) {
-        console.error('Erro ao buscar informações do usuário:', err);
-        res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
-      } else {
-        if (result.length > 0) {
-          const userGamertag = result[0].login_usu;
-          const userDescription = result[0].descricao;
-          const userImageUrl = result[0].imagem_url;
-          const userGamerscore = result[0].gamerscore;
-
-          res.status(200).json({ description: userDescription, imageUrl: userImageUrl, gamertag: userGamertag, gamerscore: userGamerscore });
-        } else {
-          console.error('Usuário não encontrado');
-          res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-      }
-    });
-  }
-});
-
 // Rota para atualizar a descrição do usuário
 app.put('/update-description/:id', (req, res) => {
   const newDescription = req.body.description;
-
 
   const id = parseInt(req.params.id);
   let userId; // vou precisar de mais uma variável dessa, pois ela é sobreposta mais à frente e eu vou precisar do primeiro valor para comparar
@@ -928,7 +768,7 @@ app.put('/update-description/:id', (req, res) => {
     //para quem não está logado
     //console.log("chegou aqui") 
     postuserId = id; // id do usuario que postou(não é o id de quem está logado)
-    console.log("entrei no primeiro if ")
+    
     processArticlesQuery(postuserId);
   } else {
 
@@ -996,18 +836,14 @@ app.put('/alterar-status-artigo/:id', async (req, res) => {
 
 // Rota de autenticação
 app.get('/auth', (req, res) => {
+  if (req.session.authData) {return res.send('User already authenticated.');}
 
-  if (!req.session.authData) {
+  // Iniciar o servidor de autenticação e salvar os dados de autenticação na sessão do usuário
+  const url = client.startAuthServer(() => {
+    req.session.authData = client._authentication;
+  });
 
-    const url = client.startAuthServer(() => {
-      req.session.authData = client._authentication; // Salvar os dados de autenticação na sessão do usuário
-    });
-
-    res.redirect(url);
-  } else {
-    // O usuário já está autenticado, talvez redirecionar para outra página ou enviar uma resposta adequada
-    res.send('User already authenticated.');
-  }
+  res.redirect(url);
 });
 
 app.get('/profile', (req, res) => {
@@ -1128,7 +964,6 @@ app.get('/search', (req, res) => {
   });
 });
 
-
 const options = {
   key: fs.readFileSync('localhost-private.pem'), // Caminho para sua chave privada
   cert: fs.readFileSync('localhost-cert.pem') // Caminho para seu certificado SSL
@@ -1136,10 +971,17 @@ const options = {
 
 const server = https.createServer(options, app);
 
-server.listen(port, () => {
-  console.log(`Servidor HTTP/2 rodando em https://localhost:${port}`);
+// Middleware de Tratamento de Erros Global
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Erro interno no servidor' });
 });
 
-/*app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});*/
+// Middleware para capturar 404 - Página não encontrada
+app.use((req, res, next) => {
+  res.status(404).json({ error: 'Rota não encontrada' });
+});
+
+server.listen(port, () => {
+  console.log(`Servidor HTTPS rodando em https://localhost:${port}`);
+});
