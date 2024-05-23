@@ -6,6 +6,7 @@ const path = require('path');
 const fileUpload = require('express-fileupload');
 const XboxApiClient = require('xbox-webapi');
 const https = require('https');
+const http2 = require('http2')
 const RSS = require('rss');
 const Parser = require('rss-parser');
 const fs = require('fs');
@@ -126,38 +127,9 @@ const url = 'https://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
   }
 })();
 
-/*app.post('/submit', (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
-  const missingFields = [];
-  // Verificação de campos vazios
-  if (!name) missingFields.push('Nome');
-
-  if (!email) missingFields.push('Email');
-
-  if (!password) missingFields.push('Senha');
-
-  if (!confirmPassword) missingFields.push('Confirmar Senha');
-
-  if (missingFields.length > 0) {
-    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
-    return res.status(400).json({ error: errorMessage });
-  }
-
-  // Verificação se as senhas coincidem
-  if (password !== confirmPassword) return res.status(400).json({ error: 'As senhas não coincidem' });
-
-  // Inserir dados no banco de dados MySQL
-  const sql = 'INSERT INTO usuario (id_usu, login_usu, email, senha_usu, tipo, status) VALUES (?, ?, ?, ?, ?, ?)';
-  connection.query(sql, [0, name, email, password, 'escritor', 'ativo'], (err, result) => {
-    if (err) {
-      console.error('Erro ao inserir dados no banco de dados:', err);
-      return res.status(500).json({ error: 'Erro ao inserir dados no banco de dados' });
-    }
-
-    console.log('Dados inseridos no banco de dados:', result);
-    return res.status(200).json({ success: true });
-  });
-});*/
+const asyncHandler = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
 // Rota para obter o tipo do usuário e verificar o status de login
 app.get('/getUserStatus', (req, res) => {
@@ -182,7 +154,7 @@ app.get('/getUserStatus', (req, res) => {
         }
       });
     } else if (req.session.profileData) {
-      const tipoUsuario = req.session.userType;
+      const tipoUsuario = req.session.userType; // se eu atualizar o tipo de usuário no servidor enquanto a sessão está on, não vai atualizar por causa disso, o recomendado é fazer uma query
       const isLoggedIn = req.session.isAuth;
       return res.json({ tipoUsuario, isLoggedIn });
     } else {
@@ -191,6 +163,134 @@ app.get('/getUserStatus', (req, res) => {
   } catch (error) {
     console.error('Erro ao obter tipo de usuário e status de login:', error);
     res.status(500).send('Erro interno do servidor');
+  }
+});
+
+app.delete('/excluir-artigo/:artigoId', (req, res) => {
+  console.log('Recebi uma requisição DELETE para /excluir-artigo/' + req.params.artigoId);
+  const artigoId = req.params.artigoId;
+
+  if (!req.session.user && !req.session.profileData) return res.status(401).json({ error: 'Usuário não autenticado' });
+
+  const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
+  const countImageURLQuery = 'SELECT COUNT(*) AS count FROM artigo WHERE imagem_url = ?';
+
+  connection.query(selectImageURLQuery, [artigoId], (err, imageResult) => {
+    if (err) {
+      console.error('Erro ao obter a URL da imagem:', err);
+      return res.status(500).json({ error: 'Erro ao obter a URL da imagem' });
+    }
+
+    const imageUrl = imageResult[0]?.imagem_url;
+
+    if (!imageUrl) return res.json({ message: 'Artigo não encontrado ou sem imagem associada' });
+
+    connection.query(countImageURLQuery, [imageUrl], (err, countResult) => {
+      if (err) {
+        console.error('Erro ao contar a quantidade de imagens:', err);
+        return res.status(500).json({ error: 'Erro ao contar a quantidade de imagens' });
+      }
+
+      const count = countResult[0]?.count || 0;
+      const deleteMessage = count === 1 ? 'Artigo e imagens excluídos com sucesso' : 'Artigo excluído com sucesso';
+      const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
+
+      connection.query(deleteArtigoQuery, [artigoId], (err) => {
+        if (err) {
+          console.error('Erro ao excluir o artigo:', err);
+          return res.status(500).json({ error: 'Erro ao excluir o artigo' });
+        }
+
+        const imagePath = __dirname + '/images-preview/';
+        const imageName = imageUrl.split('/').pop();
+        const imageBaseName = imageName.split('.webp')[0];
+        const variations = ['_720', '_432', '_firstchild'];
+
+        fs.unlinkSync(`${imagePath}/${imageName}`);
+
+        variations.forEach((variation) => {
+          const variationImageName = `${imageBaseName}${variation}.webp`;
+          fs.unlinkSync(`${imagePath}/${variationImageName}`);
+        });
+
+        return res.json({ message: deleteMessage });
+      });
+    });
+  });
+});
+
+app.post('/update-article/:id', (req, res) => {
+  const idArtigo = req.params.id;
+  const { title, contentpreview, content } = req.body;
+  const image = req.files ? req.files.image : null;
+  const missingFields = [];
+
+  if (!title) missingFields.push('Título');
+  if (!content) missingFields.push('Conteúdo');
+  if (!contentpreview) missingFields.push('Conteúdo da prévia');
+
+  if (missingFields.length > 0) {
+    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
+    return res.status(400).json({ error: errorMessage });
+  }
+
+  if (image !== undefined && image !== null) {
+    const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
+
+    sharp(image.data)
+      .resize(256, 144)
+      .webp({ quality: 100 })
+      .toFile(uploadPath, (err) => {
+        if (err) {
+          console.error('Erro ao comprimir e converter a imagem:', err);
+          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
+        } else {
+          const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
+          const resolutions = [
+            { width: 860, height: 483, suffix: '_firstchild' },
+            { width: 432, height: 243, suffix: '_432' },
+            { width: 720, height: 405, suffix: '_720' }
+          ];
+
+          resolutions.forEach(({ width, height, suffix }) => {
+            const uploadPath = `${__dirname}/images-preview/${newImageName.replace(/\.[^/.]+$/, "")}${suffix}.webp`;
+
+            sharp(image.data)
+              .resize(width, height)
+              .webp({ quality: 100 })
+              .toFile(uploadPath, (err) => {
+                if (err) console.error(`Erro ao salvar imagem de resolução ${width}x${height}:`, err);
+              });
+          });
+
+          // Após salvar todas as diferentes resoluções, realizar a atualização no banco de dados
+          const sqlUpdate = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
+          const valuesUpdate = [title, newImageName, contentpreview, content, idArtigo];
+
+          connection.query(sqlUpdate, valuesUpdate, (errorUpdate, resultsUpdate) => {
+            if (errorUpdate) {
+              console.error('Erro ao atualizar o artigo:', errorUpdate);
+              res.status(500).json({ error: 'Erro interno no servidor' });
+            } else {
+              res.status(200).json({ message: 'Artigo atualizado com sucesso' });
+            }
+          });
+        }
+      });
+  } else {
+    // Se a imagem for undefined ou null, apenas atualize os outros campos sem mexer na imagem
+    // Execute a atualização no banco de dados
+    const sql = 'UPDATE artigo SET titulo=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
+    const values = [title, contentpreview, content, idArtigo];
+
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        console.error('Erro ao atualizar o artigo:', error);
+        res.status(500).json({ error: 'Erro interno no servidor' });
+      } else {
+        res.status(200).json({ message: 'Artigo atualizado com sucesso' });
+      }
+    });
   }
 });
 
@@ -206,133 +306,6 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   } else {
     return res.status(401).json({ redirect: '/login.html' });
   }
-
-  app.delete('/excluir-artigo/:artigoId', (req, res) => {
-    const artigoId = req.params.artigoId;
-
-    if (!req.session.user && !req.session.profileData) return res.status(401).json({ error: 'Usuário não autenticado' });
-
-    const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
-    const countImageURLQuery = 'SELECT COUNT(*) AS count FROM artigo WHERE imagem_url = ?';
-
-    connection.query(selectImageURLQuery, [artigoId], (err, imageResult) => {
-      if (err) {
-        console.error('Erro ao obter a URL da imagem:', err);
-        return res.status(500).json({ error: 'Erro ao obter a URL da imagem' });
-      }
-
-      const imageUrl = imageResult[0]?.imagem_url;
-
-      if (!imageUrl) return res.json({ message: 'Artigo não encontrado ou sem imagem associada' });
-
-      connection.query(countImageURLQuery, [imageUrl], (err, countResult) => {
-        if (err) {
-          console.error('Erro ao contar a quantidade de imagens:', err);
-          return res.status(500).json({ error: 'Erro ao contar a quantidade de imagens' });
-        }
-
-        const count = countResult[0]?.count || 0;
-        const deleteMessage = count === 1 ? 'Artigo e imagens excluídos com sucesso' : 'Artigo excluído com sucesso';
-        const deleteArtigoQuery = 'DELETE FROM artigo WHERE id_artigo = ?';
-
-        connection.query(deleteArtigoQuery, [artigoId], (err) => {
-          if (err) {
-            console.error('Erro ao excluir o artigo:', err);
-            return res.status(500).json({ error: 'Erro ao excluir o artigo' });
-          }
-
-          const imagePath = __dirname + '/images-preview/';
-          const imageName = imageUrl.split('/').pop();
-          const imageBaseName = imageName.split('.webp')[0];
-          const variations = ['_720', '_432', '_firstchild'];
-
-          fs.unlinkSync(`${imagePath}/${imageName}`);
-
-          variations.forEach((variation) => {
-            const variationImageName = `${imageBaseName}${variation}.webp`;
-            fs.unlinkSync(`${imagePath}/${variationImageName}`);
-          });
-
-          return res.json({ message: deleteMessage });
-        });
-      });
-    });
-  });
-
-  app.post('/update-article/:id', (req, res) => {
-    const idArtigo = req.params.id;
-    const { title, contentpreview, content } = req.body;
-    const image = req.files ? req.files.image : null;
-    const missingFields = [];
-
-    if (!title) missingFields.push('Título');
-    if (!content) missingFields.push('Conteúdo');
-    if (!contentpreview) missingFields.push('Conteúdo da prévia');
-
-    if (missingFields.length > 0) {
-      const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
-      return res.status(400).json({ error: errorMessage });
-    }
-
-    if (image !== undefined && image !== null) {
-      const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
-
-      sharp(image.data)
-        .resize(256, 144)
-        .webp({ quality: 100 })
-        .toFile(uploadPath, (err) => {
-          if (err) {
-            console.error('Erro ao comprimir e converter a imagem:', err);
-            return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-          } else {
-            const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
-            const resolutions = [
-              { width: 860, height: 483, suffix: '_firstchild' },
-              { width: 432, height: 243, suffix: '_432' },
-              { width: 720, height: 405, suffix: '_720' }
-            ];
-
-            resolutions.forEach(({ width, height, suffix }) => {
-              const uploadPath = `${__dirname}/images-preview/${newImageName.replace(/\.[^/.]+$/, "")}${suffix}.webp`;
-
-              sharp(image.data)
-                .resize(width, height)
-                .webp({ quality: 100 })
-                .toFile(uploadPath, (err) => {
-                  if (err) console.error(`Erro ao salvar imagem de resolução ${width}x${height}:`, err);
-                });
-            });
-
-            // Após salvar todas as diferentes resoluções, realizar a atualização no banco de dados
-            const sqlUpdate = 'UPDATE artigo SET titulo=?, imagem_url=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
-            const valuesUpdate = [title, newImageName, contentpreview, content, idArtigo];
-
-            connection.query(sqlUpdate, valuesUpdate, (errorUpdate, resultsUpdate) => {
-              if (errorUpdate) {
-                console.error('Erro ao atualizar o artigo:', errorUpdate);
-                res.status(500).json({ error: 'Erro interno no servidor' });
-              } else {
-                res.status(200).json({ message: 'Artigo atualizado com sucesso' });
-              }
-            });
-          }
-        });
-    } else {
-      // Se a imagem for undefined ou null, apenas atualize os outros campos sem mexer na imagem
-      // Execute a atualização no banco de dados
-      const sql = 'UPDATE artigo SET titulo=?, previa_conteudo=?, conteudo=? WHERE id_artigo=?';
-      const values = [title, contentpreview, content, idArtigo];
-
-      connection.query(sql, values, (error, results) => {
-        if (error) {
-          console.error('Erro ao atualizar o artigo:', error);
-          res.status(500).json({ error: 'Erro interno no servidor' });
-        } else {
-          res.status(200).json({ message: 'Artigo atualizado com sucesso' });
-        }
-      });
-    }
-  });
   // Verificar se o usuário está autenticado (se a sessão está ativa)
   // Consultar o banco de dados para obter o ID do autor do artigo
   connection.query('SELECT id_usu FROM artigo WHERE id_artigo = ?', [artigoId], (err, results) => {
@@ -355,121 +328,67 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   });
 });
 
-app.post('/insert-news', (req, res) => {
-  let userId;
-  if (req.session.user) {
-    userId = req.session.user.id_usu;
-  } else if (req.session.profileData) {
-    userId = req.session.userId;
-    processInsert();
+app.post('/insert-news', asyncHandler(async (req, res) => {
+  const query = promisify(connection.query).bind(connection);
+  const userId = req.session.user?.id_usu || req.session.userId;
 
-  } else {
+  if (!userId) {
     return res.status(401).json({ redirect: '/login.html' });
   }
 
-  function processInsert() {
-    const { title, contentpreview, content } = req.body;
-    const image = req.files ? req.files.image : null;
-    const missingFields = [];
+  const { title, contentpreview, content } = req.body;
+  const image = req.files ? req.files.image : null;
+  const missingFields = [];
 
-    if (!title) missingFields.push('Título');
-    if (!content) missingFields.push('Conteúdo');
-    if (!image) missingFields.push('URL da imagem');
-    if (!contentpreview) missingFields.push('Conteúdo da prévia');
+  if (!title) missingFields.push('Título');
+  if (!content) missingFields.push('Conteúdo');
+  if (!image) missingFields.push('URL da imagem');
+  if (!contentpreview) missingFields.push('Conteúdo da prévia');
 
-    if (missingFields.length > 0) {
-      const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
-      return res.status(400).json({ error: errorMessage });
-    }
+  if (missingFields.length > 0) {
+    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
+    return res.status(400).json({ error: errorMessage });
+  }
 
-    const uploadPath = __dirname + '/images-preview/' + image.name.replace(/\.[^/.]+$/, "") + '.webp';
+  const baseImageName = image.name.replace(/\.[^/.]+$/, "");
+  const uploadPath = __dirname + '/images-preview/' + baseImageName + '.webp';
 
-    sharp(image.data)
+  try {
+    await sharp(image.data)
       .resize(256, 144)
       .webp({ quality: 100 })
-      .toFile(uploadPath, (err) => {
-        if (err) {
-          console.error('Erro ao comprimir e converter a imagem:', err);
-          return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-        } else {
-          const newImageName = image.name.replace(/\.[^/.]+$/, "") + '.webp';
-          const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
-          const publicationDate = new Date();
-          const status = 'Enviado'; // Definindo o status como 'Enviado'
+      .toFile(uploadPath);
 
-          connection.query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview, status], (err, result) => {
-            if (err) {
-              console.error('Erro ao inserir artigo:', err);
-              res.status(500).json({ error: 'Erro ao inserir o artigo' });
-            } else {
-              const resolutions = [
-                { width: 860, height: 483, suffix: '_firstchild' },
-                { width: 432, height: 243, suffix: '_432' },
-                { width: 720, height: 405, suffix: '_720' }
-              ];
+    const newImageName = baseImageName + '.webp';
+    const insertQuery = 'INSERT INTO artigo (titulo, conteudo, data_publicacao, id_usu, imagem_url, previa_conteudo, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const publicationDate = new Date();
+    const status = 'Enviado'; // Definindo o status como 'Enviado'
 
-              resolutions.forEach(({ width, height, suffix }) => {
-                const uploadPath = `${__dirname}/images-preview/${image.name.replace(/\.[^/.]+$/, "")}${suffix}.webp`;
+    await query(insertQuery, [title, content, publicationDate, userId, newImageName, contentpreview, status]);
 
-                sharp(image.data)
-                  .resize(width, height)
-                  .webp({ quality: 100 })
-                  .toFile(uploadPath, (err) => {
-                    if (err) console.error(`Erro ao salvar imagem de resolução ${width}x${height}:`, err);
-                  });
-              });
-              res.status(200).json({ message: 'Artigo inserido com sucesso' });
-            }
-          });
-        }
-      });
+    const resolutions = [
+      { width: 860, height: 483, suffix: '_firstchild' },
+      { width: 432, height: 243, suffix: '_432' },
+      { width: 720, height: 405, suffix: '_720' }
+    ];
+
+    await Promise.all(resolutions.map(async ({ width, height, suffix }) => {
+      const resolutionPath = `${__dirname}/images-preview/${baseImageName}${suffix}.webp`;
+      await sharp(image.data)
+        .resize(width, height)
+        .webp({ quality: 100 })
+        .toFile(resolutionPath);
+    }));
+
+    res.status(200).json({ message: 'Artigo inserido com sucesso' });
+  } catch (err) {
+    console.error('Erro ao processar o artigo:', err);
+    res.status(500).json({ error: 'Erro ao processar o artigo' });
   }
-});
-
-/*app.post('/upload', (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ redirect: '/login.html' });
-  }
-
-  const userId = req.session.user.id_usu;
-  const imageData = req.body; // Receber os dados da imagem do corpo da requisição
-
-  if (!imageData.image) {
-    return res.status(400).json({ error: 'Nenhuma imagem foi fornecida' });
-  }
-
-  const imageBuffer = Buffer.from(imageData.image.split(',')[1], 'base64'); // Remover o prefixo 'data:image/png;base64,'
-
-  const uploadPath = __dirname + '/profile-images/' + userId + '.webp';
-
-  sharp(imageBuffer)
-    .resize(100, 100)
-    .webp({ quality: 100 })
-    .toFile(uploadPath, (err) => {
-      if (err) {
-        console.error('Erro ao comprimir e converter a imagem:', err);
-        return res.status(500).json({ error: 'Erro ao fazer upload da imagem' });
-      }
-
-      const imageUrl = userId + '.webp';
-
-      const updateQuery = 'UPDATE usuario SET imagem_url = ? WHERE id_usu = ?';
-      connection.query(updateQuery, [imageUrl, userId], (err, result) => {
-        if (err) {
-          console.error('Erro ao atualizar a imagem do usuário:', err);
-          res.status(500).json({ error: 'Erro ao atualizar a imagem do usuário' });
-        } else {
-          res.status(200).json({ message: 'Imagem do usuário atualizada com sucesso' });
-        }
-      });
-    });
-});*/
-
-const asyncHandler = fn => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
+}));
 
 app.get('/get-articles/:page', asyncHandler(async (req, res, next) => {
+  
   const itemsPerPage = 8;
   const currentPage = parseInt(req.params.page, 10) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -638,51 +557,6 @@ app.get('/get-article-by-id/:id', (req, res) => {
   });
 });
 
-/*app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-
-  console.log('Received login request with email:', email);
-
-  const missingFields = [];
-
-  if (!email) {
-    missingFields.push('E-mail');
-  }
-
-  if (!password) {
-    missingFields.push('Senha');
-  }
-
-  if (missingFields.length > 0) {
-    const errorMessage = `Os seguintes campos devem ser preenchidos: ${missingFields.join(', ')}`;
-    return res.status(400).json({ error: errorMessage });
-  }
-
-  const sql = 'SELECT * FROM usuario WHERE email = ? AND senha_usu = ?';
-  connection.query(sql, [email, password], (err, result) => {
-    if (err) {
-      console.error('Error querying the database:', err);
-      res.status(500).json({ message: 'Error querying the database' });
-      return;
-    }
-
-    if (result.length === 0) {
-      // Credenciais inválidas
-      console.log('Invalid email or password:', email);
-      res.status(401).json({ message: 'Invalid email or password' });
-      return;
-    }
-
-    // Credenciais válidas
-    req.session.isAuth = true;
-    req.session.user = result[0];
-
-    // Redirecionar para a página de notícias
-    res.json({ success: true, redirect: '/notícias.html' });
-    // console.log('Login successful for user:', result[0]);
-  });
-});*/
-
 // Rota para fazer logout
 app.get('/logout', (req, res) => {
   // Revogue o token de acesso na Microsoft
@@ -692,7 +566,6 @@ app.get('/logout', (req, res) => {
     // Chame a função de revogação do token de acesso, se disponível
     req.session.authData = null;
     client.clearTokens();
-    res.clearCookie('connect.sid');
   }
   // Destrua a sessão
   res.clearCookie('connect.sid');
@@ -702,7 +575,6 @@ app.get('/logout', (req, res) => {
       console.error("Error destroying session:", err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-
     res.json({ message: 'Logged out successfully' });
   });
 });
@@ -712,103 +584,31 @@ app.get('/checkLoginStatus', (req, res) => {
   (req.session.isAuth) ? res.json({ isLoggedIn: true }) : res.json({ isLoggedIn: false });
 });
 
-app.get('/get-user-info', (req, res) => {
-  // Verificar se req.session.user está definido
-  if (req.session.user && req.session.user.id_usu) {
-    const userId = req.session.user.id_usu;
-    const selectQuery = 'SELECT descricao, imagem_url FROM usuario WHERE id_usu = ?';
-
-    connection.query(selectQuery, [userId], (err, result) => {
-      if (err) {
-        console.error('Erro ao buscar informações do usuário:', err);
-        res.status(500).json({ error: 'Erro ao buscar informações do usuário' });
-      } else {
-        if (result.length > 0) {
-          const userDescription = result[0].descricao;
-          const userImageUrl = result[0].imagem_url;
-          res.status(200).json({ description: userDescription, imageUrl: userImageUrl });
-        } else {
-          console.error('Usuário não encontrado');
-          res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-      }
-    });
-  } else if (req.session.profileData) {
-
-    // Aqui, você pode acessar os detalhes do perfil do Xbox Live
-    const data = req.session.profileData;
-
-    const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
-    //console.log('Gamertag:', userGamertag);
-
-    const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
-    // console.log('Gamerscore:', userGamerscore);
-
-    const userProfilePic = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
-    //console.log('User Profile Picture URL:', userProfilePic);
-
-    res.status(200).json({ gamertag: userGamertag, gamerscore: userGamerscore, profilepic: userProfilePic, description });
-  } else {
-    // Caso nenhum dos dois esteja definido
-    console.error('Usuário não autenticado ou dados de perfil do Xbox Live ausentes');
-    res.status(401).json({ error: 'Usuário não autenticado ou dados de perfil do Xbox Live ausentes' });
-  }
-});
-
-// Rota para atualizar a descrição do usuário
-app.put('/update-description/:id', (req, res) => {
+app.put('/update-description/:id?', asyncHandler(async (req, res) => {
   const newDescription = req.body.description;
+  let userId = parseInt(req.params.id);
 
-  const id = parseInt(req.params.id);
-  let userId; // vou precisar de mais uma variável dessa, pois ela é sobreposta mais à frente e eu vou precisar do primeiro valor para comparar
-  let loggeduserId;
+  // Se o ID na URL for inválido ou não existir, use o ID do usuário na sessão
+  if (isNaN(userId) || userId < 1) {userId = req.session.user ? req.session.user.id_usu : req.session.userId;}
 
-  if (!isNaN(id) && id > 1) {
+  if (!userId) {return res.status(400).json({ error: 'ID de usuário inválido ou não encontrado' });}
 
-    //para quem não está logado
-    //console.log("chegou aqui") 
-    postuserId = id; // id do usuario que postou(não é o id de quem está logado)
-    
-    processArticlesQuery(postuserId);
-  } else {
+  const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
 
-    if (req.session.user) {
-      userId = req.session.user.id_usu;
-      processArticlesQuery(userId);
-    } else if (req.session.profileData) {
-      loggeduserId = req.session.userId;
-      processArticlesQuery(loggeduserId);
-    } else {
-      return res.status(401).json({ redirect: '/login.html' });
-    }
-  }
+  if (loggedUserId !== userId) {return res.status(403).json({ error: 'Você não tem permissão para editar esta descrição' });}
+  
+  const query = promisify(connection.query).bind(connection);
+  const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
+  const result = await query(sql, [newDescription, userId]);
 
-  function processArticlesQuery(userId) {
-
-    if (userId == loggeduserId) {
-
-      console.log(userId, loggeduserId);
-      const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
-
-      connection.query(sql, [newDescription, userId], (err, result) => {
-        if (err) {
-          console.error('Erro ao atualizar descrição:', err);
-          return res.status(500).json({ error: 'Erro ao atualizar a descrição' });
-        } session
-
-        if (result.affectedRows === 1) {
-          return res.json({ success: true });
-        } else {
-          return res.status(500).json({ error: 'Nenhuma linha foi afetada' });
-        }
-      });
-    }
-  }
-});
+  return result.affectedRows === 1 
+    ? res.json({ success: true }) 
+    : res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+}));
 
 // Rota para alterar o status do artigo
-app.put('/alterar-status-artigo/:id', async (req, res) => {
-  const articleId = req.params.id;
+app.put('/alterar-status-artigo/:id', async (req, res) => {  /// FALHA DE SEGURANÇA AQUI, JÁ QUE NÃO É VERIFICADO SE O AUTOR É O DONO OU SE O USUÁRIO É ADM
+  const articleId = req.params.id;   
   const newStatus = req.body.status;
 
   if (req.session.isAuth) {
@@ -846,84 +646,73 @@ app.get('/auth', (req, res) => {
   res.redirect(url);
 });
 
-app.get('/profile', (req, res) => {
-  client.isAuthenticated().then(() => {
-    client.getProvider('profile').getUserProfile().then(result => {
-      req.session.isAuth = true;
-      req.session.profileData = result;
+app.get('/profile', asyncHandler(async (req, res) => {
+  await client.isAuthenticated();
+  const result = await client.getProvider('profile').getUserProfile();
+  req.session.isAuth = true;
+  req.session.profileData = result;
 
-      const data = req.session.profileData;
-      const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
-      const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
-      const id = result.profileUsers[0].id;
+  const data = req.session.profileData;
+  const userGamertag = data.profileUsers[0].settings.find(setting => setting.id === 'Gamertag').value;
+  const userGamerscore = data.profileUsers[0].settings.find(setting => setting.id === 'Gamerscore').value;
+  const id = result.profileUsers[0].id;
 
-      // Faz o download da imagem do perfil
-      const profileImageURL = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
-      const imagePath = __dirname + '/profile-xbox-images/' + id + '.webp';
+  // Faz o download da imagem do perfil
+  const profileImageURL = data.profileUsers[0].settings.find(setting => setting.id === 'GameDisplayPicRaw').value;
+  const imagePath = __dirname + '/profile-xbox-images/' + id + '.webp';
 
-      https.get(profileImageURL, (response) => {
-        const chunks = [];
-        response
-          .on('data', (chunk) => chunks.push(chunk))
-          .on('end', () => {
-            // Redimensiona a imagem para 96x96 e a converte para WebP
-            sharp(Buffer.concat(chunks))
-              .resize(96, 96)
-              .webp()
-              .toFile(imagePath, (err) => {
-                if (err) {
-                  console.error('Erro ao redimensionar e converter a imagem:', err);
-                  return;
-                }
-                const newImageName = id + '.webp';
-                // Insere a imagem redimensionada e convertida no banco de dados
-                const insertImageQuery = `
-                  INSERT INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) 
-                  VALUES (?, ?, ?, ?) 
-                  ON DUPLICATE KEY UPDATE 
-                  gamertag = VALUES(gamertag), 
-                  gamerscore = VALUES(gamerscore), 
-                  imagem_url = VALUES(imagem_url);
-                `;
-
-                connection.query(insertImageQuery, [id, userGamertag, userGamerscore, newImageName], (err, result) => {
-                  if (err) {
-                    console.error('Erro ao inserir a imagem no banco de dados:', err);
-                    return;
-                  }
-
-                  // Recupera o ID do usuário e o tipo do usuário
-                  const getUserQuery = 'SELECT id_usu, tipo FROM usuario WHERE id_usu_xbox = ?';
-                  connection.query(getUserQuery, [id], (err, userResult) => {
-                    if (err) {
-                      console.error('Erro ao obter dados do usuário:', err);
-                      return res.status(500).json({ error: 'Erro ao obter dados do usuário' });
-                    }
-
-                    if (userResult.length > 0) {
-                      req.session.userId = userResult[0].id_usu;
-                      req.session.userType = userResult[0].tipo;
-                      res.redirect('/notícias.html');
-                    } else {
-                      console.error('Usuário não encontrado após inserção/atualização.');
-                      res.status(500).json({ error: 'Usuário não encontrado' });
-                    }
-                  });
-                });
-              });
-          });
-      });
-
-    }).catch(error => {
-      console.log('Error getting recent achievements:', error);
-      res.status(500).json({ error: 'Error getting recent achievements' });
+  const downloadImage = new Promise((resolve, reject) => {
+    https.get(profileImageURL, (response) => {
+      const chunks = [];
+      response
+        .on('data', (chunk) => chunks.push(chunk))
+        .on('end', () => {
+          // Redimensiona a imagem para 96x96 e a converte para WebP
+          sharp(Buffer.concat(chunks))
+            .resize(96, 96)
+            .webp()
+            .toFile(imagePath, (err) => {
+              if (err) {
+                console.error('Erro ao redimensionar e converter a imagem:', err);
+                reject(err);
+                return;
+              }
+              resolve(id + '.webp');
+            });
+        });
+    }).on('error', (error) => {
+      console.error('Erro ao fazer o download da imagem do perfil:', error);
+      reject(error);
     });
-
-  }).catch(error => {
-    console.log('User is not authenticated.', error);
-    res.status(401).json({ error: 'User is not authenticated' });
   });
-});
+
+  const newImageName = await downloadImage;
+
+  // Insere a imagem redimensionada e convertida no banco de dados
+  const insertImageQuery = `
+    INSERT INTO usuario_xbox (id_usu_xbox, gamertag, gamerscore, imagem_url) 
+    VALUES (?, ?, ?, ?) 
+    ON DUPLICATE KEY UPDATE 
+    gamertag = VALUES(gamertag), 
+    gamerscore = VALUES(gamerscore), 
+    imagem_url = VALUES(imagem_url);
+  `;
+
+  await promisify(connection.query).bind(connection)(insertImageQuery, [id, userGamertag, userGamerscore, newImageName]);
+
+  // Recupera o ID do usuário e o tipo do usuário
+  const getUserQuery = 'SELECT id_usu, tipo FROM usuario WHERE id_usu_xbox = ?';
+  const userResult = await promisify(connection.query).bind(connection)(getUserQuery, [id]);
+
+  if (userResult.length > 0) {
+    req.session.userId = userResult[0].id_usu;
+    req.session.userType = userResult[0].tipo;
+    res.redirect('/notícias.html');
+  } else {
+    console.error('Usuário não encontrado após inserção/atualização.');
+    res.status(500).json({ error: 'Usuário não encontrado' });
+  }
+}));
 
 app.get('/search', (req, res) => {
   let searchTerm = req.query.term;
@@ -959,17 +748,9 @@ app.get('/search', (req, res) => {
       console.error('Erro ao realizar a busca:', err);
       return res.status(500).json({ error: 'Erro ao realizar a busca' });
     }
-
     res.json({ results });
   });
 });
-
-const options = {
-  key: fs.readFileSync('localhost-private.pem'), // Caminho para sua chave privada
-  cert: fs.readFileSync('localhost-cert.pem') // Caminho para seu certificado SSL
-};
-
-const server = https.createServer(options, app);
 
 // Middleware de Tratamento de Erros Global
 app.use((err, req, res, next) => {
@@ -981,6 +762,13 @@ app.use((err, req, res, next) => {
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
+
+const options = {
+  key: fs.readFileSync('server.key'), // Caminho para sua chave privada
+  cert: fs.readFileSync('server.cert') // Caminho para seu certificado SSL
+};
+
+const server = https.createServer(options, app);
 
 server.listen(port, () => {
   console.log(`Servidor HTTPS rodando em https://localhost:${port}`);
