@@ -1,7 +1,4 @@
 
-
-
-
 // Código para medir a força da senha
 document.getElementById("password").addEventListener("input", function () {
     var password = this.value;

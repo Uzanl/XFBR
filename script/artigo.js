@@ -1,91 +1,82 @@
+const tituloElement = document.querySelector('.noticia-titulo');
+const conteudoElement = document.querySelector('.noticia-conteudo');
+const imagemPerfil = document.querySelector('.imagem-perfil');
+const gamertagElement = document.querySelector('.gamertag');
+const gamerscoreElement = document.querySelector('.gamerscore');
+const deleteButton = document.querySelector('.delete-image-container');
+const approveButton = document.querySelector('.approve-image-container');
+const declineButton = document.querySelector('.decline-image-container');
+const editElement = document.querySelector('.edit-image-container')
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  const deleteButton = document.querySelector('.delete-image-container');
-  const approveButton = document.querySelector('.approve-image-container');
-  const declineButton = document.querySelector('.decline-image-container');
-  deleteButton.addEventListener('click', handleExclusao);
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
 
-  async function handleExclusao() {
-    const confirmacao = confirm('Tem certeza que deseja excluir este artigo?');
-    if (confirmacao) {
-      try {
-        const response = await fetch(`/excluir-artigo/${id}`, {
-          method: 'DELETE',
-        });
-  
-        if (response.ok) {
-          // Artigo excluído com sucesso
-          alert('Artigo excluído com sucesso!');
-          window.location.href = '/perfil.html';
-        } else {
-          throw new Error('Erro ao excluir o artigo');
-        }
-      } catch (error) {
-        console.error('Erro ao excluir o artigo:', error);
-      }
-    }
-  }
+deleteButton.addEventListener('click', handleExclusao);
 
-  approveButton.addEventListener('click', () => {
-    handleStatusChange(id, 'aprovado');
-  });
-
-  declineButton.addEventListener('click', () => {
-    handleStatusChange(id, 'reprovado');
-  });
-
-  // Função para lidar com a alteração de status
-  async function handleStatusChange(articleId, status) {
-    const confirmacao = confirm(`Tem certeza que deseja ${status === 'aprovado' ? 'aprovar' : 'reprovar'} este artigo?`);
-
-    if (confirmacao) {
-      try {
-        const response = await fetch(`/alterar-status-artigo/${articleId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ status }), // Envie o novo status para o servidor
-        });
-
-        if (response.ok) {
-          // Status do artigo alterado com sucesso
-          alert(`Artigo ${status === 'aprovado' ? 'aprovado' : 'reprovado'} com sucesso!`);
-          // Recarregue a página ou faça outras ações necessárias após a alteração do status
-          window.location.reload();
-        } else {
-          throw new Error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'reprovar'} o artigo`);
-        }
-      } catch (error) {
-        console.error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'reprovar'} o artigo:`, error);
-      }
-    }
-  }
-
-  const editElement = document.querySelector('.edit-image-container')
-
-  editElement.addEventListener('click', () => {
-    openArticle(id);
-  });
-
-  function openArticle(id) {
-    window.location.href = `editor.html?id=${id}`;
-  }
-
-  try {
-     verificarPermissaoEditarArtigo(id);
-
-    //if (temPermissao) {
-     // handlePermissaoEditar();
-    //} 
-
-    await getArticleDetails(id);
-  } catch (error) {
-    console.error('Erro:', error);
-  }
+approveButton.addEventListener('click', () => {
+  handleStatusChange(id, 'aprovado');
 });
+
+declineButton.addEventListener('click', () => {
+  handleStatusChange(id, 'reprovado');
+});
+
+editElement.addEventListener('click', ()=>{
+openArticle(id);
+});
+
+function openArticle(id){
+  window.location.href = `editor.html?id=${id}`;
+}
+
+async function handleExclusao() {
+  const confirmacao = confirm('Tem certeza que deseja excluir este artigo?');
+  if (confirmacao) {
+    try {
+      const response = await fetch(`/excluir-artigo/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Artigo excluído com sucesso
+        alert('Artigo excluído com sucesso!');
+        window.location.href = '/perfil.html';
+      } else {
+        throw new Error('Erro ao excluir o artigo');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir o artigo:', error);
+    }
+  }
+}
+
+// Função para lidar com a alteração de status
+async function handleStatusChange(articleId, status) {
+  const confirmacao = confirm(`Tem certeza que deseja ${status === 'aprovado' ? 'aprovar' : 'reprovar'} este artigo?`);
+
+  if (confirmacao) {
+    try {
+      const response = await fetch(`/alterar-status-artigo/${articleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }), // Envie o novo status para o servidor
+      });
+
+      if (response.ok) {
+        // Status do artigo alterado com sucesso
+        alert(`Artigo ${status === 'aprovado' ? 'aprovado' : 'reprovado'} com sucesso!`);
+        // Recarregue a página ou faça outras ações necessárias após a alteração do status
+        window.location.reload();
+      } else {
+        throw new Error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'reprovar'} o artigo`);
+      }
+    } catch (error) {
+      console.error(`Erro ao ${status === 'aprovado' ? 'aprovar' : 'reprovar'} o artigo:`, error);
+    }
+  }
+}
 
 async function verificarPermissaoEditarArtigo(id) {
   try {
@@ -98,18 +89,18 @@ async function verificarPermissaoEditarArtigo(id) {
     if (result.temPermissao) {
       // Se o usuário tem permissão
       editContainer.style.display = 'flex';  // ou editContainer.style.visibility = 'visible';
-      
+
       // Verificar se é um administrador
       if (result.isAdmin) {
         // Exibir todos os botões (editar, excluir, aprovar, reprovar)
         editButtons.forEach(button => {
           button.style.display = 'flex';  // ou button.style.visibility = 'visible';
         });
-      } else {
+      } else if (result.isAuthor) {
         // Esconder botões de aprovação e reprovação, se não for administrador
         const approveButton = editContainer.querySelector('.approve-image-container');
         const declineButton = editContainer.querySelector('.decline-image-container');
-        
+
         approveButton.style.display = 'none';  // ou approveButton.style.visibility = 'hidden';
         declineButton.style.display = 'none';  // ou declineButton.style.visibility = 'hidden';
       }
@@ -123,10 +114,6 @@ async function verificarPermissaoEditarArtigo(id) {
   }
 }
 
-//function handlePermissaoEditar() {
-  //const editContainer = document.querySelector('.edit-container');
-  //editContainer.style.display = 'flex';
-//}
 
 async function getArticleDetails(id) {
   try {
@@ -140,17 +127,18 @@ async function getArticleDetails(id) {
 
 function displayArticleDetails(articleData) {
   const { titulo, conteudo, id_usu, login_usu, descricao, imagem_url, gamertag, gamerscore, imagem_url_xbox } = articleData;
-
-  const tituloElement = document.querySelector('.noticia-titulo');
-  const conteudoElement = document.querySelector('.noticia-conteudo');
-  const descricaoPerfilElement = document.querySelector('.descricao_perfil');
-  const imagemPerfil = document.querySelector('.imagem-perfil');
-  const gamertagElement = document.querySelector('.gamertag');
-  const gamerscoreElement = document.querySelector('.gamerscore');
-
   if (gamertag) gamertagElement.textContent = gamertag;
   if (gamerscore) gamerscoreElement.textContent = gamerscore;
   tituloElement.textContent = titulo;
   conteudoElement.innerHTML = conteudo;
-  (!imagem_url)?imagemPerfil.src = imagem_url_xbox: imagemPerfil.src = imagem_url;
+  (!imagem_url) ? imagemPerfil.src = imagem_url_xbox : imagemPerfil.src = imagem_url;
 }
+
+(async () => {
+  try {
+    verificarPermissaoEditarArtigo(id);
+    await getArticleDetails(id);
+  } catch (error) {
+    console.error('Erro:', error);
+  }
+})();

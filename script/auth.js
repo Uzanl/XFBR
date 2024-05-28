@@ -1,51 +1,55 @@
-updateLoginButtonVisibility();
+  const loginButton = document.querySelector('.login-list-item');
+  const logoutButton = document.querySelector('.logout-button');
+  const profileButton = document.getElementById('item-profile');
+  const cmbStatusNews = document.querySelector('.status-news'); // Certifique-se de que este seletor está correto
 
-async function updateLoginButtonVisibility() {
-  try {
-    const response = await fetch("/checkLoginStatus");
-    const data = await response.json();
-    console.log("Response from server:", data);
+  let isLoggedIn = false; // Variável para armazenar o status de login
 
-    const { isLoggedIn } = data;
-    const isLoginPage = window.location.pathname.includes('login.html'); // Verifica se a tela é login.html
+  async function updateLoginButtonVisibility() {
+    try {
+      const response = await fetch("/getUserStatus");
+      const data = await response.json();
+      console.log("Response from server:", data);
 
-    const loginButton = document.querySelector('.login-list-item');
-    const logoutButton = document.querySelector('.logout-button');
-    const profileButton = document.getElementById('item-profile');
+      isLoggedIn = data.isLoggedIn; // Atualiza a variável com o status de login
+      const { tipoUsuario } = data;
+      const isLoginPage = window.location.pathname.includes('login.html');
 
-    if (isLoginPage) {
-      if (loginButton) {
-        loginButton.style.display = isLoggedIn ? 'none' : 'flex';
+      if (isLoginPage) {
+        if (loginButton) loginButton.style.display = isLoggedIn ? 'none' : 'flex';
+      } else {
+        if (loginButton) loginButton.style.display = isLoggedIn ? 'none' : 'flex';
+
+        logoutButton.style.display = isLoggedIn ? 'flex' : 'none';
+        profileButton.style.display = isLoggedIn ? 'flex' : 'none';
+        cmbStatusNews.style.display = tipoUsuario === "administrador" ? 'flex' : 'none';
       }
-    } else {
-      if (loginButton) {
-        loginButton.style.display = isLoggedIn ? 'none' : 'flex';
-      }
-      logoutButton.style.display = isLoggedIn ? 'flex' : 'none';
-      profileButton.style.display = isLoggedIn ? 'flex' : 'none';
-      localStorage.setItem('isLoggedIn', isLoggedIn ? 'true' : 'false');
+    } catch (error) {
+      console.error("Error checking login status:", error);
     }
-  } catch (error) {
-    console.error("Error checking login status:", error);
   }
-}
 
-
-
-const logoutButtonListItem = document.querySelector('.logout-button');
-if (logoutButtonListItem) {
-  logoutButtonListItem.addEventListener('click', () => {
-    const shouldLogout = window.confirm("Tem certeza de que deseja sair?");
-    if (shouldLogout) {
-      localStorage.removeItem('isLoggedIn');
-      fetch("http://localhost:3000/logout")
-        .then(response => response.json())
-        .then(data => {
+  if (logoutButton) {
+    logoutButton.addEventListener('click', async () => {
+      const shouldLogout = window.confirm("Tem certeza de que deseja sair?");
+      if (shouldLogout) {
+        try {
+          const response = await fetch("/logout");
+          if (!response.ok) {
+            throw new Error("Erro ao fazer logout");
+          }
           window.location.href = "/login.html";
-        })
-        .catch(error => {
-          console.error("Error logging out:", error);
-        });
-    }
-  });
-}
+        } catch (error) {
+          console.error("Erro ao fazer logout:", error);
+        }
+      }
+    });
+  }
+
+  updateLoginButtonVisibility();
+
+  // Exportando as variáveis e funções se necessário
+  window.isLoggedIn = isLoggedIn;
+  window.updateLoginButtonVisibility = updateLoginButtonVisibility;
+  export{isLoggedIn, updateLoginButtonVisibility}
+

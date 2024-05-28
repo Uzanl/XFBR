@@ -388,63 +388,80 @@ app.post('/insert-news', asyncHandler(async (req, res) => {
 }));
 
 app.get('/get-articles/:page', asyncHandler(async (req, res, next) => {
-  
   const itemsPerPage = 8;
   const currentPage = parseInt(req.params.page, 10) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
 
-  if (currentPage < 1) {
-      return res.status(400).json({ error: 'Página inválida' });
-  }
+  // Verifica se o número da página é válido
+  if (currentPage < 1) { return res.status(400).json({ error: 'Página inválida' }); }
 
+  // Define o filtro de status com base na sessão do usuário
   let statusFilter = 'aprovado';
   if (req.session.userType === 'administrador') {
-      const statusMapping = {
-          'reprovado': 'reprovado',
-          'analise': 'analise',
-          'enviado': 'enviado',
-      };
-      statusFilter = statusMapping[req.query.status] || 'aprovado';
+    const statusMapping = {
+      'reprovado': 'reprovado',
+      'analise': 'analise',
+      'enviado': 'enviado',
+    };
+    statusFilter = statusMapping[req.query.status] || 'aprovado';
   }
 
+  // Consulta SQL para obter os artigos com paginação
   const articlesQuery = `
-      SELECT SQL_CALC_FOUND_ROWS a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
-      FROM artigo a
-      INNER JOIN usuario u ON a.id_usu = u.id_usu 
-      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
-      WHERE a.status = ?
-      ORDER BY data_publicacao DESC LIMIT ?, ?
+    SELECT SQL_CALC_FOUND_ROWS a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
+    FROM artigo a
+    INNER JOIN usuario u ON a.id_usu = u.id_usu 
+    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
+    WHERE a.status = ?
+    ORDER BY data_publicacao DESC LIMIT ?, ?
   `;
 
+  // Consulta SQL para obter a contagem individual de artigos para cada status
   const countQuery = `
-      SELECT
-          COUNT(*) AS total_count,
-          SUM(status = 'enviado') AS enviado,
-          SUM(status = 'em analise') AS em_analise,
-          SUM(status = 'aprovado') AS aprovado
-      FROM artigo
+    SELECT
+        SUM(status = 'enviado') AS enviado,
+        SUM(status = 'em analise') AS em_analise,
+        SUM(status = 'aprovado') AS aprovado,
+        SUM(status = 'reprovado') AS reprovado
+    FROM artigo
   `;
-
   const query = promisify(connection.query).bind(connection);
-
-  const [articles, countResult] = await Promise.all([
+  try {
+    // Executa as consultas SQL em paralelo
+    const [articles, countResult] = await Promise.all([
       query(articlesQuery, [statusFilter, startIndex, itemsPerPage]),
       query(countQuery)
-  ]);
+    ]);
 
-  const { total_count, enviado, em_analise, aprovado } = countResult[0];
-  const hasNextPage = articles.length === itemsPerPage;
+    // Obtém a contagem individual de artigos para cada status
+    const { enviado, em_analise, aprovado, reprovado } = countResult[0];
 
-  res.json({
-      articles, hasNextPage, currentPage, totalCount: total_count, counts: { enviado, em_analise, aprovado }
-  });
+    // Mapeia os diferentes status para as respectivas contagens
+    const statusCounts = {
+      'enviado': enviado,
+      'analise': em_analise,
+      'aprovado': aprovado,
+      'reprovado': reprovado
+    };
+
+    // Calcula o número total de artigos com base no status selecionado
+    let totalCount = statusCounts[statusFilter] || 0;
+
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    res.json({
+      articles, counts: { enviado, em_analise, aprovado }, totalPages
+    });
+  } catch (error) {
+    next(error);
+  }
 }));
 
 app.get('/get-articles-profile', asyncHandler(async (req, res, next) => {
   const userId = parseInt(req.query.id) || (req.session.user && req.session.user.id_usu) || (req.session.profileData && req.session.userId);
 
   if (isNaN(userId) || userId < 1) {
-      return res.status(400).json({ error: 'ID inválido' });
+    return res.status(400).json({ error: 'ID inválido' });
   }
 
   const selectUserQuery = `
@@ -461,7 +478,7 @@ app.get('/get-articles-profile', asyncHandler(async (req, res, next) => {
   const userResult = await query(selectUserQuery, [userId]);
 
   if (userResult.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+    return res.status(404).json({ error: 'Usuário não encontrado' });
   }
 
   const user = userResult[0];
@@ -491,8 +508,8 @@ app.get('/get-articles-profile', asyncHandler(async (req, res, next) => {
   `;
 
   const [countResults, articles] = await Promise.all([
-      query(sqlCount, [userId]),
-      query(sqlArticles, [userId, startIndex, itemsPerPage])
+    query(sqlCount, [userId]),
+    query(sqlArticles, [userId, startIndex, itemsPerPage])
   ]);
 
   const totalCount = countResults[0].total_count;
@@ -589,26 +606,26 @@ app.put('/update-description/:id?', asyncHandler(async (req, res) => {
   let userId = parseInt(req.params.id);
 
   // Se o ID na URL for inválido ou não existir, use o ID do usuário na sessão
-  if (isNaN(userId) || userId < 1) {userId = req.session.user ? req.session.user.id_usu : req.session.userId;}
+  if (isNaN(userId) || userId < 1) { userId = req.session.user ? req.session.user.id_usu : req.session.userId; }
 
-  if (!userId) {return res.status(400).json({ error: 'ID de usuário inválido ou não encontrado' });}
+  if (!userId) { return res.status(400).json({ error: 'ID de usuário inválido ou não encontrado' }); }
 
   const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
 
-  if (loggedUserId !== userId) {return res.status(403).json({ error: 'Você não tem permissão para editar esta descrição' });}
-  
+  if (loggedUserId !== userId) { return res.status(403).json({ error: 'Você não tem permissão para editar esta descrição' }); }
+
   const query = promisify(connection.query).bind(connection);
   const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
   const result = await query(sql, [newDescription, userId]);
 
-  return result.affectedRows === 1 
-    ? res.json({ success: true }) 
+  return result.affectedRows === 1
+    ? res.json({ success: true })
     : res.status(500).json({ error: 'Nenhuma linha foi afetada' });
 }));
 
 // Rota para alterar o status do artigo
 app.put('/alterar-status-artigo/:id', async (req, res) => {  /// FALHA DE SEGURANÇA AQUI, JÁ QUE NÃO É VERIFICADO SE O AUTOR É O DONO OU SE O USUÁRIO É ADM
-  const articleId = req.params.id;   
+  const articleId = req.params.id;
   const newStatus = req.body.status;
 
   if (req.session.isAuth) {
@@ -636,7 +653,7 @@ app.put('/alterar-status-artigo/:id', async (req, res) => {  /// FALHA DE SEGURA
 
 // Rota de autenticação
 app.get('/auth', (req, res) => {
-  if (req.session.authData) {return res.send('User already authenticated.');}
+  if (req.session.authData) { return res.send('User already authenticated.'); }
 
   // Iniciar o servidor de autenticação e salvar os dados de autenticação na sessão do usuário
   const url = client.startAuthServer(() => {
@@ -736,7 +753,7 @@ app.get('/search', (req, res) => {
       titulo AS resultado,
       'artigo' AS tipo, a.id_artigo AS id
     FROM artigo a
-    WHERE titulo LIKE ?
+    WHERE titulo LIKE ? AND a.status = 'aprovado'
     
     LIMIT 7;
   `;
@@ -751,6 +768,7 @@ app.get('/search', (req, res) => {
     res.json({ results });
   });
 });
+
 
 // Middleware de Tratamento de Erros Global
 app.use((err, req, res, next) => {

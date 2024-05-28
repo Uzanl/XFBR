@@ -1,5 +1,10 @@
 const articleContainer = document.querySelector(".article-container");
 const paginationContainer = document.querySelector(".pagination-container");
+const prevPageButton = paginationContainer.querySelector(".prev-page");
+const nextPageButton = paginationContainer.querySelector(".next-page");
+const pageNumbersContainer = document.querySelector(".page-numbers");
+const cmbStatusNews = document.querySelector(".status-news")
+const statusItems = document.querySelectorAll(".status-item-container p");
 
 const handleImageResolution = () => {
   const screenWidth = window.innerWidth;
@@ -24,10 +29,15 @@ const handleImageResolution = () => {
 };
 
 window.addEventListener("resize", handleImageResolution);
-$('#cmbStatus').on('change', () => loadArticles(currentPage));
+$('#cmbStatus').on('change', async () => {
+  selectedStatus = $('#cmbStatus').val();
+  currentPage = 1; // Reiniciar para a primeira página
+  await loadArticles(currentPage, selectedStatus);
+});
+
 
 class Article {
-  
+
   constructor(articleData) {
     Object.assign(this, articleData);
   }
@@ -47,16 +57,17 @@ class Article {
   }
 }
 
-const getCurrentPageFromURL = () => {
+const getCurrentPageAndStatusFromURL = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const pageParam = urlParams.get("page");
-  return pageParam && /^(?:\d)+$/.test(pageParam) ? Math.max(parseInt(pageParam, 10), 1) : 1;
+  const statusParam = urlParams.get("status") || 'aprovado';
+  const currentPage = pageParam && /^(?:\d)+$/.test(pageParam) ? Math.max(parseInt(pageParam, 10), 1) : 1;
+  return { currentPage, selectedStatus: statusParam };
 };
 
-let currentPage = getCurrentPageFromURL();
+let { currentPage, selectedStatus } = getCurrentPageAndStatusFromURL();
 
 const updatePageNumbers = (totalPages) => {
-  const pageNumbersContainer = document.querySelector(".page-numbers");
   pageNumbersContainer.innerHTML = "";
 
   const maxPageIndices = 8;
@@ -71,88 +82,73 @@ const updatePageNumbers = (totalPages) => {
   const fragment = new DocumentFragment();
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement("a");
-    pageLink.href = `not%C3%ADcias.html?page=${i}`;
+    pageLink.href = `not%C3%ADcias.html?page=${i}&status=${selectedStatus}`;
+    pageLink.classList.add("page-link");
     pageLink.textContent = i;
     pageLink.classList.toggle("active", i === currentPage);
     fragment.appendChild(pageLink);
   }
 
-  paginationContainer.addEventListener("click", (event) => {
-    if (event.target.classList.contains("page-link")) {
-      const pageNumber = parseInt(event.target.textContent);
-      loadArticles(pageNumber);
-    } else if (event.target.classList.contains("prev-page")) {
-      handlePageButtonClick(-1, totalPages)();
-    } else if (event.target.classList.contains("next-page")) {
-      handlePageButtonClick(1, totalPages)();
-    }
-  });
-
-  const prevPageButton = paginationContainer.querySelector(".prev-page");
-  const nextPageButton = paginationContainer.querySelector(".next-page");
+  prevPageButton.href = `not%C3%ADcias.html?page=${Math.max(currentPage - 1, 1)}&status=${selectedStatus}`;
   prevPageButton.style.display = currentPage > 1 ? "block" : "none";
+
+  nextPageButton.href = `not%C3%ADcias.html?page=${Math.min(currentPage + 1, totalPages)}&status=${selectedStatus}`;
   nextPageButton.style.display = currentPage < totalPages ? "block" : "none";
 
   pageNumbersContainer.appendChild(fragment);
 };
 
-const handlePageButtonClick = (offset, totalPages) => async () => {
-  const nextPage = currentPage + offset;
-  if (nextPage >= 1 && nextPage <= totalPages) {
-    await loadArticles(nextPage);
-  }
-};
+paginationContainer.addEventListener("click", async (event) => {
+  event.preventDefault();
 
-const fetchArticles = async (pageNumber) => {
+  if (event.target.classList.contains("page-link")) {
+    const pageNumber = parseInt(event.target.textContent);
+    await loadArticles(pageNumber, selectedStatus);
+  } else if (event.target.classList.contains("prev-page") || event.target.classList.contains("next-page")) {
+    const pageParam = new URL(event.target.href).searchParams.get("page");
+    const pageNumber = parseInt(pageParam);
+    await loadArticles(pageNumber, selectedStatus);
+  }
+});
+
+const fetchArticles = async (pageNumber, selectedStatus) => {
   try {
-    const itemsPerPage = 8;
-    const selectedStatus = $('#cmbStatus').val();
     const responseArticles = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
-    const { articles, totalCount, counts } = await responseArticles.json();
-    return { counts, articles, totalPages: Math.ceil(totalCount / itemsPerPage) };
+    const { articles, counts, totalPages } = await responseArticles.json();
+    return { counts, articles, totalPages };
   } catch (error) {
     console.error("Error fetching articles:", error);
     return { counts: {}, articles: [], totalPages: 0 };
   }
 };
 
-const loadArticles = async (pageNumber) => {
-  const { counts: articleCounts, articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
-  document.querySelector(".status-item-container:nth-child(1) p").textContent = `Enviados: ${articleCounts.enviado || 0}`;
-  document.querySelector(".status-item-container:nth-child(2) p").textContent = `Em Análise: ${articleCounts.em_analise || 0}`;
-  document.querySelector(".status-item-container:nth-child(3) p").textContent = `Produzidos: ${articleCounts.aprovado || 0}`;
+const loadArticles = async (pageNumber, selectedStatus) => {
 
-  const fragment = document.createDocumentFragment(); // Criar o DocumentFragment
+  const { counts: articleCounts, articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber, selectedStatus);
+
+  statusItems[0].textContent = `Enviados: ${articleCounts.enviado || 0}`;
+  statusItems[1].textContent = `Em Análise: ${articleCounts.em_analise || 0}`;
+  statusItems[2].textContent = `Produzidos: ${articleCounts.aprovado || 0}`;
+
+  const fragment = document.createDocumentFragment();
 
   for (const article of newArticles) {
     const articleInstance = new Article(article);
     const articleHTML = await articleInstance.render();
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = articleHTML.trim(); // Converta a string HTML em elementos DOM
-    fragment.appendChild(tempDiv.firstChild); // Adicione o elemento filho ao fragmento
+    tempDiv.innerHTML = articleHTML.trim();
+    fragment.appendChild(tempDiv.firstChild);
   }
 
-  articleContainer.innerHTML = ''; // Limpe o conteúdo atual
-  articleContainer.appendChild(fragment); // Adicione o fragmento com os novos elementos
-  handleImageResolution();
+  articleContainer.innerHTML = '';
+  articleContainer.appendChild(fragment);
   currentPage = pageNumber;
+
   updatePageNumbers(newTotalPages);
-  window.history.pushState({}, "", `not%C3%ADcias.html?page=${pageNumber}`);
+
+  window.history.pushState({}, "", `not%C3%ADcias.html?page=${pageNumber}&status=${selectedStatus}`);
   paginationContainer.style.display = "flex";
-};
-
-
-const verificarTipoUsuario = async () => {
-  try {
-    const response = await fetch('/getTipoUsuario');
-    if (!response.ok) throw new Error(`Erro na solicitação: ${response.status}`);
-    const data = await response.json();
-    if (data.tipoUsuario === "administrador") {
-      document.querySelector(".status-news").style.display = "flex";
-    }
-  } catch (error) {
-    console.error('Erro ao obter o tipo do usuário:', error);
-  }
+  handleImageResolution();
 };
 
 const openArticle = (id) => {
@@ -160,14 +156,8 @@ const openArticle = (id) => {
 };
 
 (async () => {
-  console.time("ss")
-  currentPage = getCurrentPageFromURL();
-  await loadArticles(currentPage);
-  // Verifica se o usuário está logado
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  
-  // Se o usuário estiver logado, executa verificarTipoUsuario()
-  if (isLoggedIn) await verificarTipoUsuario();
-  
-  console.timeEnd("ss")
+  const { currentPage, selectedStatus } = getCurrentPageAndStatusFromURL();
+  $('#cmbStatus').val(selectedStatus);
+  await loadArticles(currentPage, selectedStatus);
 })();
+

@@ -8,7 +8,7 @@ function handleImageResolution() {
   const screenWidth = window.innerWidth;
   const images = document.querySelectorAll(".article img");
 
-  images.forEach(function(image, index){
+  images.forEach(function (image, index) {
     const originalSrc = image.dataset.originalSrc;
     if (screenWidth > 1199) {
       (index === 0) ? image.src = originalSrc.replace(".webp", "_firstchild.webp") : image.src = originalSrc.replace("_firstchild.webp", ".webp");
@@ -93,7 +93,7 @@ function updatePageNumbers(totalPages) {
 
   const fragment = document.createDocumentFragment();
 
-  
+
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement('a');
     pageLink.textContent = i;
@@ -108,7 +108,10 @@ function updatePageNumbers(totalPages) {
   paginationContainer.addEventListener('click', (event) => {
     if (event.target.classList.contains('page-link')) {
       const pageNumber = parseInt(event.target.textContent);
-      loadArticles(pageNumber);
+      // Aqui precisamos obter o ID do perfil novamente
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      loadProfile(pageNumber, id); // Corrigindo a chamada da função
     } else if (event.target.classList.contains('prev-page')) {
       handlePageButtonClick(-1, totalPages)();
     } else if (event.target.classList.contains('next-page')) {
@@ -116,9 +119,10 @@ function updatePageNumbers(totalPages) {
     }
   });
   
- /* prevPageButton.addEventListener('click', handlePageButtonClick(-1, totalPages));
-  nextPageButton.addEventListener('click', handlePageButtonClick(1, totalPages));*/
-    
+
+  /* prevPageButton.addEventListener('click', handlePageButtonClick(-1, totalPages));
+   nextPageButton.addEventListener('click', handlePageButtonClick(1, totalPages));*/
+
   prevPageButton.style.display = currentPage > 1 ? 'block' : 'none';
   nextPageButton.style.display = currentPage < totalPages ? 'block' : 'none';
 
@@ -128,68 +132,32 @@ function updatePageNumbers(totalPages) {
 const handlePageButtonClick = (offset, totalPages) => async () => {
   const nextPage = currentPage + offset;
   if (nextPage >= 1 && nextPage <= totalPages) {
-    await loadArticles(nextPage);
+    await loadProfile(nextPage);
   }
 };
 
-async function fetchArticles(pageNumber, id) {
+async function fetchProfileData(pageNumber, id) {
   try {
-     // Obtém o ID dos parâmetros da URL
-
-    let itemsPerPage = 8;
-    const response = await fetch(`/get-articles-profile?page=${pageNumber}&id=${id}`); // Adiciona o ID à URL
+    const itemsPerPage = 8;
+    const response = await fetch(`/get-articles-profile?page=${pageNumber}&id=${id}`);
     const data = await response.json();
 
-    return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
-    
+    return {
+      user: data.user,
+      articles: data.articles,
+      totalPages: Math.ceil(data.totalCount / itemsPerPage)
+    };
   } catch (error) {
-    console.error('Error fetching articles:', error);
-    return { articles: [], totalPages: 0 };
+    console.error('Error fetching profile data:', error);
+    return { user: null, articles: [], totalPages: 0 };
   }
 }
 
-async function loadArticles(pageNumber,id) {
+async function loadProfile(pageNumber, id) {
+  const { user, articles, totalPages } = await fetchProfileData(pageNumber, id);
 
-  const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber,id);
-  articleContainer.innerHTML = '';
-
-  for (const article of newArticles) {
-    const { id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu } = article;
-    const articleInstance = new Article(id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu);
-    articleContainer.appendChild(await articleInstance.render());
-  }
-
-  currentPage = pageNumber;
-  handleImageResolution();
-  updatePageNumbers(newTotalPages);
-  paginationContainer.style.display = 'block';
-}
-
-function openArticle(id) {
-  window.location.href = `artigo.html?id=${id}`;
-}
-
-async function GetPageData() {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  LoadProfile(id)
-  loadArticles(currentPage, id);
-}
-
-GetPageData();
-
-async function LoadProfile(id) {
-  try {
-    const response = await fetch(`/get-user-info/${id}`, {
-      method: 'GET',
-      credentials: 'same-origin'
-    });
-
-    if (!response.ok) throw new Error('Erro ao obter informações do usuário');
-    
-    const data = await response.json();
-    console.log(data); // Adiciona esta linha para visualizar o resultado da resposta JSON
-
+  // Carregar informações do usuário
+  if (user) {
     const descriptionParagraph = document.querySelector('.desc-profile2');
     const profileImage = document.querySelector('.imagem-perfil');
     const gamertag = document.querySelector('.gamertag');
@@ -197,23 +165,17 @@ async function LoadProfile(id) {
     const descProfile = document.querySelector('.desc-profile');
     const ImgEditIcon = document.querySelector('.image-edit-icon');
 
-      gamertag.textContent = data.gamertag;
-      gamerscoreValue.textContent = data.gamerscore;
-      profileImage.src = data.imageUrl;
-      descProfile.style.display = 'none';
-      ImgEditIcon.style.display = 'none';
-      descriptionParagraph.textContent= data.description;
+    gamertag.textContent = user.login_usu;
+    gamerscoreValue.textContent = user.gamerscore;
+    profileImage.src = user.imagem_url || 'default_image_url'; // Substitua por uma URL de imagem padrão
+    descProfile.style.display = 'none';
+    ImgEditIcon.style.display = 'none';
+    descriptionParagraph.textContent = user.descricao;
 
-      if (data.imageUrl) profileImage.src = data.imageUrl;
-
- // Adiciona um ouvinte de evento de entrada à descrição do perfil
     descriptionParagraph.addEventListener('input', async (event) => {
-      // Aqui você pode fazer a chamada de API para atualizar a descrição no servidor
       try {
         const newDescription = event.target.value;
-        
-       
-        // Fazer a chamada de API para atualizar a descrição
+
         const updateResponse = await fetch(`/update-description/${id}`, {
           method: 'PUT',
           headers: {
@@ -229,22 +191,51 @@ async function LoadProfile(id) {
         console.error('Erro ao atualizar a descrição do perfil:', error);
       }
     });
-      
-  } catch (error) {
-    console.error("Erro na solicitação de informações do usuário:", error);
-  }
-}
-    // Adiciona um ouvinte de evento de clique à div que contém a textarea
-    textarea.parentElement.addEventListener('click', () => {
-      // Remove o atributo readonly quando clicar
-      textarea.removeAttribute('readonly');
+
+    descriptionParagraph.parentElement.addEventListener('click', () => {
+      descriptionParagraph.removeAttribute('readonly');
     });
+  }
+
+  // Carregar artigos
+  const articleContainer = document.querySelector('.article-container');
+  articleContainer.innerHTML = '';
+
+  for (const article of articles) {
+    const { id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu } = article;
+    const articleInstance = new Article(id_artigo, titulo, data_publicacao, id_usu, imagem_url, previa_conteudo, login_usu);
+    articleContainer.appendChild(await articleInstance.render());
+  }
+
+  currentPage = pageNumber;
+  handleImageResolution();
+  updatePageNumbers(totalPages);
+  paginationContainer.style.display = 'block';
+}
+
+function openArticle(id) {
+  window.location.href = `artigo.html?id=${id}`;
+}
+
+async function GetPageData() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  await loadProfile(currentPage, id);
+}
+
+GetPageData();
+
+// Adiciona um ouvinte de evento de clique à div que contém a textarea
+textarea.parentElement.addEventListener('click', () => {
+  // Remove o atributo readonly quando clicar
+  textarea.removeAttribute('readonly');
+});
 
 
-    
 
 
- 
+
+
 
 
 
