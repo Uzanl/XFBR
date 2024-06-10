@@ -1,4 +1,4 @@
-document.getElementById('login-form').addEventListener('submit', function (event) {
+/*document.getElementById('login-form').addEventListener('submit', function (event) {
   event.preventDefault(); // Evita o envio tradicional do formulário
   const formData = new FormData(this);
   fetch("/login", {
@@ -22,7 +22,7 @@ document.getElementById('login-form').addEventListener('submit', function (event
       document.getElementById('error-message').textContent = 'Login falhou. Verifique seu email e senha.';
     }
   }) 
-});
+});*/
 
 function redirectToArticlePage() {
   fetch("http://localhost:3000/checkLoginStatus", {

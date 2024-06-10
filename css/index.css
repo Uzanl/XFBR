@@ -1,55 +1,35 @@
 @font-face {
-  font-family: 'TT Octosquares'; /* Nome da fonte */
-  src: url('/TTOctosquares-Black.woff2') format('woff2'); /* Caminho para o arquivo .ttf */
-  /* Adicione outras variações da fonte (como itálico, negrito, etc.) conforme necessário */
-    /* Use font-display: swap to display fallback font until custom font is loaded */
-    font-display: swap;
+  font-family: 'TT Octosquares';
+  src: url('/TTOctosquares-Black.woff2') format('woff2');
+  font-display: swap;
 }
-
 
 body {
   font-family: 'Sugoi UI', sans-serif;
- 
   display: flex;
   flex-direction: column;
-  height: auto;
   margin: 0;
   color: #f2f2f2;
-
+  min-height: 100dvh;
 }
 
-
-
-.login-image,
-.logout-image,
-.item-profile {
-  width: 30px;
-  height: 30px;
-}
-
-.login-list-item,
-.logout-button , 
-.sidebar,
- #item-profile{
+.sidebar {
   display: none;
 }
 
 .navbar-index {
   background-color: #333333;
   border-bottom: 1px solid #999999;
-  display:flex;
+  display: flex;
   flex-direction: row;
-
 }
-
-
 
 footer img {
   height: 50px;
   width: 50px;
 }
 
-footer img:hover{
+footer img:hover {
   filter: brightness(0.8);
 }
 
@@ -59,7 +39,7 @@ footer {
   justify-content: center;
   align-items: center;
   background-color: #333333;
-  font-size: 14px;
+  font-size: clamp(12px, 1.5vw, 14px);
   padding: 20px;
   font-weight: bold;
   text-align: center;
@@ -74,40 +54,37 @@ footer {
   font-family: 'TT Octosquares', sans-serif;
   max-width: 60%;
   height: auto;
-  
- 
 }
 
 .cor-xbox {
-  color: #C1FF72; /* Substitua pelo código da cor desejada */
+  color: #C1FF72;
 }
 
-h1{
-  font-size: 64px;
+h1 {
+  font-size: clamp(32px, 4vw + 1rem, 64px);
   font-display: optional
 }
 
 .info p {
-  font-size: 21px;
+  font-size: clamp(14px, 2.5vw, 21px);
   line-height: 1.8em;
   text-align: justify;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
- 
+
 }
 
 .overlay {
-  background: url('/haloinfinite.webp') no-repeat center center / cover;
-  height: 100dvh;
-  box-shadow: inset 0 0 0 100vw hsl(0deg 0% 0%/20%);
+  background: url(/haloinfinite.webp) no-repeat center center / cover;
+  box-shadow: inset 0 0 0 100vw hsl(0deg 0% 0% / 20%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
- 
+  flex-grow: 1;
 }
 
-.social-row{
+.social-row {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -115,127 +92,79 @@ h1{
 }
 
 .discord-button {
-  background-color: #3f51b5; /* Um azul mais escuro */
+  background-color: #3f51b5;
   color: #fff;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
-  font-size: 18px;
+  font-size: clamp(12px, 2vw, 18px);
   font-weight: bold;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.9);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.9);
 }
 
 .discord-button:hover {
   background-color: #677bc4;
 }
 
-
 /* Para telas menores ou iguais a 480px */
 @media screen and (max-width: 360px) {
-  .info p {
-    font-size: 14px;
-   
+  .info {
+    padding: 0;
   }
 
-  h1{
-    font-size: 29px;
-  }
-
-  .info{
-    padding:0;
-  }
-  .discord-button {
-    font-size: 12px;
-  }
-  
-
-  footer img{
+  footer img {
     width: 30px;
     height: 30px;
   }
 
-  footer{
-    font-size: 10px;
-  }
-
-  .overlay{
+  .overlay {
     justify-content: center;
   }
 
-  .info{
+  .info {
     max-width: 80%;
     height: auto;
   }
- 
+
 }
 
-/* Para telas menores ou iguais a 480px */
 @media screen and (min-width: 361px) and (max-width: 480px) {
-  .info p {
-    font-size: 16px;
-  
-  }
-
-  h1{
-    font-size: 40px;
-   }
-
-
-  .discord-button {
-    font-size: 14px;
-  }
-  
-  footer img{
+  footer img {
     width: 30px;
     height: 30px;
   }
 
-  footer{
-    font-size: 12px;
-  }
 
-  .overlay{
+  .overlay {
     justify-content: center;
   }
 
-  .info{
+  .info {
     max-width: 80%;
     height: auto;
     padding: 0;
   }
- 
+
 }
 
-/* Para telas maiores que 480px e menores ou iguais a 768px */
 @media screen and (min-width: 481px) and (max-width: 768px) {
-  .info p {
-    font-size: 20px; /* ou mantenha o tamanho original de 20px, se preferir */
-
-  }
-
-   .info{
+  .info {
     padding: 0;
-   }
+  }
 
-   
-  .discord-button {
-    font-size: 18px;
+  footer img {
+    width: 40px;
+    height: 40px;
   }
-  footer{
-    font-size: 14px;
-  }
-  footer img{
-  width: 40px;
-  height: 40px;
-  }
-  .overlay{
+
+  .overlay {
     justify-content: center;
   }
-  .info{
+
+  .info {
     max-width: 80%;
     height: auto;
   }
 }
-

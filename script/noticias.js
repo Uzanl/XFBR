@@ -1,21 +1,23 @@
 const articleContainer = document.querySelector(".article-container");
 const paginationContainer = document.querySelector(".pagination-container");
+const prevPageButton = paginationContainer.querySelector(".prev-page");
+const nextPageButton = paginationContainer.querySelector(".next-page");
+const pageNumbersContainer = document.querySelector(".page-numbers");
+const cmbStaus = document.getElementById('cmbStatus');
+const logoutButton = document.getElementById('btnLogout');
+const statusItems = document.querySelectorAll(".status-item-container p");
 
-window.addEventListener("resize", handleImageResolution);
-
-function handleImageResolution() {
+const handleImageResolution = () => {
   const screenWidth = window.innerWidth;
   const images = document.querySelectorAll(".article img");
 
-  images.forEach(function(image, index){
+  images.forEach((image, index) => {
     const originalSrc = image.dataset.originalSrc;
     if (screenWidth > 1199) {
-      (index === 0) ? image.src = originalSrc.replace(".webp", "_firstchild.webp") : image.src = originalSrc.replace("_firstchild.webp", ".webp");
-
+      image.src = index === 0 ? originalSrc.replace(".webp", "_firstchild.webp") : originalSrc.replace("_firstchild.webp", ".webp");
     } else if (screenWidth > 768 && screenWidth < 992) {
       image.src = originalSrc.replace(".webp", "_firstchild.webp");
-    }
-    else if (screenWidth >= 992 && screenWidth <= 1199) {
+    } else if (screenWidth >= 992 && screenWidth <= 1199) {
       image.src = originalSrc.replace(".webp", "_firstchild.webp");
     } else if (screenWidth > 320 && screenWidth <= 480) {
       image.src = originalSrc.replace(".webp", "_432.webp");
@@ -25,138 +27,167 @@ function handleImageResolution() {
       image.src = originalSrc.replace("_firstchild.webp", ".webp");
     }
   });
+};
+
+window.addEventListener("resize", handleImageResolution);
+
+if(cmbStaus){
+  cmbStaus.addEventListener('change', async () => {
+    const selectedStatus = document.getElementById('cmbStatus').value;
+    currentPage = 1; // Reiniciar para a primeira página
+    await loadArticles(currentPage, selectedStatus);
+  });
 }
 
+
 class Article {
+
   constructor(articleData) {
     Object.assign(this, articleData);
   }
+
   async render(index) {
-    const articleElement = document.createElement("div");
-    articleElement.classList.add("article");
-    articleElement.setAttribute("data-id", this.id_artigo);
-    const imageElement = document.createElement("img");
-    imageElement.alt = this.titulo;
-    imageElement.width = "860";
-    imageElement.height = "483";
     const originalSrc = this.imagem_url;
-    const newSrc = (index === 0 ? originalSrc.replace(".webp", "_firstchild.webp") : originalSrc);
-    imageElement.src = newSrc;
-    imageElement.dataset.originalSrc = originalSrc;
-    const titleElement = document.createElement("h1");
-    titleElement.textContent = this.titulo;
-    const openArticleHandler = () => openArticle(this.id_artigo);
-    [imageElement, titleElement].forEach(elem => elem.addEventListener("click", openArticleHandler));
-    const previewElement = document.createElement("p");
-    previewElement.textContent = this.previa_conteudo;
-
-    const userInfoElement = document.createElement("p2");
-    userInfoElement.textContent = `Postado por ${this.login_usu} em ${this.data_formatada}`;
-
-    [imageElement, titleElement, previewElement, userInfoElement].forEach(elem => articleElement.appendChild(elem));
-    return articleElement;
+    const newSrc = index === 0 ? originalSrc.replace(".webp", "_firstchild.webp") : originalSrc;
+    return `
+      <div class="article" data-id="${this.id_artigo}" onclick="openArticle(${this.id_artigo})">
+        <img src="${newSrc}" alt="${this.titulo}" width="860" height="483" data-original-src="${originalSrc}" loading="high">
+        <h1>${this.titulo}</h1>
+        <p>${this.previa_conteudo}</p>
+        <p2>Postado por ${this.login_usu} em ${this.data_formatada}</p2>
+      </div>
+    `;
   }
+  
 }
 
-function getCurrentPageFromURL() {
+const getCurrentPageAndStatusFromURL = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const pageParam = urlParams.get("page");
-  if (pageParam && /^(?:\d)+$/.test(pageParam)) {
-    const parsedPage = parseInt(pageParam, 10);
-    return parsedPage > 0 ? parsedPage : 1;
-  }
-  return 1;
-}
+  const statusParam = urlParams.get("status") || 'aprovado';
+  const currentPage = pageParam && /^(?:\d)+$/.test(pageParam) ? Math.max(parseInt(pageParam, 10), 1) : 1;
+  return { currentPage, selectedStatus: statusParam };
+};
 
-let currentPage = getCurrentPageFromURL();
+let { currentPage, selectedStatus } = getCurrentPageAndStatusFromURL();
 
-function updatePageNumbers(totalPages) {
-  const pageNumbersContainer = document.querySelector(".page-numbers");
-  pageNumbersContainer.innerHTML = " ";
+const updatePageNumbers = (totalPages) => {
+  pageNumbersContainer.innerHTML = "";
 
   const maxPageIndices = 8;
   const halfMaxIndices = Math.floor(maxPageIndices / 2);
+  let startPage = Math.max(1, currentPage - halfMaxIndices);
+  let endPage = Math.min(totalPages, startPage + maxPageIndices - 1);
 
-  let startPage = currentPage - halfMaxIndices;
-  let endPage = currentPage + halfMaxIndices;
+  if (endPage - startPage < maxPageIndices - 1) {
+    startPage = Math.max(1, endPage - maxPageIndices + 1);
+  }
 
-  startPage = startPage <= 0 ? 1 : startPage;
-  endPage = startPage <= 0 ? Math.min(maxPageIndices, totalPages) : endPage;
-
-  endPage = endPage > totalPages ? totalPages : endPage;
-  startPage = endPage > totalPages ? Math.max(1, totalPages - maxPageIndices + 1) : startPage;
-
-  const fragment = document.createDocumentFragment();
+  const fragment = new DocumentFragment();
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement("a");
-    pageLink.href = `not%C3%ADcias.html?page=${i}`;
+    pageLink.href = `noticias?page=${i}&status=${selectedStatus}`;
+    pageLink.classList.add("page-link");
     pageLink.textContent = i;
     pageLink.classList.toggle("active", i === currentPage);
     fragment.appendChild(pageLink);
   }
 
-  paginationContainer.addEventListener("click", (event) => {
-    if (event.target.classList.contains("page-link")) {
-      const pageNumber = parseInt(event.target.textContent);
-      loadArticles(pageNumber);
-    } else if (event.target.classList.contains("prev-page")) {
-      handlePageButtonClick(-1, totalPages)();
-    } else if (event.target.classList.contains("next-page")) {
-      handlePageButtonClick(1, totalPages)();
-    }
-  })
-
-  const prevPageButton = paginationContainer.querySelector(".prev-page");
-  const nextPageButton = paginationContainer.querySelector(".next-page");
+  prevPageButton.href = `noticias?page=${Math.max(currentPage - 1, 1)}&status=${selectedStatus}`;
   prevPageButton.style.display = currentPage > 1 ? "block" : "none";
-  nextPageButton.style.display = currentPage < totalPages ? "block" : "none";
-  pageNumbersContainer.appendChild(fragment);
-}
 
-const handlePageButtonClick = (offset, totalPages) => async () => {
-  const nextPage = currentPage + offset;
-  if (nextPage >= 1 && nextPage <= totalPages) {
-    await loadArticles(nextPage);
+  nextPageButton.href = `noticias?page=${Math.min(currentPage + 1, totalPages)}&status=${selectedStatus}`;
+  nextPageButton.style.display = currentPage < totalPages ? "block" : "none";
+
+  pageNumbersContainer.appendChild(fragment);
+};
+
+paginationContainer.addEventListener("click", async (event) => {
+  event.preventDefault();
+
+  if (event.target.classList.contains("page-link")) {
+    const pageNumber = parseInt(event.target.textContent);
+    await loadArticles(pageNumber, selectedStatus);
+  } else if (event.target.classList.contains("prev-page") || event.target.classList.contains("next-page")) {
+    const pageParam = new URL(event.target.href).searchParams.get("page");
+    const pageNumber = parseInt(pageParam);
+    await loadArticles(pageNumber, selectedStatus);
+  }
+});
+
+const fetchArticles = async (pageNumber, selectedStatus) => {
+  try {
+    const responseArticles = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
+    const { articles, counts, totalPages } = await responseArticles.json();
+    return { counts, articles, totalPages };
+  } catch (error) {
+    console.error("Error fetching articles:", error);
+    return { counts: {}, articles: [], totalPages: 0 };
   }
 };
 
-async function fetchArticles(pageNumber) {
-  try {
-    let itemsPerPage = 8
-    const response = await fetch(`/get-articles/${pageNumber}`);
-    const data = await response.json();
-    return { articles: data.articles, totalPages: Math.ceil(data.totalCount / itemsPerPage) };
-  } catch (error) {
-    console.error("Error fetching articles:", error);
-    return { articles: [], totalPages: 0 };
-  }
-}
+const loadArticles = async (pageNumber, selectedStatus) => {
+  const { counts: articleCounts, articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber, selectedStatus);
 
-async function loadArticles(pageNumber) {
-  const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber);
-  const fragment = document.createDocumentFragment();
-  for (const article of newArticles) {
-    const articleInstance = new Article(article);
-    fragment.appendChild(await articleInstance.render());
-  }
-  articleContainer.innerHTML = "";
-  articleContainer.appendChild(fragment);
-  handleImageResolution();
-  currentPage = pageNumber;
-  updatePageNumbers(newTotalPages);
-  window.history.pushState({}, "", `not%C3%ADcias.html?page=${pageNumber}`);
-  paginationContainer.style.display = "flex";
-}
+  statusItems[0].textContent = `Enviados: ${articleCounts.enviado || 0}`;
+  statusItems[1].textContent = `Em Análise: ${articleCounts.em_analise || 0}`;
+  statusItems[2].textContent = `Produzidos: ${articleCounts.aprovado || 0}`;
 
-function openArticle(id) {
+  while (articleContainer.firstChild) {articleContainer.removeChild(articleContainer.firstChild);}
+ 
+  if (newArticles.length === 0) {
+    // Se não houver artigos, adicionar a classe 'no-articles' e exibir a mensagem
+    articleContainer.classList.add('no-articles');
+    paginationContainer.style.display = 'none'
+    articleContainer.innerHTML = '<p>Nenhum artigo encontrado</p>';
+  } else {
+    // Se houver artigos, remover a classe 'no-articles'
+    articleContainer.classList.remove('no-articles');
+
+    const fragment = document.createDocumentFragment();
+    for (const article of newArticles) {
+      const articleInstance = new Article(article);
+      const articleHTML = await articleInstance.render();
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = articleHTML.trim();
+      fragment.appendChild(tempDiv.firstChild);
+    }
+    paginationContainer.style.display = "flex";
+    articleContainer.appendChild(fragment);
+    currentPage = pageNumber;
+    updatePageNumbers(newTotalPages);
+
+    window.history.pushState({}, "", `noticias?page=${pageNumber}&status=${selectedStatus}`);
+
+    handleImageResolution();
+  }
+
+
+};
+const openArticle = (id) => {
   window.location.href = `artigo.html?id=${id}`;
+};
+
+if (logoutButton) {
+  logoutButton.addEventListener('click', async () => {
+    const shouldLogout = window.confirm("Tem certeza de que deseja sair?");
+    if (shouldLogout) {
+      try {
+        const response = await fetch("/logout");
+        if (!response.ok) {
+          throw new Error("Erro ao fazer logout");
+        }
+        window.location.href = "/login.html";
+      } catch (error) {
+        console.error("Erro ao fazer logout:", error);
+      }
+    }
+  });
 }
 
-(async function () {
-  const currentPage = getCurrentPageFromURL();
-  await loadArticles(currentPage);
+(async () => {
+  const { currentPage, selectedStatus } = getCurrentPageAndStatusFromURL();
+
+  if(cmbStaus) document.getElementById('cmbStatus').value = selectedStatus;
+  await loadArticles(currentPage, selectedStatus);
 })();
-
-
-
-

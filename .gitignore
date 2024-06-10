@@ -3,6 +3,8 @@
 /node_modules/sharp/build/Release/libvips-42.dll
 /node_modules/sharp/build/Release/libvips-cpp.dll
 /node_modules/sharp/build/Release/sharp-win32-x64.node
-script/dbConfig.js
 /.tokens.json
-script/xbApiConfig.js
+/config/xbApiConfig.js
+/config/dbConfig.js
+/config/
+/node_modules/

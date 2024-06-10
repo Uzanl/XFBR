@@ -1,106 +1,101 @@
 .navbar {
-    background-color: #333333;
-    border-bottom: 1px solid #999999;
- 
+  display: block;
+  background-color: #333333;
+  border-bottom: 1px solid #999999;
+}
+
+.profile-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 header nav ul {
-  
-    list-style: none;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  list-style: none;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 header nav ul li {
-    display: inline-block;
-    margin: 0 10px;
+  display: inline-block;
+  margin: 0 10px;
 }
 
-header nav ul li a {
-    display: block;
-    padding: 10px;
-    /*background-color: #333333;*/
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    cursor: pointer;
+.nav-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.menu-item{
+.menu-item {
   transition: filter 0.3s ease-in-out;
+  display: block;
+  padding: 10px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .menu-item:hover {
-  /* Seus estilos aqui */
   filter: brightness(0.8);
 }
 
-.submenu-noticias:hover .noticias-container,
-.submenu-profile:hover .profile-container,
-.submenu:hover .comunidade-container {
-  display: block;
-  
+.submenu:hover .submenu-list {
+  display: flex;
 }
 
-.comunidade-container,
-.profile-container,
-.noticias-container {
-  width: 120px;
-  max-height: 30vh;
-  position: absolute;
-  z-index: 1;
-  margin-top: 0px;
-  border-radius: 10px;
-  background-color: #555555;
-  display: none;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.9);
-}
-
-.profile-list,
-.comunidade-list,
-.noticias-list {
-
+.submenu-list {
   padding: 0;
   list-style-type: none;
-  display: flex;
+  /* display: flex; */
+  display: none;
   flex-direction: column;
-  align-items: flex-start;
   justify-content: center;
+  position: absolute;
+  background-color: #555555;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+ul .item:first-child,
+ul .suggestion-item:first-child {
   margin-top: 10px;
+  /* Adiciona uma margem superior ao primeiro filho */
+}
+
+ul .item:last-child,
+ul .suggestion-item:last-child {
+  /* Adiciona uma margem inferior ao último filho */
   margin-bottom: 10px;
 }
 
-.item:hover, 
-.item-login:hover,
- .item-sair:hover, 
- .publish-button:hover, 
- .login-list-item:hover,
- .logout-button:hover{
+.item:hover {
   background-color: #666666;
-
 }
 
-.item, 
-.publish-button, 
-.login-list-item,
-.logout-button{
+.item {
   margin: 0;
- /* color: #fff;*/
   width: 120px;
   display: flex;
   align-items: flex-start;
   background-color: #555555;
-
 }
 
-.banner{
+.banner {
   width: 15%;
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
 }
 
 .image-container {
@@ -108,7 +103,8 @@ header nav ul li a {
   height: 50px;
   background-image: url('/xfbr-logo.webp');
   background-size: cover;
-  transition: background-image 0.3s ease; /* Adiciona transição suave para a troca de imagem */
+  transition: background-image 0.3s ease;
+  /* Adiciona transição suave para a troca de imagem */
 }
 
 .image-container:hover {
@@ -128,10 +124,13 @@ header nav ul li a {
   color: #fff;
   border-radius: 5px;
   opacity: 0;
-  transition: opacity 0.3s ease; /* Adiciona uma transição de opacidade */
-  pointer-events: none; /* Evita que o tooltip bloqueie o evento de passar o mouse */
+  transition: opacity 0.3s ease;
+  /* Adiciona uma transição de opacidade */
+  pointer-events: none;
+  /* Evita que o tooltip bloqueie o evento de passar o mouse */
   white-space: nowrap;
-  z-index: 1; /* Garante que o tooltip apareça acima do conteúdo */
+  z-index: 1;
+  /* Garante que o tooltip apareça acima do conteúdo */
   border: 1px solid #999999;
 
 }
@@ -140,17 +139,9 @@ header nav ul li a {
   opacity: 1;
 }
 
-.middle{
+.middle {
   justify-content: center;
-   width: 70%; 
+  width: 70%;
   align-items: center;
   display: flex;
 }
-
-
-
-
-
-
-
-

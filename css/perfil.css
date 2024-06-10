@@ -1,12 +1,6 @@
 @import url('searchbar.css');
 @import url('navbar.css');
 
-.login-image,
-.logout-image {
-  width: 30px;
-  height: 30px;
-}
-
 p2 {
   color: #cccccc;
   font-style: italic;
@@ -36,22 +30,21 @@ body {
 .container {
   min-height: 100vh;
   box-shadow: -1px 2px 6px rgba(0, 0, 0, .25);
- 
-  margin-top: 20px;
+  margin-top: 40px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   background-color: #555555;
   color: #f2f2f2;
 }
 
-.teste{
+.teste {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #f2f2f2;
-   background-color: #333333;
- }
+  background-color: #333333;
+}
 
 .article img {
   width: 256px;
@@ -89,10 +82,6 @@ footer a img {
   width: 39.59px;
 }
 
-.navbar {
-  display: block;
-}
-
 .article-container-wrapper {
   margin-bottom: 100px;
 }
@@ -104,14 +93,14 @@ footer a img {
   width: 900px;
   margin: 0 auto;
   margin-bottom: 20px;
-  margin-top: 20px;
+  /*margin-top: 20px;*/
   border-radius: 10px;
-  
+
 
 }
 
 .perfil-posts {
- 
+
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -156,7 +145,7 @@ footer a img {
 }
 
 .article h1:hover {
-   
+
   filter: brightness(0.8);
 }
 
@@ -174,8 +163,10 @@ footer a img {
   padding: 10px 0;
   display: flex;
   justify-content: center;
-  border-bottom-left-radius: 10px; /* Ajuste o valor conforme necessário */
-  border-bottom-right-radius: 10px; /* Ajuste o valor conforme necessário */
+  border-bottom-left-radius: 10px;
+  /* Ajuste o valor conforme necessário */
+  border-bottom-right-radius: 10px;
+  /* Ajuste o valor conforme necessário */
 
 }
 
@@ -207,9 +198,12 @@ footer a img {
 .imagem-perfil {
   width: 96px;
   height: 96px;
-  border-radius: 50%; /* Define um raio de 50% para criar um círculo */
-  object-fit: cover; /* Mantém a proporção da imagem e preenche o círculo */
-  overflow: hidden; /* Garante que a imagem não exceda os limites do círculo */
+  border-radius: 50%;
+  /* Define um raio de 50% para criar um círculo */
+  object-fit: cover;
+  /* Mantém a proporção da imagem e preenche o círculo */
+  overflow: hidden;
+  /* Garante que a imagem não exceda os limites do círculo */
 
 }
 
@@ -225,11 +219,11 @@ footer a img {
 .profile-image {
   /* position: relative;*/
   /* display: inline-block;*/
-   margin-left: 10px;
-   /* display: inline-block; */
-   align-items: center;
-   display: flex;
- }
+  margin-left: 10px;
+  /* display: inline-block; */
+  align-items: center;
+  display: flex;
+}
 
 .image-edit-icon {
   position: absolute;
@@ -241,7 +235,8 @@ footer a img {
   border-radius: 50%;
   padding: 5px;
   cursor: pointer;
-  font-size: 16px; /* Ajuste o tamanho do ícone aqui */
+  font-size: 16px;
+  /* Ajuste o tamanho do ícone aqui */
   display: none;
 }
 
@@ -250,20 +245,43 @@ footer a img {
 }
 
 
-.perfil-container{
+.perfil-container {
   display: flex;
- /* justify-content: center;*/
+  /* justify-content: center;*/
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: #333333;
-   min-height: 400px;
- 
+  min-height: 400px;
+
+}
+
+.profile2 {
+  cursor: pointer;
+}
+
+.desc-profile2 {
+  width: calc(100% - 20px);
+  /* Ajusta a largura para preencher o espaço disponível */
+  border: none;
+  /* Remove a borda */
+  resize: none;
+  /* Impede o redimensionamento da caixa de texto */
+  background-color: transparent;
+  /* Define o fundo como transparente */
+  border: none;
+  /* Remove a borda */
+  outline: none;
+  /* Remove o contorno ao redor da caixa de texto */
+  font-size: 1.2em;
+  color: #888;
+  text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
 }
 
 
+.profile,
+.profile2 {
 
-.profile, .profile2{
   display: flex;
   justify-content: center;
   justify-items: center;
@@ -272,7 +290,7 @@ footer a img {
   /*max-width: 25%;*/
   /*background-color: #f2f2f2;*/
   padding: 20px;
-  
+
   background: linear-gradient(45deg, #9a5916 10%, #e4b04d 18%, #fff1a3 22%, #e7b14f 30%, #ae6f27 38%, #f8c65d 50%);
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
   border: 1px solid #999;
@@ -282,26 +300,26 @@ footer a img {
   width: 350px;
 }
 
-.profile{
+.profile {
   transform: rotate(-10deg);
 }
 
-.profile2{
-transform: rotate(10deg);
+.profile2 {
+  transform: rotate(10deg);
 }
 
 
-.gs-container{
+.gs-container {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.gamerscore{
+.gamerscore {
   margin-left: 10px;
 }
 
-.autor{
+.autor {
   display: flex;
   flex-direction: row;
 }
@@ -309,33 +327,36 @@ transform: rotate(10deg);
 .circle {
   border: 2px solid black;
   color: black;
-    text-shadow: 1px 1px rgba(0,0,0,0.8);
+  text-shadow: 1px 1px rgba(0, 0, 0, 0.8);
 
   width: 20px;
   height: 20px;
-  background-color: transparent; /* Fundo transparente */
-  border: 2px solid #888; /* Borda da circunferência */
+  background-color: transparent;
+  /* Fundo transparente */
+  border: 2px solid #888;
+  /* Borda da circunferência */
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
- /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra para a ilusão de profundidade */
- font-family: 'Nixie One', serif;
- font-size: 1.2em;
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra para a ilusão de profundidade */
+  font-family: 'Nixie One', serif;
+  font-size: 1.2em;
   text-align: center;
-  text-shadow: 1px 1px rgba(255,255,255,0.8);
+  text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
   color: #888;
 }
 
 
-.profile p, .profile2 p{
+.profile p,
+.profile2 p {
   color: black;
-    text-shadow: 1px 1px rgba(0,0,0,0.8);
- 
+  text-shadow: 1px 1px rgba(0, 0, 0, 0.8);
+
   color: #888;
   font-size: 1.2em;
   text-align: center;
-  text-shadow: 1px 1px rgba(255,255,255,0.8);
+  text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
 }
 
 p.gamertag {
@@ -343,10 +364,10 @@ p.gamertag {
 }
 
 
-.profile2 p{
- 
+.profile2 p {
+
   font-style: italic;
- 
+
 }
 
 
@@ -364,15 +385,16 @@ p.gamertag {
   display: flex;
   align-items: center;
   justify-content: end;
- /* position: absolute;*/
+  /* position: absolute;*/
 }
 
-.hole{
+.hole {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   background-color: #333333;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra interna */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  /* Sombra interna */
   border: 1px solid #999;
 }
 
@@ -396,12 +418,13 @@ p.gamertag {
   cursor: pointer;
 }
 
-.profile-description, .profile-description2 {
+.profile-description,
+.profile-description2 {
   flex: 1;
   min-height: 120.75px;
 }
 
-.profile-description2{
+.profile-description2 {
   display: flex;
   align-items: center;
   max-width: 400px;
@@ -631,7 +654,7 @@ p.gamertag {
   .article:first-child img {
     width: 860px;
     height: 483px;
-   }
+  }
 
   /* Adicione outros estilos conforme necessário */
 }
@@ -642,6 +665,7 @@ p.gamertag {
   .article:first-child img {
     width: 860px;
     height: 483px;
-   }
+  }
+
   /* Adicione outros estilos conforme necessário */
 }

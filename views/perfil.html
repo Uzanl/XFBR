@@ -9,9 +9,10 @@
   <link rel="stylesheet" href="/css/searchbar.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <script src="/script/perfil.js" defer></script>
-  <script src="/script/auth.js" defer></script>
+  <script type="module" src="/script/auth.js" defer></script>
   <script src="/script/utils.js" defer></script>
-  <script src="/script/articleRedirect.js" defer></script>
+  <script type="module" src="/script/articleRedirect.js" defer></script>
+  <script type="module" src="/script/auth.js" defer></script>
 
 </head>
 <body>
@@ -113,26 +114,24 @@
           <div class="hole"> 
           </div>
         </div>
+       
         <div class="profile-description2">
-          <p class="desc-profile2">Sua descrição atual do perfil vai aqui.</p>
+          <textarea class="desc-profile2" placeholder="Sua descrição atual do perfil vai aqui." readonly></textarea>
         </div>                
       </div>
     </div>
-    <textarea id="description-input" rows="4" placeholder="Atualize sua descrição"></textarea>
-    <button id="update-description-button">Atualizar Descrição</button>
+   
   </div>
   <div class="teste">
-    <div class="perfil-posts">
-      <div class="start">
-      </div>
+   
+   
      
         <div class="container">
           <div class="article-container">
           </div>
         </div>
-      <div class="end">
-      </div>
-    </div>
+      
+    
     <div class="pagination-container">
       <div class="pagination">
         <a href="#" class="prev-page">Anterior</a>

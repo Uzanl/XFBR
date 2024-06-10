@@ -1,67 +1,88 @@
-function toggleSidebar() {
-  var sidebar = document.querySelector('.sidebar');
-  sidebar.classList.toggle('active');
-  var toggleBtn = document.querySelector('.toggle-btn');
-  toggleBtn.classList.toggle('active');
-}
+// search.js (módulo JavaScript)
+const toggleBtn = document.querySelector('.toggle-btn');
+const searchBox = document.querySelector('.search-box');
+const clearButton = document.querySelector('.clear-button');
+const suggestionList = document.querySelector('.suggestion-list');
+const sidebar = document.querySelector('.sidebar');
 
-document.addEventListener('DOMContentLoaded', function () {
-  const searchBox = document.querySelector('.search-box');
-  const ClearButton = document.querySelector('.clear-button');
-  const suggestionContainer = document.querySelector('.suggestion-container');
-  const suggestionList = document.querySelector('.suggestion-list');
-
-  searchBox.addEventListener('input', function () {
-    const inputText = searchBox.value.trim().toLowerCase();
-
-    if (inputText === '') {
-      suggestionContainer.style.display = 'none';
-      ClearButton.style.display = 'none';
-      return;
-    }
-
-    (inputText.length > 0) ? ClearButton.style.display = 'block' : ClearButton.style.display = 'none';
-
-    fetch(`/search?term=${inputText}`)
-      .then(response => response.json())
-      .then(data => {
-        const suggestions = data.results;
-        suggestionList.innerHTML = '';
-        suggestions.forEach(suggestion => {
-          const suggestionItem = document.createElement('li');
-          suggestionItem.classList.add('suggestion-item');
-          (suggestion.tipo === 'usuário') ? suggestionItem.textContent = `Usuário: ${suggestion.resultado}` : suggestionItem.textContent = `Artigo: ${suggestion.resultado}`;
-
-          suggestionItem.addEventListener('click', function () {
-            (suggestion.tipo === 'usuário') ? window.location.href = `perfil.html?id=${suggestion.id}` : window.location.href = `artigo.html?id=${suggestion.id}`;
-          });
-
-          suggestionList.appendChild(suggestionItem);
-        });
-
-        if (suggestions.length > 0) {
-          suggestionContainer.style.display = 'block';
-          ClearButton.style.display = 'block';
-
-        } else {
-          suggestionContainer.style.display = 'none';
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao obter sugestões do servidor:', error);
-      });
-  });
-  
-  // Fechar a lista de sugestões quando clicar fora dela
-  document.addEventListener('click', function (event) {
-    if (!event.target.closest('.suggestion-container')) {
-      suggestionContainer.style.display = 'none';
-    }
-  });
+document.addEventListener('click', function (event) {
+  if (!event.target.closest('.suggestion-list') && !event.target.closest('.search-box')) {
+    suggestionList.style.display = 'none';
+  }
 });
 
-function clearSearch() {
-  const ClearButton = document.querySelector('.clear-button');
-  ClearButton.style.display = 'none';
-  document.querySelector('.search-box').value = '';
+clearButton.addEventListener('click', function () {
+  clearButton.style.display = 'none';
+  searchBox.value = '';
+  suggestionList.style.display = 'none';
+});
+
+toggleBtn.addEventListener('click', function () {
+  sidebar.classList.toggle('active');
+  toggleBtn.classList.toggle('active');
+});
+
+searchBox.addEventListener('input', async function () {
+  const inputText = searchBox.value.trim().toLowerCase();
+
+  if (inputText === '') {
+    suggestionList.style.display = 'none';
+    clearButton.style.display = 'none';
+    return;
+  }
+
+  clearButton.style.display = inputText.length > 0 ? 'block' : 'none';
+
+  try {
+    const response = await fetch(`/search?term=${inputText}`);
+    const data = await response.json();
+    const suggestions = data.results;
+
+    suggestionList.innerHTML = '';
+
+    suggestions.forEach((suggestion, index) => {
+      const suggestionItem = document.createElement('li');
+      suggestionItem.classList.add('suggestion-item');
+      suggestionItem.textContent = suggestion.tipo === 'usuário' ? `Usuário: ${suggestion.resultado}` : `Artigo: ${suggestion.resultado}`;
+
+      suggestionItem.addEventListener('click', function () {
+        window.location.href = suggestion.tipo === 'usuário' ? `perfil?id=${suggestion.id}` : `artigo?id=${suggestion.id}`;
+      });
+
+      suggestionItem.addEventListener('mouseenter', function () {
+        highlightSuggestion(index);
+      });
+
+      suggestionList.appendChild(suggestionItem);
+    });
+
+    suggestionList.style.display = suggestions.length > 0 ? 'block' : 'none';
+  } catch (error) {
+    console.error('Erro ao obter sugestões do servidor:', error);
+  }
+});
+
+let highlightedIndex = -1;
+
+searchBox.addEventListener('keydown', function (e) {
+  const suggestions = suggestionList.querySelectorAll('.suggestion-item');
+  if (e.key === 'ArrowDown') {
+    highlightedIndex = Math.min(highlightedIndex + 1, suggestions.length - 1);
+    highlightSuggestion(highlightedIndex);
+  } else if (e.key === 'ArrowUp') {
+    highlightedIndex = Math.max(highlightedIndex - 1, -1);
+    highlightSuggestion(highlightedIndex);
+  } else if (e.key === 'Enter') {
+    if (highlightedIndex >= 0) {
+      const selectedItem = suggestions[highlightedIndex];
+      selectedItem.click();
+    }
+  }
+});
+
+function highlightSuggestion(index) {
+  const suggestions = suggestionList.querySelectorAll('.suggestion-item');
+  suggestions.forEach((item, idx) => {
+    item.classList.toggle('active', idx === index);
+  });
 }

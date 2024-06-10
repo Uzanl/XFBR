@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste de srcset e sizes</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <img 
+    alt="tiringaaaaaa" 
+    srcset="
+      2.calendario_gripen_ptbr_janeiro.webp 256w, 
+      2.calendario_gripen_ptbr_janeiro_432.webp 432w, 
+      2.calendario_gripen_ptbr_janeiro_720.webp 720w, 
+      2.calendario_gripen_ptbr_janeiro_firstchild.webp 860w" 
+    sizes="(min-width: 1200px) 860px, 
+           (min-width: 992px) 720px, 
+           (min-width: 768px) 432px, 
+           256px"
+    decoding="async">
+</body>
+</html>
