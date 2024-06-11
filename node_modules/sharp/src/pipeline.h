@@ -69,8 +69,7 @@ struct PipelineBaton {
   bool premultiplied;
   bool tileCentre;
   bool fastShrinkOnLoad;
-  double tintA;
-  double tintB;
+  std::vector<double> tint;
   bool flatten;
   std::vector<double> flattenBackground;
   bool unflatten;
@@ -92,6 +91,7 @@ struct PipelineBaton {
   bool thresholdGrayscale;
   std::vector<double> trimBackground;
   double trimThreshold;
+  bool trimLineArt;
   int trimOffsetLeft;
   int trimOffsetTop;
   std::vector<double> linearA;
@@ -169,6 +169,7 @@ struct PipelineBaton {
   VipsForeignTiffPredictor tiffPredictor;
   bool tiffPyramid;
   int tiffBitdepth;
+  bool tiffMiniswhite;
   bool tiffTile;
   int tiffTileHeight;
   int tiffTileWidth;
@@ -180,17 +181,19 @@ struct PipelineBaton {
   int heifEffort;
   std::string heifChromaSubsampling;
   bool heifLossless;
+  int heifBitdepth;
   double jxlDistance;
   int jxlDecodingTier;
   int jxlEffort;
   bool jxlLossless;
   VipsBandFormat rawDepth;
   std::string err;
-  bool withMetadata;
+  int keepMetadata;
   int withMetadataOrientation;
   double withMetadataDensity;
-  std::string withMetadataIcc;
-  std::unordered_map<std::string, std::string> withMetadataStrs;
+  std::string withIccProfile;
+  std::unordered_map<std::string, std::string> withExif;
+  bool withExifMerge;
   int timeoutSeconds;
   std::unique_ptr<double[]> convKernel;
   int convKernelWidth;
@@ -203,7 +206,7 @@ struct PipelineBaton {
   int extractChannel;
   bool removeAlpha;
   double ensureAlpha;
-  VipsInterpretation colourspaceInput;
+  VipsInterpretation colourspacePipeline;
   VipsInterpretation colourspace;
   std::vector<int> delay;
   int loop;
@@ -237,8 +240,7 @@ struct PipelineBaton {
     attentionX(0),
     attentionY(0),
     premultiplied(false),
-    tintA(128.0),
-    tintB(128.0),
+    tint{ -1.0, 0.0, 0.0, 0.0 },
     flatten(false),
     flattenBackground{ 0.0, 0.0, 0.0 },
     unflatten(false),
@@ -259,7 +261,8 @@ struct PipelineBaton {
     threshold(0),
     thresholdGrayscale(true),
     trimBackground{},
-    trimThreshold(0.0),
+    trimThreshold(-1.0),
+    trimLineArt(false),
     trimOffsetLeft(0),
     trimOffsetTop(0),
     linearA{},
@@ -335,6 +338,7 @@ struct PipelineBaton {
     tiffPredictor(VIPS_FOREIGN_TIFF_PREDICTOR_HORIZONTAL),
     tiffPyramid(false),
     tiffBitdepth(8),
+    tiffMiniswhite(false),
     tiffTile(false),
     tiffTileHeight(256),
     tiffTileWidth(256),
@@ -346,14 +350,16 @@ struct PipelineBaton {
     heifEffort(4),
     heifChromaSubsampling("4:4:4"),
     heifLossless(false),
+    heifBitdepth(8),
     jxlDistance(1.0),
     jxlDecodingTier(0),
     jxlEffort(7),
     jxlLossless(false),
     rawDepth(VIPS_FORMAT_UCHAR),
-    withMetadata(false),
+    keepMetadata(0),
     withMetadataOrientation(-1),
     withMetadataDensity(0.0),
+    withExifMerge(true),
     timeoutSeconds(0),
     convKernelWidth(0),
     convKernelHeight(0),
@@ -365,7 +371,7 @@ struct PipelineBaton {
     extractChannel(-1),
     removeAlpha(false),
     ensureAlpha(-1.0),
-    colourspaceInput(VIPS_INTERPRETATION_LAST),
+    colourspacePipeline(VIPS_INTERPRETATION_LAST),
     colourspace(VIPS_INTERPRETATION_LAST),
     loop(-1),
     tileSize(256),

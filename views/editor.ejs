@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editor de Notícias</title>
+    <script src="https://cdn.tiny.cloud/1/bjfo8zrpuri2l033ekmkidpsvm7qba94fcvobj9bzweizm4c/tinymce/5/tinymce.min.js"
+        referrerpolicy="origin"></script>
+    <link rel="stylesheet" href="/css/editor.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
+    <link rel="stylesheet" href="/css/searchbar.css">
+    <script src="/script/editor.js" defer></script>
+    <script src="/script/utils.js" defer></script>
+
+</head>
+
+<body>
+    <header class="navbar">
+        <nav>
+            <ul>
+                <li>
+                    <div class="search-container">
+                        <input type="text" class="search-box" placeholder="Pesquisar" name="search-box"
+                            autocomplete="off">
+                        <button class="clear-button">X</button>
+                    </div>
+                    <ul class="suggestion-list"></ul>
+                </li>
+                <li class="submenu">
+                    <span class="menu-item">Artigos</span>
+                    <ul class="submenu-list">
+                        <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
+                        <% if (userLoggedIn) { %>
+                            <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
+                            <% } else { %>
+                                <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
+                                <% } %>
+                    </ul>
+                </li>
+                <li class="submenu">
+                    <span class="menu-item">Comunidade</span>
+                    <ul class="submenu-list">
+                        <li class="item"><a class="nav-link" href="/info">Informações</a></li>
+                        <li class="item"><a class="nav-link" href="/bate-papo">Bate-papo</a></li>
+                        <li class="item"><a class="nav-link" href="/video-clipes">Vídeo-clipes</a></li>
+                    </ul>
+                </li>
+                <li class="submenu">
+                    <span class="menu-item">
+                        <img src="<%= userLoggedIn ? imgpath : '/profile.png' %>" alt="Logout" class="profile-image">
+                    </span>
+                    <ul class="submenu-list">
+                        <% if (userLoggedIn) { %>
+                            <li class="item"><span class="nav-link" id="btnSair">Sair</span></li>
+                            <li class="item"><a class="nav-link" href="<%= perfilLink %>">Perfil</a></li>
+                            <% } else { %>
+                                <li class="item"><a class="nav-link" href="/login">Login</a></li>
+                                <% } %>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <aside class="sidebar">
+        <ul>
+            <li><a href="/info">Info</a></li>
+            <li><a href="/noticias">Notícias</a></li>
+            <li><a href="/bate-papo">Chat</a></li>
+            <li><a href="/video-clipes">Vídeos</a></li>
+            <% if (userLoggedIn) { %>
+                <li><a href="/editor.html">Publicar</a></li>
+                <% } else { %>
+                    <li><a href="/login">Publicar</a></li>
+                    <% } %>
+        </ul>
+    </aside>
+    <div class="toggle-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="container">
+        <form class="form-editor" enctype="multipart/form-data">
+            <h1>Editor de Notícias</h1>
+            <label for="title">Título:</label>
+            <input type="text" class="textbox" id="title" name="title">
+            <label for="image">Imagem (16:9, PNG ou JPG):</label>
+            <div class="file-input-container">
+                <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" />
+                <button type="button" id="removeImageBtn" class="remove-btn">X</button>
+            </div>
+            <label for="content">Conteúdo Prévia:</label>
+            <input type="text" class="textbox" id="content-preview" name="contentpreview">
+            <label for="content">Conteúdo:</label>
+            <textarea id="editor" class="textbox" name="content"></textarea>
+            <div class="inserir">
+                <input type="submit" value="Publicar">
+            </div>
+
+            <div class="preview-container">
+                <div class="noticia-preview">
+                    <div class="image-preview">
+                    </div>
+                    <div class="title-preview">
+                        <h1></h1>
+                        <p></p>
+                    </div>
+                </div>
+        </form>
+        <div id="error-message" style="color: red;"></div>
+
+    </div>
+    <div id="preview"></div>
+    </div>
+    <footer>
+        <div class="social-row">
+            <a href="https://discord.gg/RZF7K5BX"><img src="/dc.webp" alt="Discord"></a>
+            <a href="https://twitter.com/hu3bruzan"><img src="/tt.webp" alt="Twitter"></a>
+        </div>
+        <span>© 2024 Xbox Family Br, Inc.</span>
+    </footer>
+</body>
+
+</html>

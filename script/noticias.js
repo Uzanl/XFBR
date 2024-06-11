@@ -177,7 +177,7 @@ if (logoutButton) {
         if (!response.ok) {
           throw new Error("Erro ao fazer logout");
         }
-        window.location.href = "/login.html";
+        window.location.href = "/login";
       } catch (error) {
         console.error("Erro ao fazer logout:", error);
       }

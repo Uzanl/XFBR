@@ -74,7 +74,7 @@ app.get('/info', (req, res) => {
   res.render('info', { userLoggedIn, imgpath, perfilLink});
 });
 
-app.get('/batepapo', (req, res) => {
+app.get('/bate-papo', (req, res) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   tipoUsuario = req.session.userType;
   imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
@@ -83,13 +83,40 @@ app.get('/batepapo', (req, res) => {
   res.render('bate-papo', { userLoggedIn, imgpath, perfilLink});
 });
 
+app.get('/video-clipes', (req, res) => {
+  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
+  tipoUsuario = req.session.userType;
+  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  idUsu = req.session.userId;
+  perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
+  res.render('video-clipes', { userLoggedIn, imgpath, perfilLink});
+});
+
+
 app.get('/login', (req, res) => {
-  //const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
-  //tipoUsuario = req.session.userType;
-  //imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  //idUsu = req.session.userId;
-  //perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('login');
+  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
+  tipoUsuario = req.session.userType;
+  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  idUsu = req.session.userId;
+  perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
+  res.render('login',{userLoggedIn, imgpath, perfilLink} );
+});
+
+app.get('/editor', (req, res) => {
+  // Verifica se o usuário está logado
+  const userLoggedIn = req.session.idxbox !== undefined;
+
+  // Se o usuário não estiver logado, redireciona para a página de login
+  if (!userLoggedIn) {
+    return res.redirect('/login');
+  }
+
+  // Se o usuário estiver logado, atualiza as variáveis e renderiza a view do editor
+  const imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  const idUsu = req.session.userId;
+  const perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
+
+  res.render('editor', { userLoggedIn, imgpath, perfilLink });
 });
 
 
@@ -810,20 +837,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno no servidor' });
 });
 
-
-
 // Middleware para capturar 404 - Página não encontrada
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
-
-
 const options = {
   key: fs.readFileSync('server.key'), // Caminho para sua chave privada
   cert: fs.readFileSync('server.cert') // Caminho para seu certificado SSL
 };
-
 
 const server = https.createServer(options, app);
 

@@ -37,16 +37,18 @@
           <ul class="submenu-list">
             <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
             <% if (userLoggedIn) { %>
-              <li class="item"><a href="/editor.html" class="nav-link">Publicar</a></li>
-              <% } %>
+              <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
+              <% } else { %>
+                <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
+                <% } %>
           </ul>
         </li>
         <li class="submenu">
           <span class="menu-item">Comunidade</span>
           <ul class="submenu-list">
             <li class="item"><a class="nav-link" href="/info">Informações</a></li>
-            <li class="item"><a class="nav-link" href="bate-papo.html">Bate-papo</a></li>
-            <li class="item"><a class="nav-link" href="video-clipes.html">Vídeo-clipes</a></li>
+            <li class="item"><a class="nav-link" href="/bate-papo">Bate-papo</a></li>
+            <li class="item"><a class="nav-link" href="/video-clipes">Vídeo-clipes</a></li>
           </ul>
         </li>
         <li class="submenu">
@@ -58,7 +60,7 @@
               <li class="item" id="btnLogout"><span class="nav-link">Sair</span></li>
               <li class="item" id="item-profile"><a class="nav-link" href="<%= perfilLink %>">Perfil</a></li>
               <% } else { %>
-                <li class="item"><a class="nav-link" href="login.html">Login</a></li>
+                <li class="item"><a class="nav-link" href="/login">Login</a></li>
                 <% } %>
           </ul>
         </li>
@@ -68,12 +70,14 @@
   <div class="sidebar">
     <ul>
       <li><a href="/info">Info</a></li>
-      <li><a href="notícias.html">Notícias</a></li>
-      <li><a href="bate-papo.html">Chat</a></li>
-      <li><a href="video-clipes.html">Vídeos</a></li>
+      <li><a href="/noticias">Notícias</a></li>
+      <li><a href="/bate-papo">Chat</a></li>
+      <li><a href="/video-clipes">Vídeos</a></li>
       <% if (userLoggedIn) { %>
-        <li><a href="/editor.html">Publicar</a></li>
-        <% } %>
+        <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
+        <% } else { %>
+          <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
+          <% } %>
     </ul>
   </div>
   <div class="toggle-btn">

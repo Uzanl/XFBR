@@ -1,4 +1,10 @@
-
+const imageInput = document.getElementById("image");
+const titleInput = document.getElementById("title");
+const contentInput = document.getElementById("content-preview");
+const imagePreviewContainer = document.querySelector(".image-preview");
+const titlePreview = document.querySelector(".title-preview h1");
+const contentPreview = document.querySelector(".title-preview p");
+const removeImageBtn = document.getElementById("removeImageBtn");
 
 tinymce.init({
   selector: '#editor',
@@ -146,7 +152,7 @@ document.querySelector('form').addEventListener('submit', function (event) {
     });
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
+
   const params = new URLSearchParams(window.location.search);
   const idArtigo = params.get('id');
 
@@ -154,13 +160,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector('.inserir input[type="submit"]').value = 'Salvar';
   }
 
-  const imageInput = document.getElementById("image");
-  const titleInput = document.getElementById("title");
-  const contentInput = document.getElementById("content-preview");
-  const imagePreviewContainer = document.querySelector(".image-preview");
-  const titlePreview = document.querySelector(".title-preview h1");
-  const contentPreview = document.querySelector(".title-preview p");
-  const removeImageBtn = document.getElementById("removeImageBtn");
+
 
   imageInput.addEventListener("change", (event) => {
     const selectedImage = event.target.files[0];
@@ -201,4 +201,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     const contentValue = event.target.value;
     contentPreview.textContent = contentValue;
   });
-});
+

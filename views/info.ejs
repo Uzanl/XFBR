@@ -22,7 +22,7 @@
 </head>
 
 <body>
-  <header class="navbar-index">
+  <header>
     <nav class="banner">
       <div class="image-container" data-tooltip="Xbox Family BR"></div>
     </nav>
@@ -38,7 +38,7 @@
           <ul class="submenu-list">
             <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
             <% if (userLoggedIn) { %>
-              <li class="item"><a href="/editor.html" class="nav-link">Publicar</a></li>
+              <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
               <% } else { %>
                 <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
                 <% } %>
@@ -54,7 +54,7 @@
         </li>
         <li class="submenu">
           <span class="menu-item">
-            <img src="<%= userLoggedIn ? imgpath : '/profile.png' %>" alt="Logout" class="profile-image">
+            <img src="<%= userLoggedIn ? imgpath : '/profile.png' %>" alt="Perfil" class="profile-image">
           </span>
           <ul class="submenu-list">
             <% if (userLoggedIn) { %>
@@ -86,7 +86,7 @@
     <span></span>
     <span></span>
   </div>
-  <main class="overlay">
+  <main>
     <div class="info">
       <h1>Quem <span class="cor-xbox">Somos?</span></h1>
       <p>O Xbox Family BR é um clube fundado em 2016 por PaulistinhaSCCP e seu amigo Uzann, que atualmente conta com uma
@@ -101,7 +101,7 @@
       <a href="https://discord.gg/RZF7K5BX"><img src="/dc.webp" alt="Discord"></a>
       <a href="https://twitter.com/hu3bruzan"><img src="/tt.webp" alt="Twitter"></a>
     </div>
-    <p>© 2024 Xbox Family BR</p>
+    <span>© 2024 Xbox Family BR</span>
   </footer>
 </body>
 

@@ -1,129 +1,72 @@
   @import url('searchbar.css');
   @import url('navbar.css');
-  
+
   body {
     font-family: Arial, sans-serif;
     background-color: #333333;
     color: #f2f2f2;
     margin: 0;
-  }
-
-  .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    min-height: 80vh;
-  }
-
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  form {
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.9);
-    background-color: #444;
-    /*margin-top: 20px;*/
-  }
-
-  label {
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-
-  .email,
-  .password {
-    padding: 8px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-  }
-
-  input[type="submit"] {
-    padding: 10px 20px;
-    background-color: #ffffff;
-    color: #000000; /* Letra preta */
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-
-  /*.google-login {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffffff;
-    color: #000000;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    margin-bottom: 10px;  Adicionada a margem de 10 pixels 
-    cursor: pointer;
-  }*/
-
-   .xbox-login {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffffff;
-    color: #000000;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    margin-bottom: 10px; /* Adicionada a margem de 10 pixels */
-    cursor: pointer;
-  }
-
-  .xbox-login:hover{
-    filter: brightness(0.8);
-  }
-
-  .create-account {
-    text-align: center;
-  }
-
-  .create-account a {
-    color: #f2f2f2;
-    text-decoration: none;
-  }
-
-  .create-account a:hover {
-    text-decoration: underline;
-  }
-  
-  .footer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #333333;
-    color: #fff;
-    padding: 20px;
-    font-weight: bold;
-  }
-
-  .publish-button {
-    cursor: pointer;
-  }
-
-  #error-message{
-     color: red;
-  }
-
-  footer a {
-    background-color: #333333;
-    border: none;
-    padding: 0;
-  }
-
-  footer a img {
-    height: 30px;
   }
 
   .sidebar {
     display: none;
+  }
+
+  main {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .xbox-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .xbox-login img{
+    width: 20px;
+    height: 20px;
+  }
+
+  .xbox-login:hover {
+    filter: brightness(0.8);
+  }
+
+  .social-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+  footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(12px, 1.5vw, 14px);
+    padding: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  footer a {
+    border: none;
+    padding: 0;
+  }
+
+  footer img {
+    height: 50px;
+    width: 50px;
   }

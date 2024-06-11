@@ -1,5 +1,5 @@
 @media screen and (max-width: 480px) {
-  .navbar, .navbar-index {
+  .navbar, .navbar-index, header {
     display: none;
   }
 
@@ -85,7 +85,7 @@
 
 
 @media screen and (min-width: 481px) and (max-width: 768px) {
-    .navbar, .navbar-index {
+    .navbar, .navbar-index, header {
       display: none;
     }
 

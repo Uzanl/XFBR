@@ -33,9 +33,8 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   flex-direction: column;
-  font-size: 14px;
+  font-size: clamp(12px, 1.5vw, 14px);
   font-weight: bold;
   color: #fff;
   padding: 20px;
@@ -51,10 +50,11 @@ footer img:hover {
 }
 
 main p {
-  max-width: 600px;
-  font-size: 20px;
-  line-height: 1.5em;
-  font-weight: 300;
+  font-size: clamp(14px, 2.5vw, 21px);
+    line-height: 1.5em;
+    text-align: justify;
+    font-weight: bold;
+    width: 600px;
 }
 
 .wb-embed {
@@ -64,13 +64,11 @@ main p {
 
 /* Para telas menores ou iguais a 480px */
 @media screen and (max-width: 480px) {
-
   footer {
     text-align: center;
   }
 
   main p {
-    font-size: 16px;
     width: 80%;
     text-align: justify;
 
@@ -81,10 +79,6 @@ main p {
     height: 30px;
   }
 
-  footer {
-    font-size: 12px;
-  }
-
   .wb-embed {
     width: 80%;
   }
@@ -93,16 +87,9 @@ main p {
 
 /* Para telas maiores que 480px e menores ou iguais a 768px */
 @media screen and (min-width: 481px) and (max-width: 768px) {
-
   main p {
-
-    font-size: 18px;
     width: 80%;
     text-align: justify;
-  }
-
-  footer {
-    font-size: 14px;
   }
 
   footer img {
