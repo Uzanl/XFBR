@@ -4,8 +4,8 @@ const prevPageButton = paginationContainer.querySelector(".prev-page");
 const nextPageButton = paginationContainer.querySelector(".next-page");
 const pageNumbersContainer = document.querySelector(".page-numbers");
 const cmbStaus = document.getElementById('cmbStatus');
-const logoutButton = document.getElementById('btnLogout');
 const statusItems = document.querySelectorAll(".status-item-container p");
+const article = document.querySelector(".article")
 
 const handleImageResolution = () => {
   const screenWidth = window.innerWidth;
@@ -31,10 +31,12 @@ const handleImageResolution = () => {
 
 window.addEventListener("resize", handleImageResolution);
 
-if(cmbStaus){
-  cmbStaus.addEventListener('change', async () => {
-    const selectedStatus = document.getElementById('cmbStatus').value;
-    currentPage = 1; // Reiniciar para a primeira página
+if (cmbStaus) {
+  // Event listener para mudança de status
+  cmbStaus.addEventListener('change', async (event) => {
+    selectedStatus = event.target.value;
+    currentPage = 1;
+    window.history.pushState({}, "", `noticias?page=${currentPage}&status=${selectedStatus}`);
     await loadArticles(currentPage, selectedStatus);
   });
 }
@@ -58,7 +60,7 @@ class Article {
       </div>
     `;
   }
-  
+
 }
 
 const getCurrentPageAndStatusFromURL = () => {
@@ -93,10 +95,10 @@ const updatePageNumbers = (totalPages) => {
     fragment.appendChild(pageLink);
   }
 
-  prevPageButton.href = `noticias?page=${Math.max(currentPage - 1, 1)}&status=${selectedStatus}`;
+  prevPageButton.href = `noticias?page=${Math.max(currentPage - 1, 1)}&status=${selectedStatus}`; //bug aqui.
   prevPageButton.style.display = currentPage > 1 ? "block" : "none";
 
-  nextPageButton.href = `noticias?page=${Math.min(currentPage + 1, totalPages)}&status=${selectedStatus}`;
+  nextPageButton.href = `noticias?page=${Math.min(currentPage + 1, totalPages)}&status=${selectedStatus}`; //bug aqui.
   nextPageButton.style.display = currentPage < totalPages ? "block" : "none";
 
   pageNumbersContainer.appendChild(fragment);
@@ -118,8 +120,8 @@ paginationContainer.addEventListener("click", async (event) => {
 const fetchArticles = async (pageNumber, selectedStatus) => {
   try {
     const responseArticles = await fetch(`/get-articles/${pageNumber}?status=${selectedStatus}`);
-    const { articles, counts, totalPages } = await responseArticles.json();
-    return { counts, articles, totalPages };
+    const { articles, totalPages } = await responseArticles.json();
+    return { articles, totalPages };
   } catch (error) {
     console.error("Error fetching articles:", error);
     return { counts: {}, articles: [], totalPages: 0 };
@@ -127,14 +129,9 @@ const fetchArticles = async (pageNumber, selectedStatus) => {
 };
 
 const loadArticles = async (pageNumber, selectedStatus) => {
-  const { counts: articleCounts, articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber, selectedStatus);
+  const { articles: newArticles, totalPages: newTotalPages } = await fetchArticles(pageNumber, selectedStatus);
+  while (articleContainer.firstChild) { articleContainer.removeChild(articleContainer.firstChild); }
 
-  statusItems[0].textContent = `Enviados: ${articleCounts.enviado || 0}`;
-  statusItems[1].textContent = `Em Análise: ${articleCounts.em_analise || 0}`;
-  statusItems[2].textContent = `Produzidos: ${articleCounts.aprovado || 0}`;
-
-  while (articleContainer.firstChild) {articleContainer.removeChild(articleContainer.firstChild);}
- 
   if (newArticles.length === 0) {
     // Se não houver artigos, adicionar a classe 'no-articles' e exibir a mensagem
     articleContainer.classList.add('no-articles');
@@ -162,32 +159,13 @@ const loadArticles = async (pageNumber, selectedStatus) => {
     handleImageResolution();
   }
 
-
 };
 const openArticle = (id) => {
-  window.location.href = `artigo.html?id=${id}`;
+  window.location.href = `artigo?id=${id}`;
 };
-
-if (logoutButton) {
-  logoutButton.addEventListener('click', async () => {
-    const shouldLogout = window.confirm("Tem certeza de que deseja sair?");
-    if (shouldLogout) {
-      try {
-        const response = await fetch("/logout");
-        if (!response.ok) {
-          throw new Error("Erro ao fazer logout");
-        }
-        window.location.href = "/login";
-      } catch (error) {
-        console.error("Erro ao fazer logout:", error);
-      }
-    }
-  });
-}
 
 (async () => {
   const { currentPage, selectedStatus } = getCurrentPageAndStatusFromURL();
-
-  if(cmbStaus) document.getElementById('cmbStatus').value = selectedStatus;
+  if (cmbStaus) document.getElementById('cmbStatus').value = selectedStatus;
   await loadArticles(currentPage, selectedStatus);
 })();

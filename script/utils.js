@@ -1,9 +1,9 @@
-// search.js (módulo JavaScript)
 const toggleBtn = document.querySelector('.toggle-btn');
 const searchBox = document.querySelector('.search-box');
 const clearButton = document.querySelector('.clear-button');
 const suggestionList = document.querySelector('.suggestion-list');
 const sidebar = document.querySelector('.sidebar');
+const logoutButton = document.getElementById('btnLogout');
 
 document.addEventListener('click', function (event) {
   if (!event.target.closest('.suggestion-list') && !event.target.closest('.search-box')) {
@@ -84,5 +84,22 @@ function highlightSuggestion(index) {
   const suggestions = suggestionList.querySelectorAll('.suggestion-item');
   suggestions.forEach((item, idx) => {
     item.classList.toggle('active', idx === index);
+  });
+}
+
+if (logoutButton) {
+  logoutButton.addEventListener('click', async () => {
+    const shouldLogout = window.confirm("Tem certeza de que deseja sair?");
+    if (shouldLogout) {
+      try {
+        const response = await fetch("/logout");
+        if (!response.ok) {
+          throw new Error("Erro ao fazer logout");
+        }
+        window.location.href = "/login";
+      } catch (error) {
+        console.error("Erro ao fazer logout:", error);
+      }
+    }
   });
 }

@@ -31,7 +31,7 @@
           <ul class="submenu-list">
             <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
             <% if (userLoggedIn) { %>
-              <li class="item"><a href="/editor.html" class="nav-link">Publicar</a></li>
+              <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
               <% } else { %>
                 <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
                 <% } %>
@@ -51,7 +51,7 @@
           </span>
           <ul class="submenu-list">
             <% if (userLoggedIn) { %>
-              <li class="item"><span class="nav-link" id="btnSair">Sair</span></li>
+              <li class="item"><span class="nav-link" id="btnLogout ">Sair</span></li>
               <li class="item"><a class="nav-link" href="<%= perfilLink %>">Perfil</a></li>
               <% } else { %>
                 <li class="item"><a class="nav-link" href="/login">Login</a></li>
@@ -68,7 +68,7 @@
       <li><a href="/bate-papo">Chat</a></li>
       <li><a href="/video-clipes">Vídeos</a></li>
       <% if (userLoggedIn) { %>
-        <li><a href="/editor.html">Publicar</a></li>
+        <li><a href="/editor">Publicar</a></li>
         <% } else { %>
           <li><a href="/login">Publicar</a></li>
           <% } %>

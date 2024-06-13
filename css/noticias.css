@@ -6,17 +6,23 @@
   background-color: #555555;
 }
 
-.lblStatus {
-  margin-left: 20px;
+html {
+  width: 100vw;
 }
 
 body {
   display: flex;
   flex-direction: column;
   height: auto;
+  width: auto;
   font-family: 'Sugoi UI', sans-serif;
   background-color: #333333;
+  overflow-x: hidden;
   margin: 0;
+}
+
+.lblStatus {
+  margin-left: 20px;
 }
 
 .sidebar {
@@ -201,6 +207,11 @@ p2 {
   font-size: clamp(12px, 3vw, 16px);
   margin-bottom: 20px;
   color: #ececec;
+}
+
+.pagination{
+  display: flex;
+  align-items: center;
 }
 
 .pagination a {

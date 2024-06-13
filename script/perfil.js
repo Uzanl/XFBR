@@ -84,17 +84,17 @@ const updatePageNumbers = (totalPages,idParam) => {
   const fragment = new DocumentFragment();
   for (let i = startPage; i <= endPage; i++) {
     const pageLink = document.createElement("a");
-    pageLink.href = `perfil.html?page=${i}&id=${idParam}`;
+    pageLink.href = `perfil?page=${i}&id=${idParam}`;
     pageLink.classList.add("page-link");
     pageLink.textContent = i;
     pageLink.classList.toggle("active", i === currentPage);
     fragment.appendChild(pageLink);
   }
 
-  prevPageButton.href = `perfil.html?page=${Math.max(currentPage - 1, 1)}&id=${idParam}`;
+  prevPageButton.href = `perfil?page=${Math.max(currentPage - 1, 1)}&id=${idParam}`;
   prevPageButton.style.display = currentPage > 1 ? "block" : "none";
 
-  nextPageButton.href = `perfil.html?page=${Math.min(currentPage + 1, totalPages)}&id=${idParam}`;
+  nextPageButton.href = `perfil?page=${Math.min(currentPage + 1, totalPages)}&id=${idParam}`;
   nextPageButton.style.display = currentPage < totalPages ? "block" : "none";
 
   pageNumbersContainer.appendChild(fragment);
@@ -195,7 +195,7 @@ async function loadProfile(pageNumber, id) {
     currentPage = pageNumber;
     updatePageNumbers(totalPages,id);
 
-    window.history.pushState({}, "", `perfil.html?page=${pageNumber}&id=${id}`);
+    window.history.pushState({}, "", `perfil?page=${pageNumber}&id=${id}`);
 
     handleImageResolution();
   }

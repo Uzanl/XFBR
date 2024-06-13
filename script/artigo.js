@@ -11,22 +11,30 @@ const editElement = document.querySelector('.edit-image-container')
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
 
-deleteButton.addEventListener('click', handleExclusao);
 
-approveButton.addEventListener('click', () => {
-  handleStatusChange(id, 'aprovado');
-});
+if (deleteButton) deleteButton.addEventListener('click', handleExclusao);
 
-declineButton.addEventListener('click', () => {
-  handleStatusChange(id, 'reprovado');
-});
+if (approveButton) {
+  approveButton.addEventListener('click', () => {
+    handleStatusChange(id, 'aprovado');
+  });
+}
 
-editElement.addEventListener('click', ()=>{
-openArticle(id);
-});
+if (declineButton) {
+  declineButton.addEventListener('click', () => {
+    handleStatusChange(id, 'reprovado');
+  });
+}
 
-function openArticle(id){
-  window.location.href = `editor.html?id=${id}`;
+if(editElement){
+  editElement.addEventListener('click', () => {
+    openArticle(id);
+  });
+}
+
+
+function openArticle(id) {
+  window.location.href = `/editor?id=${id}`;
 }
 
 async function handleExclusao() {
@@ -40,7 +48,7 @@ async function handleExclusao() {
       if (response.ok) {
         // Artigo excluído com sucesso
         alert('Artigo excluído com sucesso!');
-        window.location.href = '/perfil.html';
+        window.location.href = '/perfil';
       } else {
         throw new Error('Erro ao excluir o artigo');
       }

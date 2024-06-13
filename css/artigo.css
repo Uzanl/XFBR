@@ -4,26 +4,20 @@
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   font-family: Arial, sans-serif;
   margin: 0;
 }
 
-.login-list-item,
-.logout-button,
-.sidebar,
-#item-profile {
+.sidebar{
   display: none;
 }
 
 .noticia-container {
-  /*  flex: 1;*/
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   background-color: #333333;
-  flex-direction: column;
 }
 
 .edit-container {
@@ -70,7 +64,6 @@ body {
 .img-container::after {
   content: attr(data-tooltip);
   position: absolute;
-  /*top: 80px;*/
   padding: 5px;
   background-color: #333;
   color: #fff;
@@ -89,7 +82,6 @@ body {
 .decline-image-container::after {
   content: attr(data-tooltip);
   position: absolute;
-  /*top: 80px;*/
   margin-top: 90px;
   padding: 5px;
   background-color: #333;
@@ -138,34 +130,42 @@ body {
   cursor: pointer;
 }
 
-.footer {
-  width: 100%;
+
+
+.social-row {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
   align-items: center;
+  font-weight: bold;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
   background-color: #333333;
+  font-size: clamp(12px, 1.5vw, 14px);
+  font-weight: bold;
   color: #fff;
   padding: 20px;
-  box-sizing: border-box;
 }
 
-footer a {
-  background-color: #333333;
-  border: none;
-  padding: 0;
+footer img {
+  height: 50px;
+  width: 50px;
 }
 
-footer a img {
-  height: 30px;
-  width: 39.59px;
+footer img:hover {
+  filter: brightness(0.8);
 }
 
 .noticia {
   padding: 20px;
-  background-color: #f2f2f2;
   color: #ececec;
-  width: 60%;
+  width: 90%; /* Base */
+  max-width: 1200px; /* Máximo para telas grandes */
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -183,12 +183,10 @@ footer a img {
 
 .noticia p {
   font-size: 16px;
-  /* margin-bottom: 20px;*/
 }
 
 .noticia .carrossel {
   margin-bottom: 20px;
-  /* Estilos adicionais do carrossel aqui... */
 }
 
 .profile {
@@ -197,24 +195,17 @@ footer a img {
   justify-items: center;
   flex-direction: column;
   text-align: center;
-  /*max-width: 25%;*/
-  /*background-color: #f2f2f2;*/
   padding: 20px;
-
   background: linear-gradient(45deg, #9a5916 10%, #e4b04d 18%, #fff1a3 22%, #e7b14f 30%, #ae6f27 38%, #f8c65d 50%);
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
   border: 1px solid #999;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
-  margin-top: 20px;
   width: 350px;
 }
 
-.profile-image {
-  /* position: relative;*/
-  /* display: inline-block;*/
+.image-gamertag {
   margin-left: 10px;
-  /* display: inline-block; */
   align-items: center;
   display: flex;
 }
@@ -238,18 +229,14 @@ footer a img {
   border: 2px solid black;
   color: black;
   text-shadow: 1px 1px rgba(0, 0, 0, 0.8);
-
   width: 20px;
   height: 20px;
   background-color: transparent;
-  /* Fundo transparente */
   border: 2px solid #888;
-  /* Borda da circunferência */
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra para a ilusão de profundidade */
   font-family: 'Nixie One', serif;
   font-size: 1.2em;
   text-align: center;
@@ -271,29 +258,14 @@ p.gamertag {
   display: flex;
 }
 
-
 .profile2 p {
-
   font-style: italic;
-
 }
-
-
-/* Animação para criar o efeito metálico */
-/*@keyframes metallicEffect {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
-  }
-}*/
 
 .hole-container {
   display: flex;
   align-items: center;
   justify-content: end;
-  /* position: absolute;*/
 }
 
 .hole {
@@ -302,11 +274,8 @@ p.gamertag {
   border-radius: 50%;
   background-color: #555555;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-  /* Sombra interna */
   border: 1px solid #999;
 }
-
-
 
 .imagem {
   display: flex;
@@ -314,9 +283,7 @@ p.gamertag {
   align-items: center;
   text-align: center;
   height: auto;
-
   max-width: 100%;
-  /*  margin-top: 20px;*/
 }
 
 .imagem img {
@@ -327,15 +294,12 @@ p.gamertag {
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  /* Define um raio de 50% para criar um círculo */
   object-fit: cover;
-  /* Mantém a proporção da imagem e preenche o círculo */
   overflow: hidden;
-  /* Garante que a imagem não exceda os limites do círculo */
+
 }
 
-.profile-description,
-.profile-description2 {
+.profile-description{
   flex: 1;
   min-height: 120.75px;
 }
@@ -359,10 +323,4 @@ p.gamertag {
   width: 100%;
   height: 100%;
   border-radius: 10px;
-}
-
-@media screen and (max-width: 768px) {
-  .noticia {
-    width: 100%;
-  }
 }

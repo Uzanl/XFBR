@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="preload" href="/script/utils.js" as="script">
   <script src="/script/utils.js" defer></script>
-  <script src="/script/noticias.js" defer></script>
+  <script src="/script/noticias.js" async></script>
 </head>
 
 <body>
@@ -96,19 +96,22 @@
               <div class="status-item">
                 <div class="red">B</div>
               </div>
-              <p>Enviados: X</p>
+              <p>Enviados: <%= counts.enviado %>
+              </p>
             </div>
             <div class="status-item-container">
               <div class="status-item">
                 <div class="yellow">Y</div>
               </div>
-              <p>Em Análise: X</p>
+              <p>Em Análise: <%= counts.em_analise %>
+              </p>
             </div>
             <div class="status-item-container">
               <div class="status-item">
                 <div class="green">A</div>
               </div>
-              <p>Produzidos: X</p>
+              <p>Produzidos: <%= counts.aprovado %>
+              </p>
             </div>
           </div>
         </div>

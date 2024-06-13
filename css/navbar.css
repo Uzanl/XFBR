@@ -54,6 +54,7 @@ header nav ul li {
 }
 
 .submenu-list {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0;
   list-style-type: none;
   /* display: flex; */
