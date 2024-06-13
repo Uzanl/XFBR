@@ -161,7 +161,7 @@ const loadArticles = async (pageNumber, selectedStatus) => {
 
 };
 const openArticle = (id) => {
-  window.location.href = `artigo?id=${id}`;
+  window.location.href = `artigo/${id}`;
 };
 
 (async () => {

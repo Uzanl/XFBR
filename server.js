@@ -16,7 +16,10 @@ const dbConfig = require('./config/dbConfig');
 const config = require('./config/xbApiConfig.js');
 const { promisify } = require('util');
 const cors = require('cors');
+const csurf = require('csurf');
 const zlib = require('zlib');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 // Use as chaves do arquivo de configuração
 const client = XboxApiClient({
@@ -47,9 +50,51 @@ app.use(compression({
   }
 }));
 
+
 const asyncHandler = fn => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+
+// Configuração do csurf
+const csrfProtection = csurf({ cookie: true });
+app.use(csrfProtection);
+
+app.use(fileUpload());
+
+app.use('/css', express.static(path.join(__dirname, 'css')));
+
+app.use(express.static(path.join(__dirname, 'rsc')));
+
+app.use(express.static(path.join(__dirname, 'fonts')));
+
+app.use(express.static(path.join(__dirname, 'images-preview')));
+
+app.use(express.static(path.join(__dirname, 'profile-images')));
+
+app.use(express.static(path.join(__dirname, 'profile-xbox-images')));
+
+app.use('/script', express.static(path.join(__dirname, 'script')));
+
+app.use(express.static(path.join(__dirname, 'views')));
+
+// Create a connection to the MySQL database
+const connection = mysql.createConnection(dbConfig);
+
+// Connect to the database
+connection.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }
+  console.log('Connected to the database!');
+});
+
 
 // Middleware para bloquear acesso à rota /config
 app.use('/config', (req, res, next) => {
@@ -57,7 +102,7 @@ app.use('/config', (req, res, next) => {
 });
 
 app.set('view engine', 'ejs');
-app.get('/noticias', asyncHandler(async (req, res, next) => {
+app.get('/noticias', csrfProtection, asyncHandler(async (req, res, next) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   const tipoUsuario = req.session.userType;
   const imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
@@ -78,7 +123,8 @@ app.get('/noticias', asyncHandler(async (req, res, next) => {
       isAdmin,
       imgpath,
       perfilLink,
-      counts: { enviado, em_analise, aprovado }
+      counts: { enviado, em_analise, aprovado },
+      csrfToken: req.csrfToken() // Inclui o token CSRF no contexto de renderização
     });
   } catch (error) {
     next(error);
@@ -88,47 +134,91 @@ app.get('/noticias', asyncHandler(async (req, res, next) => {
 app.get('/info', (req, res) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
   idUsu = req.session.userId;
   perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('info', { userLoggedIn, imgpath, perfilLink});
+  res.render('info', { userLoggedIn, imgpath, perfilLink });
 });
 
 app.get('/bate-papo', (req, res) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
   idUsu = req.session.userId;
   perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('bate-papo', { userLoggedIn, imgpath, perfilLink});
+  res.render('bate-papo', { userLoggedIn, imgpath, perfilLink });
 });
 
-app.get('/artigo', (req, res) => {
-  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
-  tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  const isAdmin = tipoUsuario === "administrador"
-  idUsu = req.session.userId;
-  perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('artigo', { userLoggedIn, isAdmin, imgpath, perfilLink});
-});
+app.get('/artigo/:id', asyncHandler(async (req, res) => {
+  const artigoId = req.params.id;
+  console.log('ID do Artigo:', artigoId);
+
+  const userLoggedIn = req.session.idxbox !== undefined;
+  const tipoUsuario = req.session.userType;
+  const imgpath = `/${req.session.idxbox}.webp`;
+  const isAdmin = tipoUsuario === 'administrador';
+  const idUsu = req.session.userId;
+  const perfilLink = `/perfil?page=1&id=${idUsu}`;
+
+  try {
+    // Consulta para obter os detalhes do artigo e do autor
+    const sql = `
+      SELECT artigo.id_usu, artigo.titulo, artigo.conteudo, ux.gamertag, ux.gamerscore, ux.imagem_url AS imagem_url_xbox
+      FROM artigo
+      LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+      LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+      WHERE artigo.id_artigo = ?
+    `;
+
+    const query = promisify(connection.query).bind(connection);
+    const results = await query(sql, [artigoId]);
+
+    console.log('Resultados da Consulta:', results);
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ error: 'Artigo não encontrado' });
+    }
+
+    const articleData = results[0];
+
+    console.log('Detalhes do Artigo:', articleData);
+
+    // Verifica se o usuário logado é o autor do artigo
+    const isAuthor = idUsu === articleData.id_usu;
+
+    res.render('artigo', {
+      userLoggedIn,
+      isAdmin,
+      imgpath,
+      perfilLink,
+      articleData,
+      isAuthor
+    });
+  } catch (error) {
+    console.error('Erro ao obter o artigo do banco de dados:', error);
+    return res.status(500).json({ error: 'Erro ao obter o artigo do banco de dados' });
+  }
+}));
+
+
+
 
 app.get('/video-clipes', (req, res) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
   idUsu = req.session.userId;
   perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('video-clipes', { userLoggedIn, imgpath, perfilLink});
+  res.render('video-clipes', { userLoggedIn, imgpath, perfilLink });
 });
 
 app.get('/login', (req, res) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
   idUsu = req.session.userId;
   perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('login',{userLoggedIn, imgpath, perfilLink} );
+  res.render('login', { userLoggedIn, imgpath, perfilLink });
 });
 
 app.get('/editor', (req, res) => {
@@ -163,40 +253,6 @@ app.get('/perfil', (req, res) => {
   const perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
 
   res.render('perfil', { userLoggedIn, imgpath, perfilLink });
-});
-
-
-
-app.use(express.json());
-
-app.use(fileUpload());
-
-app.use('/css', express.static(path.join(__dirname, 'css')));
-
-app.use(express.static(path.join(__dirname, 'rsc')));
-
-app.use(express.static(path.join(__dirname, 'fonts')));
-
-app.use(express.static(path.join(__dirname, 'images-preview')));
-
-app.use(express.static(path.join(__dirname, 'profile-images')));
-
-app.use(express.static(path.join(__dirname, 'profile-xbox-images')));
-
-app.use('/script', express.static(path.join(__dirname, 'script')));
-
-app.use(express.static(path.join(__dirname, 'views')));
-
-// Create a connection to the MySQL database
-const connection = mysql.createConnection(dbConfig);
-
-// Connect to the database
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database:', err);
-    return;
-  }
-  console.log('Connected to the database!');
 });
 
 
@@ -381,7 +437,7 @@ app.put('/update-article/:id', (req, res) => { //pra dar update em um artigo é 
   }
 });
 
-app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
+/*app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
   const artigoId = req.params.artigoId;
   // const userIdFromSession = req.session.user.id_usu; // Obtém o ID do usuário da sessão
   let userId;
@@ -412,11 +468,11 @@ app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
       ...(isAuthor && { isAuthor }) // chave json e variável
     });
   });
-});
+});*/
 
 app.post('/insert-news', asyncHandler(async (req, res) => {
   const query = promisify(connection.query).bind(connection);
-  const userId =  req.session.userId;
+  const userId = req.session.userId;
 
   if (!userId) {
     return res.status(401).json({ redirect: '/login.html' });
@@ -602,11 +658,11 @@ app.get('/get-article-edit-by-id/:id', (req, res) => {
   });
 });
 
-app.get('/get-article-by-id/:id', (req, res) => {
+/*app.get('/get-article-by-id/:id', (req, res) => {
   const id = req.params.id;
 
   const sql = `
-    SELECT artigo.titulo, artigo.conteudo,usuario.id_usu, usuario.login_usu, usuario.descricao, usuario.imagem_url , ux.gamertag, ux.gamerscore, ux.imagem_url as imagem_url_xbox
+    SELECT artigo.titulo, artigo.conteudo, ux.gamertag, ux.gamerscore, ux.imagem_url as imagem_url_xbox
     FROM artigo
     LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
     LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
@@ -624,7 +680,7 @@ app.get('/get-article-by-id/:id', (req, res) => {
     const article = results[0];
     res.json(article);
   });
-});
+});*/
 
 app.get('/logout', (req, res) => {
   // Revogue o token de acesso na Microsoft

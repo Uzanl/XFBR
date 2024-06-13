@@ -85,7 +85,7 @@
 
         <div class="noticia">
 
-            <% if (isAdmin) { %>
+            <% if (isAdmin || isAuthor) { %>
                 <div class="edit-container">
                     <div class="edit-image-container" data-tooltip="Editar">
                         <img class="edit-image" loading="lazy" src="/editar.webp" alt="Botão de edição" width="50"
@@ -131,8 +131,11 @@
                         </div>
                     </div>
 
-                    <h1 class="noticia-titulo"></h1>
-                    <p class="noticia-conteudo"></p>
+                    <h1 class="noticia-titulo"><%= articleData.titulo %></h1>
+                    <div class="noticia-conteudo"> 
+                        <%- articleData.conteudo %>
+                    </div>
+
                     <div class="profile">
                         <div class="autor">
                             <div class="hole-container">
@@ -140,20 +143,23 @@
                                 </div>
                             </div>
                             <div class="image-gamertag">
-                                <img class="imagem-perfil" loading="lazy" src="/profile-st.webp" alt="Imagem do Perfil"
-                                    width="96" height="96">
-
+                                <img class="imagem-perfil" loading="lazy"
+                                    src="<%= articleData.imagem_url_xbox || '/profile-st.webp' %>"
+                                    alt="Imagem do Perfil" width="96" height="96">
                             </div>
                             <div class="profile-description">
-                                <p class="gamertag"></p>
+                                <p class="gamertag">
+                                    <%= articleData.login_usu || articleData.gamertag %>
+                                </p>
                                 <div class="gs-container">
                                     <div class="circle">
                                         <div class="letter">G</div>
                                     </div>
-                                    <p class="gamerscore"> <span class="gamerscore-value"></span>
+                                    <p class="gamerscore"> <span class="gamerscore-value">
+                                            <%= articleData.gamerscore %>
+                                        </span>
                                     </p>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -161,11 +167,11 @@
     </div>
     <footer>
         <div class="social-row">
-          <a href="https://discord.gg/RZF7K5BX"><img src="/dc.webp" alt="Botão do Discord"></a>
-          <a href="https://twitter.com/hu3bruzan"><img src="/tt.webp" alt="Botão do Discord"></a>
+            <a href="https://discord.gg/RZF7K5BX"><img src="/dc.webp" alt="Botão do Discord"></a>
+            <a href="https://twitter.com/hu3bruzan"><img src="/tt.webp" alt="Botão do Discord"></a>
         </div>
         <p>© 2024 Xbox Family BR</p>
-      </footer>
+    </footer>
 </body>
 
 </html>

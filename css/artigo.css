@@ -21,12 +21,13 @@ body {
 }
 
 .edit-container {
+  display: flex;
   height: auto;
   width: auto;
   border-radius: 10px;
   align-items: center;
   justify-content: center;
-  display: none;
+  flex-direction: row;
   background-color: #333333;
 }
 
