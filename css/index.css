@@ -4,41 +4,69 @@
   font-display: swap;
 }
 
-body {
-  font-family: 'Sugoi UI', sans-serif;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  color: #f2f2f2;
-  min-height: 100dvh;
+:root {
+  --primary-color: #333;
+  --secondary-color: #f2f2f2;
+  --accent-color: #c1ff72;
+  --btn-primary-bg: #3f51b5;
+  --btn-primary-bg-hover: #677bc4;
+  --font-family-primary: 'Sugoi UI', sans-serif;
+  --font-family-secondary: 'TT Octosquares', sans-serif;
+  --btn-font-color: #fff;
+  --header-border-bottom-color: #999;
 }
 
 .sidebar {
   display: none;
 }
 
+body {
+  font-family: var(--font-family-primary);
+  margin: 0;
+  color: var(--secondary-color);
+  min-height: 100vh;
+}
+
+footer,
 header {
-  background-color: #333;
-  border-bottom: 1px solid #999;
+  background-color: var(--primary-color);
+}
+
+.info,
+body,
+footer,
+header,
+main {
   display: flex;
+}
+
+.info,
+body,
+footer,
+main {
+  flex-direction: column;
+}
+
+header {
   flex-direction: row;
 }
 
-footer {
-  display: flex;
-  flex-direction: column;
+.info,
+footer,
+main {
   justify-content: center;
   align-items: center;
-  background-color: #333;
+}
+
+header {
+  border-bottom: 1px solid var(--header-border-bottom-color);
+}
+
+footer {
   font-size: clamp(12px, 1.5vw, 14px);
   padding: 20px;
   font-weight: 700;
   text-align: center;
-}
-
-footer img {
-  height: 50px;
-  width: 50px;
 }
 
 footer img:hover {
@@ -46,22 +74,17 @@ footer img:hover {
 }
 
 .info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  font-family: 'TT Octosquares', sans-serif;
+  font-family: var(--font-family-secondary);
   max-width: 60%;
   height: auto;
 }
 
 .cor-xbox {
-  color: #c1ff72;
+  color: var(--accent-color);
 }
 
 h1 {
   font-size: clamp(32px, 4vw + 1rem, 64px);
-  font-display: optional;
 }
 
 .info p {
@@ -75,23 +98,12 @@ h1 {
 main {
   background: url(/haloinfinite.webp) no-repeat center center/cover;
   box-shadow: inset 0 0 0 100vw hsl(0deg 0% 0% / 20%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
   flex-grow: 1;
 }
 
-.social-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-}
-
 .discord-button {
-  background-color: #3f51b5;
-  color: #fff;
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-font-color);
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
@@ -103,62 +115,11 @@ main {
 }
 
 .discord-button:hover {
-  background-color: #677bc4;
+  background-color: var(--btn-primary-bg-hover);
 }
 
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 1200px) {
   .info {
-      padding: 0;
-  }
-
-  footer img {
-      width: 30px;
-      height: 30px;
-  }
-
-  main {
-      justify-content: center;
-  }
-
-  .info {
-      max-width: 80%;
-      height: auto;
-  }
-}
-
-@media screen and (min-width: 361px) and (max-width: 480px) {
-  footer img {
-      width: 30px;
-      height: 30px;
-  }
-
-  main {
-      justify-content: center;
-  }
-
-  .info {
-      max-width: 80%;
-      height: auto;
-      padding: 0;
-  }
-}
-
-@media screen and (min-width: 481px) and (max-width: 768px) {
-  .info {
-      padding: 0;
-  }
-
-  footer img {
-      width: 40px;
-      height: 40px;
-  }
-
-  main {
-      justify-content: center;
-  }
-
-  .info {
-      max-width: 80%;
-      height: auto;
+    max-width: 80%;
   }
 }

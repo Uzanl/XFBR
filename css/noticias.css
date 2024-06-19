@@ -117,12 +117,11 @@ body {
 }
 
 .container {
+  content-visibility: auto;
   min-height: 100vh;
   display: flex;
   align-items: center;
   flex-direction: column;
-  border-bottom-right-radius: 10px;
-  border-bottom-left-radius: 10px;
   width: auto;
   /*width: 900px;*/
   /* background-color: #555555;*/

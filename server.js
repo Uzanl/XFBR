@@ -238,7 +238,7 @@ app.get('/editor', (req, res) => {
   res.render('editor', { userLoggedIn, imgpath, perfilLink });
 });
 
-app.get('/perfil', (req, res) => {
+app.get('/perfil', asyncHandler(async (req, res, next) => {
   // Verifica se o usuário está logado
   const userLoggedIn = req.session.idxbox !== undefined;
 
@@ -247,13 +247,38 @@ app.get('/perfil', (req, res) => {
     return res.redirect('/login');
   }
 
-  // Se o usuário estiver logado, atualiza as variáveis e renderiza a view do editor
+  // Se o usuário estiver logado, atualiza as variáveis
   const imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  const idUsu = req.session.userId;
-  const perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
+  const userId = req.session.userId;
+  const perfilLink = `/perfil?page=1&id=${userId}`; // Atualiza o link do perfil
 
-  res.render('perfil', { userLoggedIn, imgpath, perfilLink });
-});
+  // Obtenção de dados do usuário
+  const selectUserQuery = `
+      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+             IFNULL(u.descricao, "") AS descricao,
+             IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
+             IFNULL(ux.gamerscore, 0) AS gamerscore
+      FROM usuario u
+      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE u.id_usu = ?;
+  `;
+
+  const query = promisify(connection.query).bind(connection);
+  const userResult = await query(selectUserQuery, [userId]);
+
+  if (userResult.length === 0) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
+
+  const user = userResult[0];
+
+  res.render('perfil', {
+    userLoggedIn,
+    imgpath,
+    perfilLink,
+    user
+  });
+}));
 
 
 

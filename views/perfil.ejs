@@ -18,93 +18,87 @@
 <body>
     <header class="navbar">
         <nav>
-            <ul>
-                <li>
-                    <div class="search-container">
-                        <input type="text" class="search-box" placeholder="Pesquisar" name="search-box">
-                        <div class="clear-button">X</div>
-                    </div>
-                    <div class="suggestion-container">
-                        <ul class="suggestion-list">
-                        </ul>
-                    </div>
-                </li>
-                <li class="submenu-noticias">
-                    <a href="#" class="menu-item">Artigos</a>
-                    <div class="noticias-container">
-                        <ul class="noticias-list">
-                            <li class="item"><a class="item" href="notícias.html">Notícias</a></li>
-                            <li class="publish-button"><a class="item" id="publish-link">Publicar</a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="submenu">
-                    <a href="#" class="menu-item">Comunidade</a>
-                    <div class="comunidade-container">
-                        <ul class="comunidade-list">
-                            <li class="item"><a class="item" href="index.html">Informações</a></li>
-                            <li class="item"><a class="item" href="bate-papo.html">Bate-papo</a></li>
-                            <li class="item"><a class="item" href="video-clipes.html">Vídeo-clipes</a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="submenu-profile">
-                    <a class="menu-item">
-                        <img src="/profile.png" alt="Logout" class="logout-image">
-                    </a>
-                    <div class="profile-container">
-                        <ul class="profile-list">
-                            <li class="login-list-item"><a href="login.html">Login</a></li>
-                            <li class="logout-button"><a href="#">Sair</a></li>
-                            <li class="item" id="item-profile"><a href="/perfil">Perfil</a></li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+          <ul>
+            <li>
+              <div class="search-container">
+                <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off">
+                <button class="clear-button">X</button>
+              </div>
+              <ul class="suggestion-list">
+              </ul>
+            </li>
+            <li class="submenu">
+              <span class="menu-item">Artigos</span>
+              <ul class="submenu-list">
+                <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
+                <% if (userLoggedIn) { %>
+                  <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
+                  <% } else { %>
+                    <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
+                    <% } %>
+              </ul>
+            </li>
+            <li class="submenu">
+              <span class="menu-item">Comunidade</span>
+              <ul class="submenu-list">
+                <li class="item"><a class="nav-link" href="/info">Informações</a></li>
+                <li class="item"><a class="nav-link" href="/bate-papo">Bate-papo</a></li>
+                <li class="item"><a class="nav-link" href="/video-clipes">Vídeo-clipes</a></li>
+              </ul>
+            </li>
+            <li class="submenu">
+              <span class="menu-item">
+                <img src="<%= userLoggedIn ? imgpath : '/profile.png' %>" alt="Logout" class="profile-image">
+              </span>
+              <ul class="submenu-list">
+                <% if (userLoggedIn) { %>
+                  <li class="item" id="btnLogout"><span class="nav-link">Sair</span></li>
+                  <li class="item" id="item-profile"><a class="nav-link" href="<%= perfilLink %>">Perfil</a></li>
+                  <% } else { %>
+                    <li class="item"><a class="nav-link" href="/login">Login</a></li>
+                    <% } %>
+              </ul>
+            </li>
+          </ul>
         </nav>
-    </header>
-    <div class="sidebar">
+      </header>
+      <div class="sidebar">
         <ul>
-            <li><a href="index.html">Informações</a></li>
-            <li><a href="notícias.html">Notícias</a></li>
-            <li><a href="bate-papo.html">Bate-papo</a></li>
-            <li><a href="video-clipes.html">Vídeo-clipes</a></li>
-            <li><a>Publicar</a></li>
+          <li><a href="/info">Info</a></li>
+          <li><a href="/noticias">Notícias</a></li>
+          <li><a href="/bate-papo">Chat</a></li>
+          <li><a href="/video-clipes">Vídeos</a></li>
+          <% if (userLoggedIn) { %>
+            <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
+            <% } else { %>
+              <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
+              <% } %>
         </ul>
-    </div>
-    <div class="toggle-btn">
+      </div>
+      <div class="toggle-btn">
         <span></span>
         <span></span>
         <span></span>
-    </div>
+      </div>
     <div class="perfil-container">
-        <div class="links">
-            <button class="downloadButton">
-                <img width="25" height="25" src="/baixar.webp">
-            </button>
-        </div>
         <div class="profile">
             <div class="autor">
                 <div class="hole-container">
                     <div class="hole">
                     </div>
                 </div>
-                <div class="profile-image">
-                    <img class="imagem-perfil" src="/profile-st.webp" alt="Imagem do Perfil" width="96" height="96">
-
-                    <label for="image-input" class="image-edit-icon">&#x1F4F7;</label>
-                    <input type="file" name="image" id="image-input" style="display: none;">
+                <div class="image-xbox">
+                    <img src="<%=  imgpath %>" alt="Imagem do Perfil" width="96" height="96" class="imagem-perfil">
                 </div>
                 <div class="profile-description">
-                    <p class="gamertag"></p>
+                    <p class="gamertag"><%= user.login_usu %></p>
                     <div class="gs-container">
                         <div class="circle">
                             <div class="letter">G</div>
                         </div>
-                        <p class="gamerscore"> <span class="gamerscore-value"></span>
+                        <p class="gamerscore"> <span class="gamerscore-value"><%= user.gamerscore %></span>
                         </p>
                     </div>
-                    <p class="desc-profile">Sua descrição atual do perfil vai aqui.</p>
                 </div>
             </div>
         </div>
@@ -117,22 +111,15 @@
 
                 <div class="profile-description2">
                     <textarea class="desc-profile2" placeholder="Sua descrição atual do perfil vai aqui."
-                        readonly></textarea>
+                        readonly><%= user.descricao || "Descrição não fornecida" %></textarea>
                 </div>
             </div>
         </div>
 
     </div>
     <div class="teste">
-
-
-
-        <div class="container">
             <div class="article-container">
             </div>
-        </div>
-
-
         <div class="pagination-container">
             <div class="pagination">
                 <a href="#" class="prev-page">Anterior</a>
@@ -151,11 +138,12 @@
         </div>
     </div>
     <footer>
-        <div class="footer">
-            <a href="https://discord.gg/RZF7K5BX"><img src="/discord.webp" alt="Botão do Discord"></a>
-            <p>© 2024 Xbox Family Br, Inc.</p>
+        <div>
+          <a href="https://discord.gg/RZF7K5BX"><img fetchpriority="low" src="/dc.webp" alt="Botão do Discord"></a>
+          <a href="https://twitter.com/hu3bruzan"><img fetchpriority="low" src="/tt.webp" alt="Botão do Discord"></a>
         </div>
-    </footer>
+        <p>© 2024 Xbox Family BR</p>
+      </footer>
 </body>
 
 </html>

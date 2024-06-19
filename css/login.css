@@ -7,8 +7,11 @@
     color: #f2f2f2;
     margin: 0;
     min-height: 100dvh;
-    display: flex;
     flex-direction: column;
+  }
+
+  .social-row, body, main, .xbox-login, footer{
+    display: flex;
   }
 
   .sidebar {
@@ -16,14 +19,12 @@
   }
 
   main {
-    display: flex;
     flex-grow: 1;
     align-items: center;
     justify-content: center;
   }
 
   .xbox-login {
-    display: flex;
     justify-content: center;
     align-items: center;
     background-color: #ffffff;
@@ -33,25 +34,17 @@
     cursor: pointer;
   }
 
-  .xbox-login img{
-    width: 20px;
-    height: 20px;
-  }
-
   .xbox-login:hover {
     filter: brightness(0.8);
   }
 
   .social-row {
-    display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
   }
 
-
   footer {
-    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -59,14 +52,4 @@
     padding: 20px;
     font-weight: bold;
     text-align: center;
-  }
-
-  footer a {
-    border: none;
-    padding: 0;
-  }
-
-  footer img {
-    height: 50px;
-    width: 50px;
   }

@@ -7,22 +7,15 @@ p2 {
   font-size: smaller;
 }
 
-.login-list-item,
-.logout-button,
-.sidebar,
-#item-profile {
-  display: none;
-}
-
 body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   font-family: Arial, sans-serif;
   margin: 0;
+  background-color: #333333;
 }
 
-.botao-menu,
 .sidebar {
   display: none;
 }
@@ -33,7 +26,7 @@ body {
   margin-top: 40px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  background-color: #555555;
+
   color: #f2f2f2;
 }
 
@@ -43,7 +36,6 @@ body {
   align-items: center;
   justify-content: center;
   color: #f2f2f2;
-  background-color: #333333;
 }
 
 .article img {
@@ -55,31 +47,22 @@ body {
 
 .article:first-child {
   flex-basis: calc(100% - 20px);
-  /*flex-grow: 2;*/
 }
 
-.footer {
-  width: 100%;
+footer {
   display: flex;
+  color: #f2f2f2;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #333333;
-  color: #fff;
+  font-size: clamp(12px, 1.5vw, 14px);
   padding: 20px;
-  box-sizing: border-box;
-  font-weight: bold;
+  font-weight: 700;
+  text-align: center;
 }
 
-footer a {
-  background-color: #333333;
-  border: none;
-  padding: 0;
-}
-
-footer a img {
-  height: 30px;
-  width: 39.59px;
+footer img:hover {
+  filter: brightness(0.8);
 }
 
 .article-container-wrapper {
@@ -89,52 +72,30 @@ footer a img {
 .article-container {
   display: flex;
   flex-wrap: wrap;
+  min-height: 100dvh;
   justify-content: flex-start;
   width: 900px;
   margin: 0 auto;
-  margin-bottom: 20px;
+  background-color: #555555;
+ /* margin-bottom: 20px;*/
   /*margin-top: 20px;*/
   border-radius: 10px;
-
-
 }
 
 .perfil-posts {
-
   display: flex;
   flex-direction: row;
   justify-content: center;
-  background-color: #333333;
-}
-
-.start,
-.end {
-  /* width: 15%;*/
-  flex-grow: 1;
-  background-color: #333333;
-}
-
-.middle {
-  /* width: 70%;
-  box-shadow: -1px 2px 6px rgba(0,0,0,.25);*/
 }
 
 .article {
+   /* Largura de 33.33% - 20px de margem */
   flex-basis: calc(33.33% - 20px);
-  /* Largura de 33.33% - 20px de margem */
   margin: 10px;
   padding: 10px;
-  background-color: #f2f2f2;
   box-sizing: border-box;
   text-align: center;
   border-radius: 10px;
-  background-color: #555555;
-}
-
-
-
-.publish-button {
-  cursor: pointer;
 }
 
 .article h1 {
@@ -145,7 +106,6 @@ footer a img {
 }
 
 .article h1:hover {
-
   filter: brightness(0.8);
 }
 
@@ -207,16 +167,7 @@ footer a img {
 
 }
 
-
-
-
-.links {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
-}
-
-.profile-image {
+.image-xbox {
   /* position: relative;*/
   /* display: inline-block;*/
   margin-left: 10px;
@@ -225,33 +176,15 @@ footer a img {
   display: flex;
 }
 
-.image-edit-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border-radius: 50%;
-  padding: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  /* Ajuste o tamanho do ícone aqui */
-  display: none;
-}
-
 .profile-image:hover .image-edit-icon {
   display: block;
 }
 
-
 .perfil-container {
   display: flex;
-  /* justify-content: center;*/
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #333333;
   min-height: 400px;
 
 }
@@ -262,26 +195,18 @@ footer a img {
 
 .desc-profile2 {
   width: calc(100% - 20px);
-  /* Ajusta a largura para preencher o espaço disponível */
   border: none;
-  /* Remove a borda */
   resize: none;
-  /* Impede o redimensionamento da caixa de texto */
   background-color: transparent;
-  /* Define o fundo como transparente */
   border: none;
-  /* Remove a borda */
   outline: none;
-  /* Remove o contorno ao redor da caixa de texto */
   font-size: 1.2em;
   color: #888;
   text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
 }
 
-
 .profile,
 .profile2 {
-
   display: flex;
   justify-content: center;
   justify-items: center;
@@ -363,23 +288,9 @@ p.gamertag {
   display: flex;
 }
 
-
 .profile2 p {
-
   font-style: italic;
-
 }
-
-
-/* Animação para criar o efeito metálico */
-/*@keyframes metallicEffect {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
-  }
-}*/
 
 .hole-container {
   display: flex;
@@ -398,7 +309,6 @@ p.gamertag {
   border: 1px solid #999;
 }
 
-
 .profile-header {
   text-align: center;
   margin-bottom: 20px;
@@ -409,13 +319,6 @@ p.gamertag {
   align-items: flex-start;
   flex-direction: column;
   justify-items: center;
-}
-
-.upload-button {
-  background-color: #007bff;
-  color: white;
-  padding: 5px 10px;
-  cursor: pointer;
 }
 
 .profile-description,
@@ -440,213 +343,6 @@ p.gamertag {
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
-}
-
-.profile-description button {
-  background-color: #007bff;
-  color: white;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Estilos para dispositivos móveis (até 480 pixels) */
-@media screen and (max-width: 480px) {
-
-  .end,
-  .start {
-    display: none;
-  }
-
-  .middle {
-    width: 100%;
-  }
-
-  .pagination-container {
-    padding: 20px 0;
-  }
-
-  .pagination {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .pagination a {
-    padding: 5px 10px;
-    margin: 5px;
-  }
-
-  .article-container {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 90%;
-  }
-
-  .article {
-    flex-basis: 100%;
-    width: 100%;
-  }
-
-  .article img {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Adicione outros estilos conforme necessário */
-}
-
-/* Estilos para dispositivos pequenos (de 481 a 767 pixels) */
-@media screen and (min-width: 481px) and (max-width: 767px) {
-
-  .end,
-  .start {
-    display: none;
-  }
-
-  .middle {
-    width: 100%;
-  }
-
-  .pagination-container {
-    padding: 20px 0;
-  }
-
-  .pagination {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .pagination a {
-    padding: 5px 10px;
-    margin: 5px;
-  }
-
-  .article-container {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 90%;
-  }
-
-  .article {
-    flex-basis: 100%;
-    width: 100%;
-  }
-
-  .article img {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Adicione outros estilos conforme necessário */
-}
-
-/* Estilos para tablets pequenos (de 768 a 991 pixels) */
-@media screen and (min-width: 768px) and (max-width: 991px) {
-
-  .end,
-  .start {
-    display: none;
-  }
-
-  .middle {
-    width: 100%;
-  }
-
-  .pagination-container {
-    padding: 20px 0;
-  }
-
-  .pagination {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .pagination a {
-    padding: 5px 10px;
-    margin: 5px;
-  }
-
-  .article-container {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 90%;
-  }
-
-  .article {
-    flex-basis: 100%;
-    width: 100%;
-  }
-
-  .article img {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Adicione outros estilos conforme necessário */
-}
-
-/* Estilos para tablets maiores e laptops (de 992 a 1199 pixels) */
-@media screen and (min-width: 992px) and (max-width: 1199px) {
-
-  .end,
-  .start {
-    display: none;
-  }
-
-  .middle {
-    width: 100%;
-  }
-
-  .pagination-container {
-    padding: 20px 0;
-  }
-
-  .pagination {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .pagination a {
-    padding: 5px 10px;
-    margin: 5px;
-  }
-
-  .article-container {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 90%;
-  }
-
-  .article {
-    flex-basis: 100%;
-    width: 100%;
-  }
-
-  .article img {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Adicione outros estilos conforme necessário */
 }
 
 /* Estilos para desktops (de 1200 a 1919 pixels) */

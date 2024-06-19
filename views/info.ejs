@@ -23,13 +23,13 @@
 
 <body>
   <header>
-    <nav class="banner">
-      <div class="image-container" data-tooltip="Xbox Family BR"></div>
+    <nav class="banner" role="navigation" aria-label="Banner Navigation">
+      <div class="image-container" data-tooltip="Xbox Family BR" role="img" aria-label="Xbox Family BR Logo"></div>
     </nav>
-    <nav class="middle">
+    <nav class="middle" role="navigation" aria-label="Main Navigation">
       <ul>
         <li class="search-container">
-          <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off">
+          <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off" aria-label="Barra de pesquisa">
           <div class="clear-button">X</div>
           <ul class="suggestion-list"></ul>
         </li>
@@ -97,9 +97,9 @@
     </div>
   </main>
   <footer>
-    <div class="social-row">
-      <a href="https://discord.gg/RZF7K5BX"><img src="/dc.webp" alt="Discord"></a>
-      <a href="https://twitter.com/hu3bruzan"><img src="/tt.webp" alt="Twitter"></a>
+    <div>
+      <a href="https://discord.gg/RZF7K5BX"><img loading="lazy" height="50" width="50" src="/dc.webp" alt="Discord"></a>
+      <a href="https://twitter.com/hu3bruzan"><img loading="lazy" height="50" width="50" src="/tt.webp" alt="Twitter"></a>
     </div>
     <span>© 2024 Xbox Family BR</span>
   </footer>

@@ -4,12 +4,7 @@ const textarea = document.querySelector('.desc-profile2');
 const pageNumbersContainer = document.querySelector(".page-numbers");
 const prevPageButton = paginationContainer.querySelector(".prev-page");
 const nextPageButton = paginationContainer.querySelector(".next-page");
-const descriptionParagraph = document.querySelector('.desc-profile2');
 const profileImage = document.querySelector('.imagem-perfil');
-const gamertag = document.querySelector('.gamertag');
-const gamerscoreValue = document.querySelector('.gamerscore-value');
-const descProfile = document.querySelector('.desc-profile');
-const ImgEditIcon = document.querySelector('.image-edit-icon');
 
 
 window.addEventListener("resize", handleImageResolution);
@@ -135,41 +130,6 @@ async function fetchProfileData(pageNumber, id) {
 
 async function loadProfile(pageNumber, id) {
   const { user, articles, totalPages } = await fetchProfileData(pageNumber, id);
-
-  // Carregar informações do usuário
-  if (user) {
-
-    gamertag.textContent = user.login_usu;
-    gamerscoreValue.textContent = user.gamerscore;
-    profileImage.src = user.imagem_url || 'default_image_url'; // Substitua por uma URL de imagem padrão
-    descProfile.style.display = 'none';
-    ImgEditIcon.style.display = 'none';
-    descriptionParagraph.textContent = user.descricao;
-
-    descriptionParagraph.addEventListener('input', async (event) => {
-      try {
-        const newDescription = event.target.value;
-
-        const updateResponse = await fetch(`/update-description/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ description: newDescription })
-        });
-
-        if (!updateResponse.ok) throw new Error('Erro ao atualizar a descrição do perfil');
-
-        console.log('Descrição atualizada com sucesso:', newDescription);
-      } catch (error) {
-        console.error('Erro ao atualizar a descrição do perfil:', error);
-      }
-    });
-
-    descriptionParagraph.parentElement.addEventListener('click', () => {
-      descriptionParagraph.removeAttribute('readonly');
-    });
-  }
 
   articleContainer.innerHTML = ''; // Limpar o contêiner de artigos antes de adicionar novos artigos
 

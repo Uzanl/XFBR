@@ -1,22 +1,19 @@
 .suggestion-list {
   padding: 0;
   list-style-type: none;
-  position: absolute;
   margin-top: 10px;
   border-radius: 10px;
   background-color: #555555;
   z-index: 1;
 }
 
-.suggestion-item.active {
+.suggestion-item.active,.suggestion-item:hover  {
   background-color: #666666;
 }
 
 .suggestion-item {
   margin: 0;
   padding: 10px;
-  cursor: pointer;
-  color: #fff;
   width: 250px;
   display: flex;
   align-items: flex-start;
@@ -24,8 +21,16 @@
   text-align: left;
 }
 
-.suggestion-item:hover {
-  background-color: #666666;
+.clear-button, .search-box, .suggestion-item{
+  color: #fff;
+}
+
+.clear-button, .suggestion-item{
+  cursor: pointer;
+}
+
+.clear-button, .suggestion-list{
+  position: absolute;
 }
 
 .search-box {
@@ -33,7 +38,6 @@
   border: none;
   padding: 5px 10px;
   border-radius: 15px;
-  color: #fff;
   background-color: #444;
   transition: background-color 0.3s;
 }
@@ -48,12 +52,9 @@
 }
 
 .clear-button {
-  position: absolute;
   top: 50%;
   right: 10px;
   transform: translateY(-50%);
-  cursor: pointer;
-  color: #fff;
   font-size: small;
   display: none;
 }
