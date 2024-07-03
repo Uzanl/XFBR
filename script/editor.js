@@ -61,7 +61,8 @@ tinymce.init({
       const params = new URLSearchParams(window.location.search);
       const idArtigo = params.get('id');
 
-      fetch(`/get-article-edit-by-id/${idArtigo}`)
+      if(idArtigo){
+        fetch(`/get-article-edit-by-id/${idArtigo}`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Erro ao obter dados do artigo');
@@ -93,6 +94,9 @@ tinymce.init({
         .catch(error => {
           console.error('Erro ao preencher dados do artigo:', error);
         });
+      }
+
+     
     });
   }
 });

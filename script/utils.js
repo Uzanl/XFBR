@@ -46,7 +46,7 @@ searchBox.addEventListener('input', async function () {
       suggestionItem.textContent = suggestion.tipo === 'usuário' ? `Usuário: ${suggestion.resultado}` : `Artigo: ${suggestion.resultado}`;
 
       suggestionItem.addEventListener('click', function () {
-        window.location.href = suggestion.tipo === 'usuário' ? `perfil?id=${suggestion.id}` : `artigo?id=${suggestion.id}`;
+        window.location.href = suggestion.tipo === 'usuário' ? `perfil?page=1&id=${suggestion.id}` : `artigo/${suggestion.id}`; //aqui precisa ser por parâmetro
       });
 
       suggestionItem.addEventListener('mouseenter', function () {
@@ -88,6 +88,7 @@ function highlightSuggestion(index) {
 }
 
 if (logoutButton) {
+  console.log("cheguei")
   logoutButton.addEventListener('click', async () => {
     const shouldLogout = window.confirm("Tem certeza de que deseja sair?");
     if (shouldLogout) {

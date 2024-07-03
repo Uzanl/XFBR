@@ -117,7 +117,6 @@ body {
 }
 
 .container {
-  content-visibility: auto;
   min-height: 100vh;
   display: flex;
   align-items: center;

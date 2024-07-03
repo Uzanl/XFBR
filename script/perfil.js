@@ -4,7 +4,11 @@ const textarea = document.querySelector('.desc-profile2');
 const pageNumbersContainer = document.querySelector(".page-numbers");
 const prevPageButton = paginationContainer.querySelector(".prev-page");
 const nextPageButton = paginationContainer.querySelector(".next-page");
+const descriptionParagraph = document.querySelector('.desc-profile2');
 const profileImage = document.querySelector('.imagem-perfil');
+const gamertag = document.querySelector('.gamertag');
+const gamerscoreValue = document.querySelector('.gamerscore-value');
+const descProfile = document.querySelector('.desc-profile');
 
 
 window.addEventListener("resize", handleImageResolution);
@@ -64,7 +68,7 @@ const getCurrentPageAndStatusFromURL = () => {
 
 let { currentPage } = getCurrentPageAndStatusFromURL();
 
-const updatePageNumbers = (totalPages,idParam) => {
+const updatePageNumbers = (totalPages, idParam) => {
   pageNumbersContainer.innerHTML = "";
 
   const maxPageIndices = 8;
@@ -101,12 +105,12 @@ paginationContainer.addEventListener("click", async (event) => {
   const idParam = params.get('id');
   if (event.target.classList.contains("page-link")) {
     const pageNumber = parseInt(event.target.textContent);
-   
+
     await loadProfile(pageNumber, idParam);
   } else if (event.target.classList.contains("prev-page") || event.target.classList.contains("next-page")) {
     const pageParam = new URL(event.target.href).searchParams.get("page");
     const pageNumber = parseInt(pageParam);
-    
+
     await loadProfile(pageNumber, idParam);
   }
 });
@@ -131,6 +135,50 @@ async function fetchProfileData(pageNumber, id) {
 async function loadProfile(pageNumber, id) {
   const { user, articles, totalPages } = await fetchProfileData(pageNumber, id);
 
+
+  // Função para obter o token CSRF dos cookies
+  function getCsrfToken() {
+    const name = '_csrf';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        return cookie.substring((name + '=').length, cookie.length);
+      }
+    }
+    return null;
+  }
+
+  // Adicionando o evento para atualização da descrição
+  descriptionParagraph.addEventListener('input', async (event) => {
+    try {
+      const newDescription = event.target.value;
+      console.log(newDescription);
+      const csrfToken = getCsrfToken(); // Obtém o token CSRF dos cookies
+
+    console.log(csrfToken);
+      const updateResponse = await fetch(`/update-description/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'csrf-token': csrfToken // Adiciona o token CSRF no cabeçalho
+        },
+        body: JSON.stringify({ description: newDescription })
+      });
+
+      if (!updateResponse.ok) throw new Error('Erro ao atualizar a descrição do perfil');
+
+      console.log('Descrição atualizada com sucesso:', newDescription);
+    } catch (error) {
+      console.error('Erro ao atualizar a descrição do perfil:', error);
+    }
+  });
+
+  descriptionParagraph.parentElement.addEventListener('click', () => {
+    descriptionParagraph.removeAttribute('readonly');
+  });
+
+
   articleContainer.innerHTML = ''; // Limpar o contêiner de artigos antes de adicionar novos artigos
 
   if (articles.length === 0) {
@@ -153,7 +201,7 @@ async function loadProfile(pageNumber, id) {
     paginationContainer.style.display = "flex";
     articleContainer.appendChild(fragment);
     currentPage = pageNumber;
-    updatePageNumbers(totalPages,id);
+    updatePageNumbers(totalPages, id);
 
     window.history.pushState({}, "", `perfil?page=${pageNumber}&id=${id}`);
 

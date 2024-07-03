@@ -32,8 +32,10 @@ app.use(
     secret: 'key',
     resave: false,
     saveUninitialized: false,
+    cookie: { secure: true } // Configuração para HTTPS
   })
 );
+
 
 app.use(cors());
 
@@ -54,16 +56,24 @@ app.use(compression({
 const asyncHandler = fn => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
-
+// Configuração do csurf para desenvolvimento
+//const csrfProtection = csurf({ cookie: true });
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+
+/*app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());*/
 
 
-// Configuração do csurf
-const csrfProtection = csurf({ cookie: true });
-app.use(csrfProtection);
+//app.use(csrfProtection);
+
+// Middleware para passar o token CSRF para as respostas
+/*app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});*/
 
 app.use(fileUpload());
 
@@ -102,7 +112,7 @@ app.use('/config', (req, res, next) => {
 });
 
 app.set('view engine', 'ejs');
-app.get('/noticias', csrfProtection, asyncHandler(async (req, res, next) => {
+app.get('/noticias', asyncHandler(async (req, res, next) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   const tipoUsuario = req.session.userType;
   const imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
@@ -123,8 +133,7 @@ app.get('/noticias', csrfProtection, asyncHandler(async (req, res, next) => {
       isAdmin,
       imgpath,
       perfilLink,
-      counts: { enviado, em_analise, aprovado },
-      csrfToken: req.csrfToken() // Inclui o token CSRF no contexto de renderização
+      counts: { enviado, em_analise, aprovado }
     });
   } catch (error) {
     next(error);
@@ -239,32 +248,48 @@ app.get('/editor', (req, res) => {
 });
 
 app.get('/perfil', asyncHandler(async (req, res, next) => {
-  // Verifica se o usuário está logado
   const userLoggedIn = req.session.idxbox !== undefined;
-
-  // Se o usuário não estiver logado, redireciona para a página de login
-  if (!userLoggedIn) {
-    return res.redirect('/login');
+  const userIdFromQuery = req.query.id;
+  let userId;
+  let imgpath = '';
+  let imgpathLoggedUser = '';
+  let perfilLink = '';
+  if (userLoggedIn) {
+    imgpathLoggedUser = req.session.idxbox + '.webp';
+    perfilLink = `/perfil?page=1&id=${req.session.userId}`;
   }
 
-  // Se o usuário estiver logado, atualiza as variáveis
-  const imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  const userId = req.session.userId;
-  const perfilLink = `/perfil?page=1&id=${userId}`; // Atualiza o link do perfil
+  // Se houver ID na query, usa o ID da query
+  if (userIdFromQuery) {
+    userId = userIdFromQuery;
 
-  // Obtenção de dados do usuário
-  const selectUserQuery = `
-      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
-             IFNULL(u.descricao, "") AS descricao,
-             IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
-             IFNULL(ux.gamerscore, 0) AS gamerscore
+    const selectUserIdXboxQuery = `
+      SELECT ux.id_usu_xbox
       FROM usuario u
       LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
       WHERE u.id_usu = ?;
+    `;
+    const query = promisify(connection.query).bind(connection);
+    const result = await query(selectUserIdXboxQuery, [userId]);
+
+    if (result.length === 0 || !result[0].id_usu_xbox) {
+      return res.status(404).json({ error: 'ID de usuário não encontrado ou sem associação com Xbox.' });
+    }
+
+    imgpath = result[0].id_usu_xbox + '.webp';
+  }
+
+  const selectUserQuery = `
+    SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+           IFNULL(u.descricao, "") AS descricao,
+           IFNULL(ux.gamerscore, 0) AS gamerscore
+    FROM usuario u
+    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+    WHERE u.id_usu = ?;
   `;
 
-  const query = promisify(connection.query).bind(connection);
-  const userResult = await query(selectUserQuery, [userId]);
+  const userQuery = promisify(connection.query).bind(connection);
+  const userResult = await userQuery(selectUserQuery, [userId]);
 
   if (userResult.length === 0) {
     return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -275,10 +300,13 @@ app.get('/perfil', asyncHandler(async (req, res, next) => {
   res.render('perfil', {
     userLoggedIn,
     imgpath,
+    imgpathLoggedUser,
     perfilLink,
     user
   });
 }));
+
+
 
 
 
@@ -331,7 +359,6 @@ const url = 'https://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
 
 
 app.delete('/excluir-artigo/:artigoId', (req, res) => { // pra deletar um artigo é preciso ser o dono dele ou administrador
-  console.log('Recebi uma requisição DELETE para /excluir-artigo/' + req.params.artigoId);
   const artigoId = req.params.artigoId;
 
   if (!req.session.profileData) return res.status(401).json({ error: 'Usuário não autenticado' });
@@ -461,39 +488,6 @@ app.put('/update-article/:id', (req, res) => { //pra dar update em um artigo é 
     });
   }
 });
-
-/*app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
-  const artigoId = req.params.artigoId;
-  // const userIdFromSession = req.session.user.id_usu; // Obtém o ID do usuário da sessão
-  let userId;
-  
-  // aqui é pra pegar o id do usuário da sessão
-  if (req.session.profileData) {
-    userId = req.session.userId;
-  } else {
-    return res.status(401).json({ redirect: '/login.html' });
-  }
-  // Verificar se o usuário está autenticado (se a sessão está ativa)
-  // Consultar o banco de dados para obter o ID do autor do artigo
-  connection.query('SELECT id_usu FROM artigo WHERE id_artigo = ?', [artigoId], (err, results) => {
-    if (err) {
-      console.error('Erro ao verificar permissão de edição:', err);
-      return res.status(500).json({ error: 'Erro ao verificar permissão de edição' });
-    }
-
-    const artigoAuthorId = results[0].id_usu;
-
-    const isAdmin = req.session.userType === 'administrador';
-    const isAuthor = userId === artigoAuthorId;
-    const temPermissao = isAdmin || isAuthor;
-
-    return res.json({
-      temPermissao,
-      ...(isAdmin && { isAdmin }), // chave json e variável
-      ...(isAuthor && { isAuthor }) // chave json e variável
-    });
-  });
-});*/
 
 app.post('/insert-news', asyncHandler(async (req, res) => {
   const query = promisify(connection.query).bind(connection);
@@ -657,7 +651,6 @@ app.get('/get-articles-profile', asyncHandler(async (req, res, next) => {
 }));
 
 app.get('/get-article-edit-by-id/:id', (req, res) => {
-  console.log("cheguei aqui!!!")
   const artigoId = req.params.id;
   const getArticleQuery = 'SELECT * FROM artigo WHERE id_artigo = ?';
 
@@ -683,30 +676,6 @@ app.get('/get-article-edit-by-id/:id', (req, res) => {
   });
 });
 
-/*app.get('/get-article-by-id/:id', (req, res) => {
-  const id = req.params.id;
-
-  const sql = `
-    SELECT artigo.titulo, artigo.conteudo, ux.gamertag, ux.gamerscore, ux.imagem_url as imagem_url_xbox
-    FROM artigo
-    LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
-    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-    WHERE artigo.id_artigo = ?
-  `;
-
-  connection.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error('Erro ao obter o artigo do banco de dados:', err);
-      return res.status(500).json({ error: 'Erro ao obter o artigo do banco de dados' });
-    }
-
-    if (results.length === 0) return res.status(404).json({ error: 'Artigo não encontrado' });
-
-    const article = results[0];
-    res.json(article);
-  });
-});*/
-
 app.get('/logout', (req, res) => {
   // Revogue o token de acesso na Microsoft
   const microsoftAccessToken = client.getAccessToken();
@@ -729,25 +698,39 @@ app.get('/logout', (req, res) => {
 });
 
 app.put('/update-description/:id?', asyncHandler(async (req, res) => {
-  const newDescription = req.body.description;
-  let userId = parseInt(req.params.id);
+  try {
+    const tokenFromHeader = req.headers['csrf-token'];
+    console.log('Token CSRF recebido na rota PUT:', tokenFromHeader);
 
-  // Se o ID na URL for inválido ou não existir, use o ID do usuário na sessão
-  if (isNaN(userId) || userId < 1) { userId = req.session.user ? req.session.user.id_usu : req.session.userId; }
+    const newDescription = req.body.description;
+    let userId = parseInt(req.params.id);
 
-  if (!userId) { return res.status(400).json({ error: 'ID de usuário inválido ou não encontrado' }); }
+    // Se o ID na URL for inválido ou não existir, use o ID do usuário na sessão
+    if (isNaN(userId) || userId < 1) {
+      userId = req.session.user ? req.session.user.id_usu : req.session.userId;
+    }
 
-  const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'ID de usuário inválido ou não encontrado' });
+    }
 
-  if (loggedUserId !== userId) { return res.status(403).json({ error: 'Você não tem permissão para editar esta descrição' }); }
+    const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
 
-  const query = promisify(connection.query).bind(connection);
-  const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
-  const result = await query(sql, [newDescription, userId]);
+    if (loggedUserId !== userId) {
+      return res.status(403).json({ error: 'Você não tem permissão para editar esta descrição' });
+    }
 
-  return result.affectedRows === 1
-    ? res.json({ success: true })
-    : res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+    const query = promisify(connection.query).bind(connection);
+    const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
+    const result = await query(sql, [newDescription, userId]);
+
+    return result.affectedRows === 1
+      ? res.json({ success: true })
+      : res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+  } catch (err) {
+    console.error('Erro ao processar a requisição PUT:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
 }));
 
 // Rota para alterar o status do artigo
