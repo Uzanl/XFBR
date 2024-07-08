@@ -4,6 +4,28 @@ const clearButton = document.querySelector('.clear-button');
 const suggestionList = document.querySelector('.suggestion-list');
 const sidebar = document.querySelector('.sidebar');
 const logoutButton = document.getElementById('btnLogout');
+const upBtn = document.querySelector('.up');
+
+
+if (upBtn) {
+  upBtn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  window.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.body.scrollHeight;
+    const scrollPercent = (scrollPosition / (documentHeight - windowHeight)) * 100;
+
+    if (scrollPercent > 25) {
+      upBtn.classList.add('show');
+    } else {
+      upBtn.classList.remove('show');
+    }
+  });
+
+}
 
 document.addEventListener('click', function (event) {
   if (!event.target.closest('.suggestion-list') && !event.target.closest('.search-box')) {
@@ -11,7 +33,7 @@ document.addEventListener('click', function (event) {
   }
 });
 
-clearButton.addEventListener('click', function () {
+clearButton.addEventListener('click', () => {
   clearButton.style.display = 'none';
   searchBox.value = '';
   suggestionList.style.display = 'none';
@@ -46,7 +68,10 @@ searchBox.addEventListener('input', async function () {
       suggestionItem.textContent = suggestion.tipo === 'usuário' ? `Usuário: ${suggestion.resultado}` : `Artigo: ${suggestion.resultado}`;
 
       suggestionItem.addEventListener('click', function () {
-        window.location.href = suggestion.tipo === 'usuário' ? `perfil?page=1&id=${suggestion.id}` : `artigo/${suggestion.id}`; //aqui precisa ser por parâmetro
+        const path = suggestion.tipo === 'usuário'
+          ? `/perfil?page=1&id=${suggestion.id}`
+          : `/artigo/${suggestion.id}`;
+        window.location.href = path; // Caminho relativo a partir da raiz do site
       });
 
       suggestionItem.addEventListener('mouseenter', function () {

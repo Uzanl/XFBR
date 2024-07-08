@@ -1,8 +1,16 @@
 @import url('searchbar.css');
 @import url('navbar.css');
 
+:root {
+  --primary-color: #333333;
+  --secondary-color: #555555;
+  --font-color: #f2f2f2;
+  --secondary-font-color: #ececec;
+  --italian-font-color: #cccccc;
+}
+
 p2 {
-  color: #cccccc;
+  color: var(--italian-font-color);
   font-style: italic;
   font-size: smaller;
 }
@@ -10,10 +18,11 @@ p2 {
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
   font-family: Arial, sans-serif;
   margin: 0;
-  background-color: #333333;
+  background-color: var(--primary-color);
+  color: var(--font-color);
 }
 
 .sidebar {
@@ -21,37 +30,15 @@ body {
 }
 
 .container {
-  min-height: 100vh;
-  box-shadow: -1px 2px 6px rgba(0, 0, 0, .25);
-  margin-top: 40px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-
-  color: #f2f2f2;
-}
-
-.teste {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #f2f2f2;
-}
-
-.article img {
-  width: 256px;
-  height: 144px;
-  cursor: pointer;
-  border-radius: 10px;
-}
-
-.article:first-child {
-  flex-basis: calc(100% - 20px);
 }
 
 footer {
   display: flex;
-  color: #f2f2f2;
+  gap: 10px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -65,44 +52,18 @@ footer img:hover {
   filter: brightness(0.8);
 }
 
-.article-container-wrapper {
-  margin-bottom: 100px;
-}
-
-.article-container {
-  display: flex;
-  flex-wrap: wrap;
-  min-height: 100dvh;
-  justify-content: flex-start;
-  width: 900px;
-  margin: 0 auto;
-  background-color: #555555;
- /* margin-bottom: 20px;*/
-  /*margin-top: 20px;*/
-  border-radius: 10px;
-}
-
-.perfil-posts {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.article {
-   /* Largura de 33.33% - 20px de margem */
-  flex-basis: calc(33.33% - 20px);
-  margin: 10px;
-  padding: 10px;
-  box-sizing: border-box;
-  text-align: center;
-  border-radius: 10px;
-}
-
 .article h1 {
   font-size: 24px;
   margin-bottom: 10px;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.article{
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+
 }
 
 .article h1:hover {
@@ -112,22 +73,16 @@ footer img:hover {
 .article p {
   font-size: 16px;
   margin-bottom: 20px;
-  color: #ececec;
+  color: var(--secondary-font-color);
 }
 
 .pagination-container {
-  bottom: 0;
-  left: 0;
-  width: 900px;
-  background-color: #f2f2f2;
-  padding: 10px 0;
-  display: flex;
+  width: 50%;
+  background-color: var(--secondary-color);
+  padding: 10px 20px;
   justify-content: center;
   border-bottom-left-radius: 10px;
-  /* Ajuste o valor conforme necessário */
   border-bottom-right-radius: 10px;
-  /* Ajuste o valor conforme necessário */
-
 }
 
 .pagination {
@@ -140,7 +95,7 @@ footer img:hover {
   padding: 5px 10px;
   margin: 0 5px;
   border-radius: 5px;
-  background-color: #f2f2f2;
+  background-color: var(--font-color);
   color: #333333;
   text-decoration: none;
 }
@@ -154,30 +109,18 @@ footer img:hover {
   background-color: #ccc;
 }
 
-
 .imagem-perfil {
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  /* Define um raio de 50% para criar um círculo */
   object-fit: cover;
-  /* Mantém a proporção da imagem e preenche o círculo */
   overflow: hidden;
-  /* Garante que a imagem não exceda os limites do círculo */
-
 }
 
 .image-xbox {
-  /* position: relative;*/
-  /* display: inline-block;*/
   margin-left: 10px;
-  /* display: inline-block; */
   align-items: center;
   display: flex;
-}
-
-.profile-image:hover .image-edit-icon {
-  display: block;
 }
 
 .perfil-container {
@@ -186,7 +129,6 @@ footer img:hover {
   justify-content: center;
   align-items: center;
   min-height: 400px;
-
 }
 
 .profile2 {
@@ -198,7 +140,6 @@ footer img:hover {
   border: none;
   resize: none;
   background-color: transparent;
-  border: none;
   outline: none;
   font-size: 1.2em;
   color: #888;
@@ -212,16 +153,11 @@ footer img:hover {
   justify-items: center;
   flex-direction: column;
   text-align: center;
-  /*max-width: 25%;*/
-  /*background-color: #f2f2f2;*/
   padding: 20px;
-
-  background: linear-gradient(45deg, #9a5916 10%, #e4b04d 18%, #fff1a3 22%, #e7b14f 30%, #ae6f27 38%, #f8c65d 50%);
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
   border: 1px solid #999;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
-  margin-top: 20px;
   width: 350px;
 }
 
@@ -232,7 +168,6 @@ footer img:hover {
 .profile2 {
   transform: rotate(10deg);
 }
-
 
 .gs-container {
   display: flex;
@@ -250,21 +185,14 @@ footer img:hover {
 }
 
 .circle {
-  border: 2px solid black;
-  color: black;
-  text-shadow: 1px 1px rgba(0, 0, 0, 0.8);
-
   width: 20px;
   height: 20px;
   background-color: transparent;
-  /* Fundo transparente */
   border: 2px solid #888;
-  /* Borda da circunferência */
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra para a ilusão de profundidade */
   font-family: 'Nixie One', serif;
   font-size: 1.2em;
   text-align: center;
@@ -272,12 +200,10 @@ footer img:hover {
   color: #888;
 }
 
-
 .profile p,
 .profile2 p {
   color: black;
   text-shadow: 1px 1px rgba(0, 0, 0, 0.8);
-
   color: #888;
   font-size: 1.2em;
   text-align: center;
@@ -296,29 +222,15 @@ p.gamertag {
   display: flex;
   align-items: center;
   justify-content: end;
-  /* position: absolute;*/
 }
 
 .hole {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #333333;
+  background-color: var(--primary-color);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-  /* Sombra interna */
   border: 1px solid #999;
-}
-
-.profile-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.profile-content {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  justify-items: center;
 }
 
 .profile-description,
@@ -345,23 +257,80 @@ p.gamertag {
   border: 1px solid #ccc;
 }
 
-/* Estilos para desktops (de 1200 a 1919 pixels) */
-@media screen and (min-width: 1200px) and (max-width: 1919px) {
-  .article:first-child img {
-    width: 860px;
-    height: 483px;
-  }
-
-  /* Adicione outros estilos conforme necessário */
+.article:first-child {
+  flex: 0 1 calc(100%);
 }
 
-/* Estilos para telas muito grandes (1920 pixels ou mais) */
-@media screen and (min-width: 1920px) {
+.article-container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 50%;
+  gap: 10px;
+  padding: 20px;
+  background-color: #555;
+  min-height: 100dvh;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
 
-  .article:first-child img {
-    width: 860px;
-    height: 483px;
+.article img {
+  width: 100%;
+  border-radius: 10px;
+  height: auto;
+  display: block;
+}
+
+.article {
+  flex: 0 1 calc((100% / 3) - 20px / 3);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+
+  .article-container {
+    width: 90%;
+    padding: 20px;
   }
 
-  /* Adicione outros estilos conforme necessário */
+  .pagination-container {
+    width: 90%;
+  }
+
+  .article {
+    flex: 1 1 calc(100% - 20px);
+  }
+}
+
+@media (max-width: 768px) {
+
+  .perfil-container {
+    display: none;
+  }
+
+  .article {
+    flex: 1 1 calc(100% - 20px);
+  }
+
+  .article:first-child {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 1200px) {
+
+  .article-container {
+    width: 80%;
+  }
+
+  .pagination-container {
+    width: 80%;
+  }
+
+  .article {
+    flex: 1 1 calc(100% - 20px);
+  }
+
+  .article:first-child {
+    flex: 1 1 100%;
+  }
 }

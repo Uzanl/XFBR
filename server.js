@@ -189,6 +189,7 @@ app.get('/artigo/:id', asyncHandler(async (req, res) => {
     }
 
     const articleData = results[0];
+    
 
     console.log('Detalhes do Artigo:', articleData);
 

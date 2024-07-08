@@ -211,7 +211,7 @@ async function loadProfile(pageNumber, id) {
 }
 
 function openArticle(id) {
-  window.location.href = `artigo.html?id=${id}`;
+  window.location.href = `artigo/${id}`;
 }
 
 async function GetPageData() {

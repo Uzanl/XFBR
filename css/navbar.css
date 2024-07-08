@@ -2,11 +2,11 @@
   --header-primary-color: #333;
   --header-border-color: #999999;
   --header-secondary-color: #555555;
-  --header-hoover-color:#666666;
+  --header-hover-color: #666666;
   --header-font-color: #f2f2f2;
 }
 
-.navbar {
+header {
   display: block;
   background-color: var(--header-primary-color);
   border-bottom: 1px solid var(--header-border-color);
@@ -98,14 +98,13 @@ ul .suggestion-item:last-child {
 }
 
 .item:hover {
-  background-color: var(--header-hoover-color);
+  background-color: var(--header-hover-color);
 }
 
 .item {
   margin: 0;
   width: 120px;
   align-items: flex-start;
-  background-color: var(--header-secondary-color);
 }
 
 .banner {
@@ -130,7 +129,7 @@ ul .suggestion-item:last-child {
   position: absolute;
   top: 80px;
   padding: 5px;
-  background-color:var(--header-primary-color);
+  background-color: var(--header-primary-color);
   color: #fff;
   border-radius: 5px;
   opacity: 0;
