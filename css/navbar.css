@@ -8,7 +8,7 @@
 
 header {
   display: block;
-  background-color: var(--header-primary-color);
+ /* background-color: var(--header-primary-color);*/
   border-bottom: 1px solid var(--header-border-color);
 }
 
@@ -54,12 +54,15 @@ header nav ul li {
   filter: brightness(0.8);
 }
 
-.submenu:hover .submenu-list,
 header nav ul,
 .item,
 .banner,
 .middle {
   display: flex;
+}
+
+.submenu:hover .submenu-list {
+  display: block;
 }
 
 header nav ul,
@@ -80,7 +83,6 @@ header nav ul,
   padding: 0;
   list-style-type: none;
   display: none;
-  flex-direction: column;
   position: absolute;
   background-color: var(--header-secondary-color);
   border-radius: 10px;

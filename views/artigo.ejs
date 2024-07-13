@@ -17,112 +17,92 @@
 
 <body>
     <%- include('partials/header') %>
-        <aside class="sidebar">
-            <ul>
-                <li><a href="/info">Info</a></li>
-                <li><a href="/noticias">Notícias</a></li>
-                <li><a href="/bate-papo">Chat</a></li>
-                <li><a href="/video-clipes">Vídeos</a></li>
-                <% if (userLoggedIn) { %>
-                    <li><a href="/editor">Publicar</a></li>
-                    <% } else { %>
-                        <li><a href="/login">Publicar</a></li>
+        <%- include('partials/sidebar') %>
+            <div class="noticia-container">
+                <div class="noticia">
+                    <% if (isAdmin || isAuthor) { %>
+                        <div class="edit-container">
+                            <div class="edit-image-container" data-tooltip="Editar">
+                                <img class="edit-image" loading="lazy" src="/editar.webp" alt="Botão de edição"
+                                    width="50" height="50">
+                            </div>
+
+                            <div class="delete-image-container" data-tooltip="Excluir">
+                                <img class="delete-image" loading="lazy" src="/excluir.webp" alt="Botão de excluir"
+                                    width="50" height="50">
+                            </div>
+
+                            <div class="approve-image-container" data-tooltip="Aprovar">
+                                <img class="approve-image" loading="lazy" src="/aprovar.webp" alt="Botão de excluir"
+                                    width="50" height="50">
+                            </div>
+
+                            <div class="decline-image-container" data-tooltip="Reprovar">
+                                <img class="decline-image" loading="lazy" src="/reprovar.webp" alt="Botão de excluir"
+                                    width="50" height="50">
+                            </div>
+                        </div>
                         <% } %>
-            </ul>
-        </aside>
-        <div class="toggle-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="noticia-container">
 
 
-            <div class="noticia">
-
-                <% if (isAdmin || isAuthor) { %>
-                    <div class="edit-container">
-                        <div class="edit-image-container" data-tooltip="Editar">
-                            <img class="edit-image" loading="lazy" src="/editar.webp" alt="Botão de edição" width="50"
-                                height="50">
-                        </div>
-
-                        <div class="delete-image-container" data-tooltip="Excluir">
-                            <img class="delete-image" loading="lazy" src="/excluir.webp" alt="Botão de excluir"
-                                width="50" height="50">
-                        </div>
-
-                        <div class="approve-image-container" data-tooltip="Aprovar">
-                            <img class="approve-image" loading="lazy" src="/aprovar.webp" alt="Botão de excluir"
-                                width="50" height="50">
-                        </div>
-
-                        <div class="decline-image-container" data-tooltip="Reprovar">
-                            <img class="decline-image" loading="lazy" src="/reprovar.webp" alt="Botão de excluir"
-                                width="50" height="50">
-                        </div>
-                    </div>
-                    <% } %>
-
-
-                        <div class="share-container">
-                            <h3 class="share-text">Compartilhe:</h3>
-                            <div class="share">
-                                <div class="img-container" data-tooltip="X">
-                                    <img class="img-share" loading="lazy" src="/twitter.webp" alt="Imagem do Perfil"
-                                        width="30" height="30">
-                                </div>
-
-                                <div class="img-container" data-tooltip="WhatsApp">
-                                    <img class="img-share" loading="lazy" src="/wpp30.webp" alt="Imagem do Perfil"
-                                        width="30" height="30">
-                                </div>
-
-                                <div class="img-container" data-tooltip="Copiar">
-                                    <img class="img-share" loading="lazy" src="/copy.webp" alt="Imagem do Perfil"
-                                        width="30" height="30">
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <h1 class="noticia-titulo">
-                            <%= articleData.titulo %>
-                        </h1>
-                        <div class="noticia-conteudo">
-                            <%- articleData.conteudo %>
-                        </div>
-
-                        <div class="profile">
-                            <div class="autor">
-                                <div class="hole-container">
-                                    <div class="hole">
+                            <div class="share-container">
+                                <h3 class="share-text">Compartilhe:</h3>
+                                <div class="share">
+                                    <div class="img-container" data-tooltip="X">
+                                        <img class="img-share" loading="lazy" src="/twitter.webp" alt="Imagem do Perfil"
+                                            width="30" height="30">
                                     </div>
+
+                                    <div class="img-container" data-tooltip="WhatsApp">
+                                        <img class="img-share" loading="lazy" src="/wpp30.webp" alt="Imagem do Perfil"
+                                            width="30" height="30">
+                                    </div>
+
+                                    <div class="img-container" data-tooltip="Copiar">
+                                        <img class="img-share" loading="lazy" src="/copy.webp" alt="Imagem do Perfil"
+                                            width="30" height="30">
+                                    </div>
+
                                 </div>
-                                <div class="image-gamertag">
-                                    <img class="imagem-perfil" loading="lazy"
-                                        src="<%= articleData.imagem_url_xbox || '/profile-st.webp' %>"
-                                        alt="Imagem do Perfil" width="96" height="96">
-                                </div>
-                                <div class="profile-description">
-                                    <p class="gamertag">
-                                        <%= articleData.login_usu || articleData.gamertag %>
-                                    </p>
-                                    <div class="gs-container">
-                                        <div class="circle">
-                                            <div class="letter">G</div>
+                            </div>
+
+                            <h1 class="noticia-titulo">
+                                <%= articleData.titulo %>
+                            </h1>
+                            <div class="noticia-conteudo">
+                                <%- articleData.conteudo %>
+                            </div>
+
+                            <div class="profile">
+                                <div class="autor">
+                                    <div class="hole-container">
+                                        <div class="hole">
                                         </div>
-                                        <p class="gamerscore"> <span class="gamerscore-value">
-                                                <%= articleData.gamerscore %>
-                                            </span>
+                                    </div>
+                                    <div class="image-gamertag">
+                                        <img class="imagem-perfil" loading="lazy"
+                                            src="<%= articleData.imagem_url_xbox || '/profile-st.webp' %>"
+                                            alt="Imagem do Perfil" width="96" height="96">
+                                    </div>
+                                    <div class="profile-description">
+                                        <p class="gamertag">
+                                            <%= articleData.login_usu || articleData.gamertag %>
                                         </p>
+                                        <div class="gs-container">
+                                            <div class="circle">
+                                                <div class="letter">G</div>
+                                            </div>
+                                            <p class="gamerscore"> <span class="gamerscore-value">
+                                                    <%= articleData.gamerscore %>
+                                                </span>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                </div>
             </div>
-        </div>
-        <%- include('partials/footer') %>
+            <%- include('partials/footer') %>
 </body>
 
 </html>

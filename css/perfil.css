@@ -1,12 +1,11 @@
-@import url('searchbar.css');
-@import url('navbar.css');
-
 :root {
   --primary-color: #333333;
   --secondary-color: #555555;
   --font-color: #f2f2f2;
   --secondary-font-color: #ececec;
+  --gamertag-font-color: #888;
   --italian-font-color: #cccccc;
+  --border-color: #ccc;
 }
 
 p2 {
@@ -24,6 +23,12 @@ body {
   background-color: var(--primary-color);
   color: var(--font-color);
 }
+
+.prev-page.disabled,
+.next-page.disabled {
+  display: none;
+}
+
 
 .sidebar {
   display: none;
@@ -59,7 +64,7 @@ footer img:hover {
   text-decoration: underline;
 }
 
-.article{
+.article {
   display: flex;
   flex-direction: column;
   overflow-wrap: anywhere;
@@ -96,17 +101,17 @@ footer img:hover {
   margin: 0 5px;
   border-radius: 5px;
   background-color: var(--font-color);
-  color: #333333;
+  color: var(--primary-color);
   text-decoration: none;
 }
 
 .pagination a.active {
-  background-color: #333333;
-  color: #fff;
+  background-color: var(--primary-color);
+  color: var(--font-color);
 }
 
 .pagination a:hover {
-  background-color: #ccc;
+  background-color: var(--border-color);
 }
 
 .imagem-perfil {
@@ -142,7 +147,7 @@ footer img:hover {
   background-color: transparent;
   outline: none;
   font-size: 1.2em;
-  color: #888;
+  color: var(--gamertag-font-color);
   text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
 }
 
@@ -153,9 +158,10 @@ footer img:hover {
   justify-items: center;
   flex-direction: column;
   text-align: center;
+  color: var(--gamertag-font-color);
   padding: 20px;
   background: linear-gradient(45deg, #bfbfbf, #ffffff, #bfbfbf, #ffffff);
-  border: 1px solid #999;
+  border: 1px solid var(--border-color);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 100px;
   width: 350px;
@@ -188,7 +194,7 @@ footer img:hover {
   width: 20px;
   height: 20px;
   background-color: transparent;
-  border: 2px solid #888;
+  border: 2px solid var(--gamertag-font-color);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -197,14 +203,10 @@ footer img:hover {
   font-size: 1.2em;
   text-align: center;
   text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
-  color: #888;
 }
 
 .profile p,
 .profile2 p {
-  color: black;
-  text-shadow: 1px 1px rgba(0, 0, 0, 0.8);
-  color: #888;
   font-size: 1.2em;
   text-align: center;
   text-shadow: 1px 1px rgba(255, 255, 255, 0.8);
@@ -230,7 +232,7 @@ p.gamertag {
   border-radius: 50%;
   background-color: var(--primary-color);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-  border: 1px solid #999;
+  border: 1px solid var(--border-color);
 }
 
 .profile-description,
@@ -254,7 +256,7 @@ p.gamertag {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
 }
 
 .article:first-child {
@@ -265,12 +267,19 @@ p.gamertag {
   display: flex;
   flex-wrap: wrap;
   width: 50%;
-  gap: 10px;
+  column-gap: 40px;
+  row-gap: 20px;
   padding: 20px;
-  background-color: #555;
+  background-color: var(--secondary-color);
   min-height: 100dvh;
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;
+}
+
+.article-container.no-articles{
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
 }
 
 .article img {
@@ -281,8 +290,30 @@ p.gamertag {
 }
 
 .article {
-  flex: 0 1 calc((100% / 3) - 20px / 3);
+  flex: 0 1 calc((100% / 3) - (40px * 2 / 3));
   text-align: center;
+}
+
+.up {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border: none;
+  right: 10px;
+  bottom: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  cursor: pointer;
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+}
+
+.up.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 @media (max-width: 480px) {
@@ -297,7 +328,7 @@ p.gamertag {
   }
 
   .article {
-    flex: 1 1 calc(100% - 20px);
+    flex: 1 1 calc(100% - 40px);
   }
 }
 
@@ -308,7 +339,7 @@ p.gamertag {
   }
 
   .article {
-    flex: 1 1 calc(100% - 20px);
+    flex: 1 1 calc(100% - 40px);
   }
 
   .article:first-child {
@@ -327,7 +358,7 @@ p.gamertag {
   }
 
   .article {
-    flex: 1 1 calc(100% - 20px);
+    flex: 1 1 calc(100% - 40px);
   }
 
   .article:first-child {

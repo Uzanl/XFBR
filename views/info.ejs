@@ -29,7 +29,8 @@
     <nav class="middle" role="navigation" aria-label="Main Navigation">
       <ul>
         <li class="search-container">
-          <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off" aria-label="Barra de pesquisa">
+          <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off"
+            aria-label="Barra de pesquisa">
           <div class="clear-button">X</div>
           <ul class="suggestion-list"></ul>
         </li>
@@ -68,35 +69,19 @@
       </ul>
     </nav>
   </header>
-  <aside class="sidebar">
-    <ul>
-      <li><a href="/info">Info</a></li>
-      <li><a href="/noticias">Notícias</a></li>
-      <li><a href="/bate-papo">Chat</a></li>
-      <li><a href="/video-clipes">Vídeos</a></li>
-      <% if (userLoggedIn) { %>
-        <li><a href="/editor">Publicar</a></li>
-        <% } else { %>
-          <li><a href="/login">Publicar</a></li>
-          <% } %>
-    </ul>
-  </aside>
-  <div class="toggle-btn">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-  <main>
-    <div class="info">
-      <h1>Quem <span class="cor-xbox">Somos?</span></h1>
-      <p>O Xbox Family BR é um clube fundado em 2016 por PaulistinhaSCCP e seu amigo Uzann, que atualmente conta com uma
-        comunidade de mais de 97 mil membros apaixonados pelo console da Microsoft.</p>
-      <a href="https://discord.gg/RZF7K5BX">
-        <button class="discord-button" type="button">Entrar no Discord</button>
-      </a>
-    </div>
-  </main>
-  <%- include('partials/footer') %>
+  <%- include('partials/sidebar') %>
+    <main>
+      <div class="info">
+        <h1>Quem <span class="cor-xbox">Somos?</span></h1>
+        <p>O Xbox Family BR é um clube fundado em 2016 por PaulistinhaSCCP e seu amigo Uzann, que atualmente conta com
+          uma
+          comunidade de mais de 97 mil membros apaixonados pelo console da Microsoft.</p>
+        <a href="https://discord.gg/RZF7K5BX">
+          <button class="discord-button" type="button">Entrar no Discord</button>
+        </a>
+      </div>
+    </main>
+    <%- include('partials/footer') %>
 </body>
 
 </html>

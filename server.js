@@ -189,7 +189,7 @@ app.get('/artigo/:id', asyncHandler(async (req, res) => {
     }
 
     const articleData = results[0];
-    
+
 
     console.log('Detalhes do Artigo:', articleData);
 
@@ -209,9 +209,6 @@ app.get('/artigo/:id', asyncHandler(async (req, res) => {
     return res.status(500).json({ error: 'Erro ao obter o artigo do banco de dados' });
   }
 }));
-
-
-
 
 app.get('/video-clipes', (req, res) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
@@ -248,64 +245,213 @@ app.get('/editor', (req, res) => {
   res.render('editor', { userLoggedIn, imgpath, perfilLink });
 });
 
-app.get('/perfil', asyncHandler(async (req, res, next) => {
-  const userLoggedIn = req.session.idxbox !== undefined;
-  const userIdFromQuery = req.query.id;
-  let userId;
-  let imgpath = '';
-  let imgpathLoggedUser = '';
-  let perfilLink = '';
-  if (userLoggedIn) {
-    imgpathLoggedUser = req.session.idxbox + '.webp';
-    perfilLink = `/perfil?page=1&id=${req.session.userId}`;
+app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next) => {
+  const { pageNumber } = req.params;
+  const currentPage = parseInt(pageNumber, 10) || 1;
+
+  if (isNaN(currentPage) || currentPage < 1) {
+    return res.status(400).json({ error: 'Número de página inválido' });
   }
 
-  // Se houver ID na query, usa o ID da query
-  if (userIdFromQuery) {
-    userId = userIdFromQuery;
+  const userLoggedIn = req.session.idxbox !== undefined;
+  const query = promisify(connection.query).bind(connection);
+  let userId;
+  let imgpathUser = '';
+  let imgpath = '';
+  let perfilLink = '';
 
-    const selectUserIdXboxQuery = `
-      SELECT ux.id_usu_xbox
+  if (userLoggedIn) {
+    imgpath = `/${req.session.idxbox}.webp`;
+    perfilLink = `/perfil/${req.params.username}/page/1`;
+  }
+
+  try {
+    const selectUserIdQuery = `
+      SELECT u.id_usu, ux.id_usu_xbox
+      FROM usuario u
+      INNER JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE ux.gamertag = ?;
+    `;
+    const userIdResult = await query(selectUserIdQuery, [req.params.username]);
+
+    if (userIdResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    userId = userIdResult[0].id_usu;
+    imgpathUser = userIdResult[0].id_usu_xbox + '.webp';
+
+    const itemsPerPage = 8;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    const selectUserQuery = `
+      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+             IFNULL(u.descricao, "") AS descricao,
+             IFNULL(ux.imagem_url, u.imagem_url) AS imagem_url,
+             IFNULL(ux.gamerscore, 0) AS gamerscore
       FROM usuario u
       LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
       WHERE u.id_usu = ?;
     `;
-    const query = promisify(connection.query).bind(connection);
-    const result = await query(selectUserIdXboxQuery, [userId]);
+    const userResult = await query(selectUserQuery, [userId]);
 
-    if (result.length === 0 || !result[0].id_usu_xbox) {
-      return res.status(404).json({ error: 'ID de usuário não encontrado ou sem associação com Xbox.' });
+    if (userResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    imgpath = result[0].id_usu_xbox + '.webp';
+    const user = userResult[0];
+
+    // Ajuste a query para artigos
+    const countQuery = userLoggedIn
+      ? `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ?;
+      `
+      : `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado';
+      `;
+
+    const articlesQuery = userLoggedIn
+      ? `
+        SELECT 
+          artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+          IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+        FROM artigo
+        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+        WHERE artigo.id_usu = ?
+        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
+      `
+      : `
+        SELECT 
+          artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+          IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+        FROM artigo
+        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado'
+        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
+      `;
+
+    const [countResults, articles] = await Promise.all([
+      query(countQuery, [userId]),
+      query(articlesQuery, [userId, startIndex, itemsPerPage])
+    ]);
+
+    const totalCount = countResults[0].total_count;
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    res.render('perfil', {
+      user,
+      articles,
+      totalPages,
+      currentPage,
+      userLoggedIn,
+      imgpathUser,
+      imgpath,
+      perfilLink
+    });
+  } catch (error) {
+    next(error);
   }
-
-  const selectUserQuery = `
-    SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
-           IFNULL(u.descricao, "") AS descricao,
-           IFNULL(ux.gamerscore, 0) AS gamerscore
-    FROM usuario u
-    LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
-    WHERE u.id_usu = ?;
-  `;
-
-  const userQuery = promisify(connection.query).bind(connection);
-  const userResult = await userQuery(selectUserQuery, [userId]);
-
-  if (userResult.length === 0) {
-    return res.status(404).json({ error: 'Usuário não encontrado' });
-  }
-
-  const user = userResult[0];
-
-  res.render('perfil', {
-    userLoggedIn,
-    imgpath,
-    imgpathLoggedUser,
-    perfilLink,
-    user
-  });
 }));
+
+
+
+/*app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next) => {
+  const { username, pageNumber } = req.params; // Captura os parâmetros da URL
+  const currentPage = parseInt(pageNumber, 10) || 1; // Pega o número da página da URL, com fallback para 1
+
+  // Validação simples do número da página
+  if (isNaN(currentPage) || currentPage < 1) {
+    return res.status(400).json({ error: 'Número de página inválido' });
+  }
+
+  const query = promisify(connection.query).bind(connection);
+  let userId;
+
+  try {
+    // Consulta para obter o ID do usuário com base no username
+    const selectUserIdQuery = `
+      SELECT u.id_usu
+      FROM usuario u
+      INNER JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE ux.gamertag = ?;
+    `;
+    
+    const userIdResult = await query(selectUserIdQuery, [username]);
+
+    if (userIdResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    userId = userIdResult[0].id_usu;
+    
+    // Consulta para obter informações do usuário
+    const selectUserQuery = `
+      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+             IFNULL(u.descricao, "") AS descricao,
+             IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
+             IFNULL(ux.gamerscore, 0) AS gamerscore
+      FROM usuario u
+      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE u.id_usu = ?;
+    `;
+
+    const userResult = await query(selectUserQuery, [userId]);
+
+    if (userResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    const user = userResult[0];
+    const itemsPerPage = 8;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
+    const viewingOwnProfile = userId === loggedUserId;
+
+    const countQuery = viewingOwnProfile
+      ? `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ?;
+      `
+      : `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado';
+      `;
+
+    const articlesQuery = `
+        SELECT 
+            artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+            IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+        FROM artigo
+        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+        WHERE artigo.id_usu = ? ${viewingOwnProfile ? "" : "AND artigo.status = 'aprovado'"}
+        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
+    `;
+
+    const [countResults, articles] = await Promise.all([
+      query(countQuery, [userId]),
+      query(articlesQuery, [userId, startIndex, itemsPerPage])
+    ]);
+
+    const totalCount = countResults[0].total_count;
+    const hasNextPage = articles.length === itemsPerPage;
+
+    res.json({ user, articles, totalCount, hasNextPage });
+
+  } catch (error) {
+    next(error);
+  }
+}));*/
+
 
 
 

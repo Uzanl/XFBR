@@ -22,58 +22,41 @@
 
 <body>
     <%- include('partials/header') %>
-        <aside class="sidebar">
-            <ul>
-                <li><a href="/info">Info</a></li>
-                <li><a href="/noticias">Notícias</a></li>
-                <li><a href="/bate-papo">Chat</a></li>
-                <li><a href="/video-clipes">Vídeos</a></li>
-                <% if (userLoggedIn) { %>
-                    <li><a href="/editor">Publicar</a></li>
-                    <% } else { %>
-                        <li><a href="/login">Publicar</a></li>
-                        <% } %>
-            </ul>
-        </aside>
-        <div class="toggle-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="container">
-            <form class="form-editor" enctype="multipart/form-data">
-                <h1>Editor de Notícias</h1>
-                <label for="title">Título:</label>
-                <input type="text" class="textbox" id="title" name="title" placeholder="Digite um título">
-                <label for="image">Imagem (16:9, PNG ou JPG):</label>
-                <div class="file-input-container">
-                    <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" />
-                    <button type="button" id="removeImageBtn" class="remove-btn">X</button>
-                </div>
-                <label for="content-preview">Conteúdo Prévia:</label>
-                <input type="text" class="textbox" id="content-preview" name="contentpreview"
-                    placeholder="Digite uma breve descrição do conteúdo">
-                <label for="editor">Conteúdo:</label>
-                <textarea id="editor" class="textbox" name="content"></textarea>
-                <div class="inserir">
-                    <input type="submit" value="Publicar">
-                    <input type="submit" value="Salvar">
-                </div>
-                <div id="error-message"></div>
-                <div class="preview-container">
-                    <div class="noticia-preview">
-                        <div class="image-preview"></div>
-                        <div class="title-preview">
-                            <h1></h1>
-                            <p></p>
+        <%- include('partials/sidebar') %>
+            <div class="container">
+                <form class="form-editor" enctype="multipart/form-data">
+                    <h1>Editor de Notícias</h1>
+                    <label for="title">Título:</label>
+                    <input type="text" class="textbox" id="title" name="title" placeholder="Digite um título">
+                    <label for="image">Imagem (16:9, PNG ou JPG):</label>
+                    <div class="file-input-container">
+                        <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" />
+                        <button type="button" id="removeImageBtn" class="remove-btn">X</button>
+                    </div>
+                    <label for="content-preview">Conteúdo Prévia:</label>
+                    <input type="text" class="textbox" id="content-preview" name="contentpreview"
+                        placeholder="Digite uma breve descrição do conteúdo">
+                    <label for="editor">Conteúdo:</label>
+                    <textarea id="editor" class="textbox" name="content"></textarea>
+                    <div class="inserir">
+                        <input type="submit" value="Publicar">
+                        <input type="submit" value="Salvar">
+                    </div>
+                    <div id="error-message"></div>
+                    <div class="preview-container">
+                        <div class="noticia-preview">
+                            <div class="image-preview"></div>
+                            <div class="title-preview">
+                                <h1></h1>
+                                <p></p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
 
-            <div id="preview"></div>
-        </div>
-        <%- include('partials/footer') %>
+                <div id="preview"></div>
+            </div>
+            <%- include('partials/footer') %>
 </body>
 
 </html>

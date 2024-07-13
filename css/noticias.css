@@ -31,10 +31,11 @@ body {
   bottom: 10px;
   opacity: 0;
   visibility: hidden;
-  /* Inicialmente não visível */
   transition: opacity 0.5s ease, visibility 0.5s ease;
-  /* Transição suave */
   cursor: pointer;
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
 }
 
 .up.show {

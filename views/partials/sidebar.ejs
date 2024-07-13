@@ -1,0 +1,18 @@
+<aside class="sidebar">
+    <ul>
+      <li><a href="/info">Info</a></li>
+      <li><a href="/noticias">Notícias</a></li>
+      <li><a href="/bate-papo">Chat</a></li>
+      <li><a href="/video-clipes">Vídeos</a></li>
+      <% if (userLoggedIn) { %>
+        <li><a href="/editor">Publicar</a></li>
+        <% } else { %>
+          <li><a href="/login">Publicar</a></li>
+          <% } %>
+    </ul>
+  </aside>
+  <div class="toggle-btn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>

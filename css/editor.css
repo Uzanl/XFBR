@@ -5,6 +5,7 @@
   --font-family-primary: 'Sugoi UI', sans-serif;
   --btn-primary-bg: #007a3d;
   --header-border-bottom-color: #999;
+  --error-color: red;
 }
 
 body {
@@ -130,7 +131,7 @@ input[type="submit"] {
 }
 
 #error-message {
-  color: red;
+  color: var(--error-color);
 }
 
 /* Estilo do video-container */
