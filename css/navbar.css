@@ -8,7 +8,6 @@
 
 header {
   display: block;
- /* background-color: var(--header-primary-color);*/
   border-bottom: 1px solid var(--header-border-color);
 }
 
@@ -21,23 +20,19 @@ header {
 
 header nav ul {
   list-style: none;
-  text-align: center;
+  gap: 10px;
 }
 
 header nav ul li {
   display: inline-block;
-  margin: 0 10px;
 }
 
 .nav-link {
-  display: block;
+ /* display: block;*/
   width: 100%;
-  text-align: left;
   padding: 10px;
   color: var(--header-font-color);
   text-decoration: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
 .menu-item {
@@ -81,7 +76,6 @@ header nav ul,
 .submenu-list {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0;
-  list-style-type: none;
   display: none;
   position: absolute;
   background-color: var(--header-secondary-color);
@@ -149,3 +143,4 @@ ul .suggestion-item:last-child {
 .middle {
   width: 70%;
 }
+

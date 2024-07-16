@@ -42,6 +42,10 @@ clearButton.addEventListener('click', () => {
 toggleBtn.addEventListener('click', function () {
   sidebar.classList.toggle('active');
   toggleBtn.classList.toggle('active');
+  const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+
+  toggleBtn.setAttribute('aria-expanded', !isExpanded);
+  sidebar.hidden = isExpanded;
 });
 
 searchBox.addEventListener('input', async function () {
@@ -128,3 +132,12 @@ if (logoutButton) {
     }
   });
 }
+
+document.querySelectorAll('.submenu').forEach(menu => {
+  menu.addEventListener('mouseenter', () => {
+      menu.setAttribute('aria-expanded', 'true');
+  });
+  menu.addEventListener('mouseleave', () => {
+      menu.setAttribute('aria-expanded', 'false');
+  });
+});

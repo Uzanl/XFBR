@@ -52,17 +52,17 @@
               <div class="hole"></div>
             </div>
             <div class="profile-description2">
-              <textarea class="desc-profile2" placeholder="Sua descrição atual do perfil vai aqui."
+              <textarea data-user-id="<%= userId %>" class="desc-profile2"
+                placeholder="Sua descrição atual do perfil vai aqui."
                 readonly><%= user.descricao || "Descrição não fornecida" %></textarea>
             </div>
           </div>
         </div>
       </div>
-      <div class="container">
+      <main>
         <div class="article-container">
           <% articles.forEach((article, index)=> { %>
-            <div class="article" data-id="<%= article.id_artigo %>" onclick="openArticle('<%= article.id_artigo %>')">
-              <!-- Adiciona sufixo _firstchild à URL da imagem para o primeiro artigo -->
+            <article data-id="<%= article.id_artigo %>" onclick="openArticle('<%= article.id_artigo %>')">
               <% let imageUrl=article.imagem_url; %>
                 <% if (index===0) { %>
                   <% imageUrl=imageUrl.replace('.webp', '_firstchild.webp' ); %>
@@ -77,17 +77,15 @@
                       </p>
                       <p2>Postado por <%= article.login_usu %> em <%= article.data_formatada %>
                       </p2>
-            </div>
+            </article>
             <% }); %>
         </div>
 
         <div class="pagination-container">
           <div class="pagination">
-            <!-- Botão "Anterior" -->
             <% if (currentPage> 1) { %>
               <a class="prev-page" href="/perfil/<%= user.login_usu %>/page/<%= currentPage - 1 %>">Anterior</a>
               <% } else { %>
-                <!-- Botão "Anterior" desativado -->
                 <a class="prev-page disabled" href="#">Anterior</a>
                 <% } %>
 
@@ -100,16 +98,14 @@
                       <% } %>
                   </div>
 
-                  <!-- Botão "Próxima" -->
                   <% if (currentPage < totalPages) { %>
                     <a class="next-page" href="/perfil/<%= user.login_usu %>/page/<%= currentPage + 1 %>">Próxima</a>
                     <% } else { %>
-                      <!-- Botão "Próxima" desativado -->
                       <a class="next-page disabled" href="#">Próxima</a>
                       <% } %>
           </div>
         </div>
-      </div>
+      </main>
       <%- include('partials/footer') %>
         <button type="button" class="up">
           <img height="50" width="50" src="/upw.webp" alt="Voltar ao Topo">

@@ -19,7 +19,7 @@
     <%- include('partials/header') %>
         <%- include('partials/sidebar') %>
             <div class="noticia-container">
-                <div class="noticia">
+                <article>
                     <% if (isAdmin || isAuthor) { %>
                         <div class="edit-container">
                             <div class="edit-image-container" data-tooltip="Editar">
@@ -100,7 +100,7 @@
                                     </div>
                                 </div>
                             </div>
-                </div>
+                </article>
             </div>
             <%- include('partials/footer') %>
 </body>

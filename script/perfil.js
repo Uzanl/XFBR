@@ -1,11 +1,12 @@
 const articleContainer = document.querySelector('.article-container');
 const descriptionParagraph = document.querySelector('.desc-profile2');
+const userId = descriptionParagraph.getAttribute('data-user-id');
 
 window.addEventListener("resize", handleImageResolution);
 
 function handleImageResolution() {
   const screenWidth = window.innerWidth;
-  const images = document.querySelectorAll(".article img");
+  const images = document.querySelectorAll("article img");
 
   images.forEach(function (image, index) {
     const originalSrc = image.dataset.originalSrc;
@@ -31,15 +32,10 @@ function handleImageResolution() {
 descriptionParagraph.addEventListener('input', async (event) => {
   try {
     const newDescription = event.target.value;
-    console.log(newDescription);
-    const csrfToken = getCsrfToken(); // Obtém o token CSRF dos cookies
-
-    console.log(csrfToken);
-    const updateResponse = await fetch(`/update-description/${id}`, {
+    const updateResponse = await fetch(`/update-description/${userId}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
-        'csrf-token': csrfToken // Adiciona o token CSRF no cabeçalho
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ description: newDescription })
     });
@@ -56,9 +52,13 @@ descriptionParagraph.parentElement.addEventListener('click', () => {
   descriptionParagraph.removeAttribute('readonly');
 });
 
+
 function openArticle(id) {
-  window.location.href = `artigo/${id}`;
+  console.log(id)
+  window.location.href = `/artigo/${id}`;
 }
+
+handleImageResolution();
 
 
 

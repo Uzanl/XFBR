@@ -210,15 +210,6 @@ app.get('/artigo/:id', asyncHandler(async (req, res) => {
   }
 }));
 
-app.get('/video-clipes', (req, res) => {
-  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
-  tipoUsuario = req.session.userType;
-  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  idUsu = req.session.userId;
-  perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('video-clipes', { userLoggedIn, imgpath, perfilLink });
-});
-
 app.get('/login', (req, res) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   tipoUsuario = req.session.userType;
@@ -346,6 +337,7 @@ app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next
 
     res.render('perfil', {
       user,
+      userId,
       articles,
       totalPages,
       currentPage,
@@ -846,8 +838,6 @@ app.get('/logout', (req, res) => {
 
 app.put('/update-description/:id?', asyncHandler(async (req, res) => {
   try {
-    const tokenFromHeader = req.headers['csrf-token'];
-    console.log('Token CSRF recebido na rota PUT:', tokenFromHeader);
 
     const newDescription = req.body.description;
     let userId = parseInt(req.params.id);

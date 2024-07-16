@@ -65,8 +65,52 @@ main p {
 }
 
 .wb-embed {
-	width: 60%;
+	width: 100%;
 	height: 450px;
+}
+
+/* styles.css */
+.tabs {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	cursor: pointer;
+	color: var(--primary-color);
+}
+
+.tabs-container {
+	margin-top: 20px;
+}
+
+.tab {
+	padding: 10px 20px;
+	background: #f1f1f1;
+	border: 1px solid #ccc;
+	border-bottom: none;
+	transition: background-color 0.3s ease;
+}
+
+.tab.active {
+	background: white;
+	border-bottom: 1px solid white;
+}
+
+.toggle-btn {
+	display: none;
+}
+
+.tab:hover {
+	background-color: #e0e0e0;
+}
+
+.tab-content {
+	border: 1px solid #ccc;
+	padding: 20px;
+}
+
+.tab-content.hidden {
+	display: none;
 }
 
 /* Para telas menores ou iguais a 480px */
