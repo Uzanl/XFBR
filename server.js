@@ -1025,8 +1025,8 @@ app.use((req, res, next) => {
 });
 
 const options = {
-  key: fs.readFileSync('server.key'), // Caminho para sua chave privada
-  cert: fs.readFileSync('server.cert') // Caminho para seu certificado SSL
+  key: fs.readFileSync('./config/server.key'), // Caminho para sua chave privada
+  cert: fs.readFileSync('./config/server.cert') // Caminho para seu certificado SSL
 };
 
 const server = https.createServer(options, app);

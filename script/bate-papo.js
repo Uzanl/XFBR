@@ -23,3 +23,5 @@ document.querySelectorAll('.tab').forEach(tab => {
         document.getElementById(contentId).setAttribute('aria-hidden', 'false');
     });
 });
+
+//teste

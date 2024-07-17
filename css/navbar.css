@@ -40,12 +40,12 @@ header nav ul li {
 }
 
 .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   transition: filter 0.3s ease-in-out;
-  display: block;
   padding: 10px;
   color: var(--header-font-color);
-  text-decoration: none;
-  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -146,12 +146,6 @@ ul .suggestion-item:last-child {
 
 .middle {
   width: 70%;
-}
-
- .menu-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
 .arrow-icon {
