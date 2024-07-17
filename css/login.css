@@ -25,6 +25,11 @@ footer {
   display: none;
 }
 
+.toggle-btn {
+	display: none;
+}
+
+
 main {
   flex-grow: 1;
   align-items: center;

@@ -20,6 +20,11 @@
   display: none;
 }
 
+.toggle-btn {
+	display: none;
+}
+
+
 body {
   display: flex;
   font-family: var(--font-family-primary);
@@ -85,6 +90,11 @@ main {
   background: url(/haloinfinite.webp) no-repeat center center/cover;
   box-shadow: inset 0 0 0 100vw hsl(0deg 0% 0% / 20%);
   flex-grow: 1;
+}
+
+.bate-papo{
+  width: 100%;
+  min-height: 50dvh;
 }
 
 .discord-button {

@@ -27,6 +27,10 @@ header nav ul li {
   display: inline-block;
 }
 
+#btnLogout{
+  cursor: pointer;
+}
+
 .nav-link {
  /* display: block;*/
   width: 100%;
@@ -143,4 +147,23 @@ ul .suggestion-item:last-child {
 .middle {
   width: 70%;
 }
+
+ .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.arrow-icon {
+  transition: transform 0.3s;
+  transform: rotate(0deg); /* Seta inicialmente apontando para a direita */
+}
+
+.submenu[aria-expanded="true"] .arrow-icon {
+  transform: rotate(180deg); /* Seta apontando para baixo quando o submenu está aberto */
+}
+
+
+
+
 

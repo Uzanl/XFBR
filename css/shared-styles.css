@@ -100,6 +100,7 @@ main p {
 	display: none;
 }
 
+
 .tab:hover {
 	background-color: #e0e0e0;
 }
@@ -107,6 +108,9 @@ main p {
 .tab-content {
 	border: 1px solid #ccc;
 	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .tab-content.hidden {

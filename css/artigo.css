@@ -177,6 +177,10 @@ footer img:hover {
   background-color: #555555;
 }*/
 
+.toggle-btn {
+	display: none;
+}
+
 article {
   padding: 20px;
   color: #ececec;

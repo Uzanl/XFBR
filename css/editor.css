@@ -72,6 +72,10 @@ body {
   gap: 20px;
 }
 
+.toggle-btn {
+	display: none;
+}
+
 footer {
   display: flex;
   gap: 10px;
