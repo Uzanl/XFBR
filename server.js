@@ -16,7 +16,10 @@ const dbConfig = require('./config/dbConfig');
 const config = require('./config/xbApiConfig.js');
 const { promisify } = require('util');
 const cors = require('cors');
+const csurf = require('csurf');
 const zlib = require('zlib');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 // Use as chaves do arquivo de configuração
 const client = XboxApiClient({
@@ -29,9 +32,9 @@ app.use(
     secret: 'key',
     resave: false,
     saveUninitialized: false,
+    cookie: { secure: true } // Configuração para HTTPS
   })
 );
-
 
 
 app.use(cors());
@@ -49,51 +52,28 @@ app.use(compression({
   }
 }));
 
-// Middleware para bloquear acesso à rota /config
-app.use('/config', (req, res, next) => {
-  res.status(403).send('Acesso proibido');
-});
 
-app.set('view engine', 'ejs');
-app.get('/noticias', (req, res) => {
-  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
-  tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  const isAdmin = tipoUsuario === "administrador"
-  idUsu = req.session.userId;
-  perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('notícias', { userLoggedIn, isAdmin, imgpath, perfilLink});
-});
-
-app.get('/info', (req, res) => {
-  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
-  tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  idUsu = req.session.userId;
-  perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('info', { userLoggedIn, imgpath, perfilLink});
-});
-
-app.get('/batepapo', (req, res) => {
-  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
-  tipoUsuario = req.session.userType;
-  imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  idUsu = req.session.userId;
-  perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('bate-papo', { userLoggedIn, imgpath, perfilLink});
-});
-
-app.get('/login', (req, res) => {
-  //const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
-  //tipoUsuario = req.session.userType;
-  //imgpath =  req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
-  //idUsu = req.session.userId;
-  //perfilLink = `/perfil.html?page=1&id=${idUsu}`; // Atualiza o link do perfil
-  res.render('login');
-});
-
-
+const asyncHandler = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+// Configuração do csurf para desenvolvimento
+//const csrfProtection = csurf({ cookie: true });
 app.use(express.json());
+
+
+/*app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());*/
+
+
+//app.use(csrfProtection);
+
+// Middleware para passar o token CSRF para as respostas
+/*app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});*/
 
 app.use(fileUpload());
 
@@ -113,10 +93,6 @@ app.use('/script', express.static(path.join(__dirname, 'script')));
 
 app.use(express.static(path.join(__dirname, 'views')));
 
-
-
-
-
 // Create a connection to the MySQL database
 const connection = mysql.createConnection(dbConfig);
 
@@ -128,6 +104,348 @@ connection.connect((err) => {
   }
   console.log('Connected to the database!');
 });
+
+
+// Middleware para bloquear acesso à rota /config
+app.use('/config', (req, res, next) => {
+  res.status(403).send('Acesso proibido');
+});
+
+app.set('view engine', 'ejs');
+app.get('/noticias', asyncHandler(async (req, res, next) => {
+  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
+  const tipoUsuario = req.session.userType;
+  const imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  const isAdmin = tipoUsuario === "administrador";
+  const idUsu = req.session.userId;
+  const perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
+
+  const query = promisify(connection.query).bind(connection);
+
+  try {
+    const [{ enviado, em_analise, aprovado }] = await query(`
+      SELECT SUM(status = 'enviado') AS enviado, SUM(status = 'em analise') AS em_analise, SUM(status = 'aprovado') AS aprovado, SUM(status = 'reprovado') AS reprovado
+      FROM artigo
+    `);
+
+    res.render('notícias', {
+      userLoggedIn,
+      isAdmin,
+      imgpath,
+      perfilLink,
+      counts: { enviado, em_analise, aprovado }
+    });
+  } catch (error) {
+    next(error);
+  }
+}));
+
+app.get('/info', (req, res) => {
+  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
+  tipoUsuario = req.session.userType;
+  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  idUsu = req.session.userId;
+  perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
+  res.render('info', { userLoggedIn, imgpath, perfilLink });
+});
+
+app.get('/bate-papo', (req, res) => {
+  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
+  tipoUsuario = req.session.userType;
+  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  idUsu = req.session.userId;
+  perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
+  res.render('bate-papo', { userLoggedIn, imgpath, perfilLink });
+});
+
+app.get('/artigo/:id', asyncHandler(async (req, res) => {
+  const artigoId = req.params.id;
+  console.log('ID do Artigo:', artigoId);
+
+  const userLoggedIn = req.session.idxbox !== undefined;
+  const tipoUsuario = req.session.userType;
+  const imgpath = `/${req.session.idxbox}.webp`;
+  const isAdmin = tipoUsuario === 'administrador';
+  const idUsu = req.session.userId;
+  const perfilLink = `/perfil?page=1&id=${idUsu}`;
+
+  try {
+    // Consulta para obter os detalhes do artigo e do autor
+    const sql = `
+      SELECT artigo.id_usu, artigo.titulo, artigo.conteudo, ux.gamertag, ux.gamerscore, ux.imagem_url AS imagem_url_xbox
+      FROM artigo
+      LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+      LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+      WHERE artigo.id_artigo = ?
+    `;
+
+    const query = promisify(connection.query).bind(connection);
+    const results = await query(sql, [artigoId]);
+
+    console.log('Resultados da Consulta:', results);
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ error: 'Artigo não encontrado' });
+    }
+
+    const articleData = results[0];
+
+
+    console.log('Detalhes do Artigo:', articleData);
+
+    // Verifica se o usuário logado é o autor do artigo
+    const isAuthor = idUsu === articleData.id_usu;
+
+    res.render('artigo', {
+      userLoggedIn,
+      isAdmin,
+      imgpath,
+      perfilLink,
+      articleData,
+      isAuthor
+    });
+  } catch (error) {
+    console.error('Erro ao obter o artigo do banco de dados:', error);
+    return res.status(500).json({ error: 'Erro ao obter o artigo do banco de dados' });
+  }
+}));
+
+app.get('/login', (req, res) => {
+  const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
+  tipoUsuario = req.session.userType;
+  imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  idUsu = req.session.userId;
+  perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
+  res.render('login', { userLoggedIn, imgpath, perfilLink });
+});
+
+app.get('/editor', (req, res) => {
+  // Verifica se o usuário está logado
+  const userLoggedIn = req.session.idxbox !== undefined;
+
+  // Se o usuário não estiver logado, redireciona para a página de login
+  if (!userLoggedIn) {
+    return res.redirect('/login');
+  }
+
+  // Se o usuário estiver logado, atualiza as variáveis e renderiza a view do editor
+  const imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
+  const idUsu = req.session.userId;
+  const perfilLink = `/perfil?page=1&id=${idUsu}`; // Atualiza o link do perfil
+
+  res.render('editor', { userLoggedIn, imgpath, perfilLink });
+});
+
+app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next) => {
+  const { pageNumber } = req.params;
+  const currentPage = parseInt(pageNumber, 10) || 1;
+
+  if (isNaN(currentPage) || currentPage < 1) {
+    return res.status(400).json({ error: 'Número de página inválido' });
+  }
+
+  const userLoggedIn = req.session.idxbox !== undefined;
+  const query = promisify(connection.query).bind(connection);
+  let userId;
+  let imgpathUser = '';
+  let imgpath = '';
+  let perfilLink = '';
+
+  if (userLoggedIn) {
+    imgpath = `/${req.session.idxbox}.webp`;
+    perfilLink = `/perfil/${req.params.username}/page/1`;
+  }
+
+  try {
+    const selectUserIdQuery = `
+      SELECT u.id_usu, ux.id_usu_xbox
+      FROM usuario u
+      INNER JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE ux.gamertag = ?;
+    `;
+    const userIdResult = await query(selectUserIdQuery, [req.params.username]);
+
+    if (userIdResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    userId = userIdResult[0].id_usu;
+    imgpathUser = userIdResult[0].id_usu_xbox + '.webp';
+
+    const itemsPerPage = 8;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    const selectUserQuery = `
+      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+             IFNULL(u.descricao, "") AS descricao,
+             IFNULL(ux.imagem_url, u.imagem_url) AS imagem_url,
+             IFNULL(ux.gamerscore, 0) AS gamerscore
+      FROM usuario u
+      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE u.id_usu = ?;
+    `;
+    const userResult = await query(selectUserQuery, [userId]);
+
+    if (userResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    const user = userResult[0];
+
+    // Ajuste a query para artigos
+    const countQuery = userLoggedIn
+      ? `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ?;
+      `
+      : `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado';
+      `;
+
+    const articlesQuery = userLoggedIn
+      ? `
+        SELECT 
+          artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+          IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+        FROM artigo
+        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+        WHERE artigo.id_usu = ?
+        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
+      `
+      : `
+        SELECT 
+          artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+          IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+        FROM artigo
+        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado'
+        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
+      `;
+
+    const [countResults, articles] = await Promise.all([
+      query(countQuery, [userId]),
+      query(articlesQuery, [userId, startIndex, itemsPerPage])
+    ]);
+
+    const totalCount = countResults[0].total_count;
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    res.render('perfil', {
+      user,
+      userId,
+      articles,
+      totalPages,
+      currentPage,
+      userLoggedIn,
+      imgpathUser,
+      imgpath,
+      perfilLink
+    });
+  } catch (error) {
+    next(error);
+  }
+}));
+
+
+
+/*app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next) => {
+  const { username, pageNumber } = req.params; // Captura os parâmetros da URL
+  const currentPage = parseInt(pageNumber, 10) || 1; // Pega o número da página da URL, com fallback para 1
+
+  // Validação simples do número da página
+  if (isNaN(currentPage) || currentPage < 1) {
+    return res.status(400).json({ error: 'Número de página inválido' });
+  }
+
+  const query = promisify(connection.query).bind(connection);
+  let userId;
+
+  try {
+    // Consulta para obter o ID do usuário com base no username
+    const selectUserIdQuery = `
+      SELECT u.id_usu
+      FROM usuario u
+      INNER JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE ux.gamertag = ?;
+    `;
+    
+    const userIdResult = await query(selectUserIdQuery, [username]);
+
+    if (userIdResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    userId = userIdResult[0].id_usu;
+    
+    // Consulta para obter informações do usuário
+    const selectUserQuery = `
+      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
+             IFNULL(u.descricao, "") AS descricao,
+             IFNULL(u.imagem_url, ux.imagem_url) AS imagem_url,
+             IFNULL(ux.gamerscore, 0) AS gamerscore
+      FROM usuario u
+      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
+      WHERE u.id_usu = ?;
+    `;
+
+    const userResult = await query(selectUserQuery, [userId]);
+
+    if (userResult.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    const user = userResult[0];
+    const itemsPerPage = 8;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
+    const viewingOwnProfile = userId === loggedUserId;
+
+    const countQuery = viewingOwnProfile
+      ? `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ?;
+      `
+      : `
+        SELECT COUNT(*) AS total_count 
+        FROM artigo
+        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado';
+      `;
+
+    const articlesQuery = `
+        SELECT 
+            artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
+            IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
+        FROM artigo
+        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
+        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
+        WHERE artigo.id_usu = ? ${viewingOwnProfile ? "" : "AND artigo.status = 'aprovado'"}
+        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
+    `;
+
+    const [countResults, articles] = await Promise.all([
+      query(countQuery, [userId]),
+      query(articlesQuery, [userId, startIndex, itemsPerPage])
+    ]);
+
+    const totalCount = countResults[0].total_count;
+    const hasNextPage = articles.length === itemsPerPage;
+
+    res.json({ user, articles, totalCount, hasNextPage });
+
+  } catch (error) {
+    next(error);
+  }
+}));*/
+
+
+
 
 
 
@@ -177,63 +495,12 @@ const url = 'https://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
   }
 })();*/
 
-const asyncHandler = fn => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
-
-// Rota para obter o tipo do usuário e verificar o status de login
-app.get('/getUserStatus', (req, res) => {
-  try {
-    let userId;
-
-    if (req.session.user) {
-      userId = req.session.user.id_usu;
-      const sql = 'SELECT tipo FROM usuario WHERE id_usu = ?';
-      connection.query(sql, [userId], (err, results) => {
-        if (err) {
-          console.error('Erro ao obter tipo de usuário:', err);
-          return res.status(500).send('Erro interno do servidor');
-        }
-
-        if (results.length > 0) {
-          const tipoUsuario = results[0].tipo;
-          const isLoggedIn = req.session.isAuth;
-          res.json({ tipoUsuario, isLoggedIn });
-        } else {
-          res.status(404).send('Usuário não encontrado');
-        }
-      });
-    } else if (req.session.profileData) {
-      userId = req.session.idxbox;
-      const sql = 'SELECT u.id_usu, ux.imagem_url FROM usuario_xbox ux inner join usuario u on u.id_usu_xbox = ux.id_usu_xbox WHERE ux.id_usu_xbox = ?';
-      connection.query(sql, [userId], (err, results) => {
-        if (err) {
-          console.error('Erro ao obter tipo de usuário:', err);
-          return res.status(500).send('Erro interno do servidor');
-        }
-
-        const imgpath = results[0].imagem_url;
-        const idUsu = results[0].id_usu;
-        const tipoUsuario = req.session.userType; // se eu atualizar o tipo de usuário no servidor enquanto a sessão está on, não vai atualizar por causa disso, o recomendado é fazer uma pesquisa no bd
-        const isLoggedIn = req.session.isAuth;
-        return res.json({ tipoUsuario, isLoggedIn, imgpath, idUsu });
-      });
 
 
-    } else {
-      return res.status(401).json({ isLoggedIn: false, redirect: '/login.html' });
-    }
-  } catch (error) {
-    console.error('Erro ao obter tipo de usuário e status de login:', error);
-    res.status(500).send('Erro interno do servidor');
-  }
-});
-
-app.delete('/excluir-artigo/:artigoId', (req, res) => {
-  console.log('Recebi uma requisição DELETE para /excluir-artigo/' + req.params.artigoId);
+app.delete('/excluir-artigo/:artigoId', (req, res) => { // pra deletar um artigo é preciso ser o dono dele ou administrador
   const artigoId = req.params.artigoId;
 
-  if (!req.session.user && !req.session.profileData) return res.status(401).json({ error: 'Usuário não autenticado' });
+  if (!req.session.profileData) return res.status(401).json({ error: 'Usuário não autenticado' });
 
   const selectImageURLQuery = 'SELECT imagem_url FROM artigo WHERE id_artigo = ?';
   const countImageURLQuery = 'SELECT COUNT(*) AS count FROM artigo WHERE imagem_url = ?';
@@ -286,7 +553,7 @@ app.delete('/excluir-artigo/:artigoId', (req, res) => {
   });
 });
 
-app.post('/update-article/:id', (req, res) => {
+app.put('/update-article/:id', (req, res) => { //pra dar update em um artigo é preciso ser o dono dele ou administrador
   const idArtigo = req.params.id;
   const { title, contentpreview, content } = req.body;
   const image = req.files ? req.files.image : null;
@@ -361,43 +628,9 @@ app.post('/update-article/:id', (req, res) => {
   }
 });
 
-app.get('/verificar-permissao-editar-artigo/:artigoId', (req, res) => {
-  const artigoId = req.params.artigoId;
-  // const userIdFromSession = req.session.user.id_usu; // Obtém o ID do usuário da sessão
-  let userId;
-  // aqui é pra pegar o id do usuário da sessão
-  if (req.session.user) {
-    userId = req.session.user.id_usu;
-  } else if (req.session.profileData) {
-    userId = req.session.userId;
-  } else {
-    return res.status(401).json({ redirect: '/login.html' });
-  }
-  // Verificar se o usuário está autenticado (se a sessão está ativa)
-  // Consultar o banco de dados para obter o ID do autor do artigo
-  connection.query('SELECT id_usu FROM artigo WHERE id_artigo = ?', [artigoId], (err, results) => {
-    if (err) {
-      console.error('Erro ao verificar permissão de edição:', err);
-      return res.status(500).json({ error: 'Erro ao verificar permissão de edição' });
-    }
-
-    const artigoAuthorId = results[0].id_usu;
-
-    const isAdmin = req.session.userType === 'administrador';
-    const isAuthor = userId === artigoAuthorId;
-    const temPermissao = isAdmin || isAuthor;
-
-    return res.json({
-      temPermissao,
-      ...(isAdmin && { isAdmin }), // chave json e variável
-      ...(isAuthor && { isAuthor }) // chave json e variável
-    });
-  });
-});
-
 app.post('/insert-news', asyncHandler(async (req, res) => {
   const query = promisify(connection.query).bind(connection);
-  const userId = req.session.user?.id_usu || req.session.userId;
+  const userId = req.session.userId;
 
   if (!userId) {
     return res.status(401).json({ redirect: '/login.html' });
@@ -465,32 +698,32 @@ app.get('/get-articles/:page', asyncHandler(async (req, res, next) => {
   const query = promisify(connection.query).bind(connection);
 
   try {
-    const [articles, [{ enviado, em_analise, aprovado }]] = await Promise.all([
-      query(`
-        SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.id_usu, a.imagem_url, a.previa_conteudo, IFNULL(u.login_usu, ux.gamertag) AS login_usu
-        FROM artigo a
-        INNER JOIN usuario u ON a.id_usu = u.id_usu 
-        LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
-        WHERE a.status = ?
-        ORDER BY data_publicacao DESC LIMIT ?, ?
-      `, [statusFilter, (currentPage - 1) * itemsPerPage, itemsPerPage]),
-      query(`
-        SELECT SUM(status = 'enviado') AS enviado, SUM(status = 'em analise') AS em_analise, SUM(status = 'aprovado') AS aprovado, SUM(status = 'reprovado') AS reprovado
-        FROM artigo
-      `)
-    ]);
+    const articles = await query(`
+      SELECT a.id_artigo, a.titulo, DATE_FORMAT(a.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, a.imagem_url, a.previa_conteudo, ux.gamertag AS login_usu
+      FROM artigo a
+      INNER JOIN usuario u ON a.id_usu = u.id_usu 
+      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox 
+      WHERE a.status = ?
+      ORDER BY data_publicacao DESC LIMIT ?, ?
+    `, [statusFilter, (currentPage - 1) * itemsPerPage, itemsPerPage]);
 
-    const totalCount = { enviado, em_analise, aprovado }[statusFilter] || 0;
+    const totalCountResult = await query(`
+      SELECT COUNT(*) AS totalCount
+      FROM artigo
+      WHERE status = ?
+    `, [statusFilter]);
+
+    const totalCount = totalCountResult[0].totalCount;
     const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-    res.json({ articles, counts: { enviado, em_analise, aprovado }, totalPages });
+    res.json({ articles, totalPages });
   } catch (error) {
     next(error);
   }
 }));
 
 app.get('/get-articles-profile', asyncHandler(async (req, res, next) => {
-  const userId = parseInt(req.query.id) || (req.session.user && req.session.user.id_usu) || (req.session.profileData && req.session.userId);
+  const userId = parseInt(req.query.id) /*|| (req.session.user && req.session.user.id_usu)*/ || (req.session.profileData && req.session.userId);
 
   if (isNaN(userId) || userId < 1) {
     return res.status(400).json({ error: 'ID inválido' });
@@ -556,13 +789,8 @@ app.get('/get-articles-profile', asyncHandler(async (req, res, next) => {
   res.json({ user, articles, totalCount, hasNextPage });
 }));
 
-// Rota para obter dados de um artigo por ID
 app.get('/get-article-edit-by-id/:id', (req, res) => {
-
-  //console.log("chegou aqui!")
   const artigoId = req.params.id;
-
-  // Substitua o código abaixo com a lógica para obter os dados do artigo do seu banco de dados
   const getArticleQuery = 'SELECT * FROM artigo WHERE id_artigo = ?';
 
   connection.query(getArticleQuery, [artigoId], (err, result) => {
@@ -587,32 +815,6 @@ app.get('/get-article-edit-by-id/:id', (req, res) => {
   });
 });
 
-// Rota para obter detalhes do artigo pelo ID
-app.get('/get-article-by-id/:id', (req, res) => {
-  const id = req.params.id;
-
-  const sql = `
-    SELECT artigo.titulo, artigo.conteudo,usuario.id_usu, usuario.login_usu, usuario.descricao, usuario.imagem_url , ux.gamertag, ux.gamerscore, ux.imagem_url as imagem_url_xbox
-    FROM artigo
-    LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
-    LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-    WHERE artigo.id_artigo = ?
-  `;
-
-  connection.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error('Erro ao obter o artigo do banco de dados:', err);
-      return res.status(500).json({ error: 'Erro ao obter o artigo do banco de dados' });
-    }
-
-    if (results.length === 0) return res.status(404).json({ error: 'Artigo não encontrado' });
-
-    const article = results[0];
-    res.json(article);
-  });
-});
-
-// Rota para fazer logout
 app.get('/logout', (req, res) => {
   // Revogue o token de acesso na Microsoft
   const microsoftAccessToken = client.getAccessToken();
@@ -634,31 +836,38 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// Rota para verificar o status de login do usuário
-app.get('/checkLoginStatus', (req, res) => {
-  (req.session.isAuth) ? res.json({ isLoggedIn: true }) : res.json({ isLoggedIn: false });
-});
-
 app.put('/update-description/:id?', asyncHandler(async (req, res) => {
-  const newDescription = req.body.description;
-  let userId = parseInt(req.params.id);
+  try {
 
-  // Se o ID na URL for inválido ou não existir, use o ID do usuário na sessão
-  if (isNaN(userId) || userId < 1) { userId = req.session.user ? req.session.user.id_usu : req.session.userId; }
+    const newDescription = req.body.description;
+    let userId = parseInt(req.params.id);
 
-  if (!userId) { return res.status(400).json({ error: 'ID de usuário inválido ou não encontrado' }); }
+    // Se o ID na URL for inválido ou não existir, use o ID do usuário na sessão
+    if (isNaN(userId) || userId < 1) {
+      userId = req.session.user ? req.session.user.id_usu : req.session.userId;
+    }
 
-  const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'ID de usuário inválido ou não encontrado' });
+    }
 
-  if (loggedUserId !== userId) { return res.status(403).json({ error: 'Você não tem permissão para editar esta descrição' }); }
+    const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
 
-  const query = promisify(connection.query).bind(connection);
-  const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
-  const result = await query(sql, [newDescription, userId]);
+    if (loggedUserId !== userId) {
+      return res.status(403).json({ error: 'Você não tem permissão para editar esta descrição' });
+    }
 
-  return result.affectedRows === 1
-    ? res.json({ success: true })
-    : res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+    const query = promisify(connection.query).bind(connection);
+    const sql = 'UPDATE usuario SET descricao = ? WHERE id_usu = ?';
+    const result = await query(sql, [newDescription, userId]);
+
+    return result.affectedRows === 1
+      ? res.json({ success: true })
+      : res.status(500).json({ error: 'Nenhuma linha foi afetada' });
+  } catch (err) {
+    console.error('Erro ao processar a requisição PUT:', err);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
 }));
 
 // Rota para alterar o status do artigo
@@ -810,20 +1019,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno no servidor' });
 });
 
-
-
 // Middleware para capturar 404 - Página não encontrada
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
-
-
 const options = {
   key: fs.readFileSync('server.key'), // Caminho para sua chave privada
   cert: fs.readFileSync('server.cert') // Caminho para seu certificado SSL
 };
-
 
 const server = https.createServer(options, app);
 

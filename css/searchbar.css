@@ -1,22 +1,29 @@
+:root {
+  --suggestion-primary-color: #555555;
+  --suggestion-secondary-color: #666666;
+  --suggestion-font-color: #f2f2f2;
+  --search-box-color: #444;
+  --search-box-hover: #555;
+}
+
+
 .suggestion-list {
   padding: 0;
   list-style-type: none;
-  position: absolute;
   margin-top: 10px;
   border-radius: 10px;
-  background-color: #555555;
+  background-color: var(--suggestion-primary-color);
   z-index: 1;
 }
 
-.suggestion-item.active {
-  background-color: #666666;
+.suggestion-item.active,
+.suggestion-item:hover {
+  background-color: var(--suggestion-secondary-color);
 }
 
 .suggestion-item {
   margin: 0;
   padding: 10px;
-  cursor: pointer;
-  color: #fff;
   width: 250px;
   display: flex;
   align-items: flex-start;
@@ -24,8 +31,19 @@
   text-align: left;
 }
 
-.suggestion-item:hover {
-  background-color: #666666;
+.search-box,
+.suggestion-item {
+  color: var(--suggestion-font-color);
+}
+
+.clear-button,
+.suggestion-item {
+  cursor: pointer;
+}
+
+.clear-button,
+.suggestion-list {
+  position: absolute;
 }
 
 .search-box {
@@ -33,13 +51,12 @@
   border: none;
   padding: 5px 10px;
   border-radius: 15px;
-  color: #fff;
-  background-color: #444;
+  background-color: var(--search-box-color);
   transition: background-color 0.3s;
 }
 
 .search-box:hover {
-  background-color: #555;
+  background-color: var(--search-box-hover);
 }
 
 .search-container {
@@ -48,12 +65,9 @@
 }
 
 .clear-button {
-  position: absolute;
   top: 50%;
   right: 10px;
   transform: translateY(-50%);
-  cursor: pointer;
-  color: #fff;
   font-size: small;
   display: none;
 }

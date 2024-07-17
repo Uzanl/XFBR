@@ -1,0 +1,17 @@
+<aside class="sidebar" hidden>
+    <ul>
+      <li><a href="/info">Info</a></li>
+      <li><a href="/noticias">Notícias</a></li>
+      <li><a href="/bate-papo">Chat</a></li>
+      <% if (userLoggedIn) { %>
+        <li><a href="/editor">Publicar</a></li>
+        <% } else { %>
+          <li><a href="/login">Publicar</a></li>
+          <% } %>
+    </ul>
+  </aside>
+  <button type="button" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir barra lateral" class="toggle-btn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>

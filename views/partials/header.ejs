@@ -1,0 +1,63 @@
+<header>
+    <nav role="navigation" aria-label="Menu principal">
+        <ul>
+            <li>
+                <div class="search-container">
+                    <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off">
+                    <div class="clear-button">X</div>
+                </div>
+                <ul class="suggestion-list"></ul>
+            </li>
+            <li class="submenu" aria-expanded="false">
+                <span class="menu-item">Artigos
+                    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 111.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z" />
+                    </svg>
+                </span>
+                <ul class="submenu-list">
+                    <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
+                    <% if (userLoggedIn) { %>
+                        <li class="item"><a href="/editor" class="nav-link">Publicar</a></li>
+                        <% } else { %>
+                            <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
+                            <% } %>
+                </ul>
+            </li>
+            <li class="submenu" aria-expanded="false">
+                <span class="menu-item">Comunidade
+                    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 111.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z" />
+                    </svg>
+                </span>
+                <ul class="submenu-list">
+                    <li class="item"><a class="nav-link" href="/info">Informações</a></li>
+                    <li class="item"><a class="nav-link" href="/bate-papo">Bate-papo</a></li>
+                </ul>
+            </li>
+            <li class="submenu" aria-expanded="false">
+                <span class="menu-item">
+                    <img src="<%= userLoggedIn ? imgpath : '/profile.webp' %>" alt="Logout" class="profile-image">
+                    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1.293 4.293a1 1 0 011.414 0L8 9.586l5.293-5.293a1 1 0 111.414 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414z" />
+                    </svg>
+                </span>
+                <ul class="submenu-list">
+                    <% if (userLoggedIn) { %>
+                        <li class="item"><span class="nav-link" id="btnLogout">Sair</span></li>
+                        <li class="item"><a class="nav-link" href="<%= perfilLink %>">Perfil</a></li>
+                        <% } else { %>
+                            <li class="item"><a class="nav-link" href="/login">Login</a></li>
+                            <% } %>
+                </ul>
+            </li>
+
+
+        </ul>
+    </nav>
+</header>

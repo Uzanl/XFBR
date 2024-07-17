@@ -11,89 +11,42 @@
   <link rel="stylesheet" href="/css/shared-styles.css">
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="stylesheet" href="/css/searchbar.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed" defer></script>
   <script src="/script/utils.js" defer></script>
+  <script src="/script/bate-papo.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed" defer></script>
+
 </head>
 
 <body>
-  <header class="navbar">
-    <nav>
-      <ul>
-        <li>
-          <div class="search-container">
-            <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off">
-            <button class="clear-button">X</button>
+  <%- include('partials/header') %>
+    <%- include('partials/sidebar') %>
+      <main>
+        <div class="tabs-container">
+          <ul class="tabs" role="tablist">
+            <li class="tab active" role="tab" aria-controls="tab1" aria-selected="true">Bate-Papo</li>
+            <li class="tab" role="tab" aria-controls="tab2" aria-selected="false">Vídeo-clipes</li>
+          </ul>
+
+          <div id="tab1" class="tab-content" role="tabpanel" aria-labelledby="tab1">
+            <p>"Bem-vindo ao lugar onde as discussões sobre Xbox e o mundo dos jogos são intensas e emocionantes!
+              Junte-se a
+              nós para trocar ideias e compartilhar seus conhecimentos sobre tudo relacionado aos jogos. Este é o lugar
+              onde
+              você pode se conectar com outros jogadores apaixonados e mergulhar no universo dos jogos de uma forma
+              incrível!"
+            </p>
+            <widgetbot class="wb-embed" server="901946904408113212" channel="903661574592561192"></widgetbot>
           </div>
-          <ul class="suggestion-list"></ul>
-        </li>
-        <li class="submenu">
-          <span class="menu-item">Artigos</span>
-          <ul class="submenu-list">
-            <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
-            <% if (userLoggedIn) { %>
-              <li class="item"><a href="/editor.html" class="nav-link">Publicar</a></li>
-              <% } else { %>
-                <li class="item"><a href="/login" class="nav-link">Publicar</a></li>
-                <% } %>
-          </ul>
-        </li>
-        <li class="submenu">
-          <span class="menu-item">Comunidade</span>
-          <ul class="submenu-list">
-            <li class="item"><a class="nav-link" href="/info">Informações</a></li>
-            <li class="item"><a class="nav-link" href="/bate-papo">Bate-papo</a></li>
-            <li class="item"><a class="nav-link" href="/video-clipes">Vídeo-clipes</a></li>
-          </ul>
-        </li>
-        <li class="submenu">
-          <span class="menu-item">
-            <img src="<%= userLoggedIn ? imgpath : '/profile.png' %>" alt="Logout" class="profile-image">
-          </span>
-          <ul class="submenu-list">
-            <% if (userLoggedIn) { %>
-              <li class="item"><span class="nav-link" id="btnSair">Sair</span></li>
-              <li class="item"><a class="nav-link" href="<%= perfilLink %>">Perfil</a></li>
-              <% } else { %>
-                <li class="item"><a class="nav-link" href="/login">Login</a></li>
-                <% } %>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-  </header>
-  <aside class="sidebar">
-    <ul>
-      <li><a href="/info">Info</a></li>
-      <li><a href="/noticias">Notícias</a></li>
-      <li><a href="/bate-papo">Chat</a></li>
-      <li><a href="/video-clipes">Vídeos</a></li>
-      <% if (userLoggedIn) { %>
-        <li><a href="/editor.html">Publicar</a></li>
-        <% } else { %>
-          <li><a href="/login">Publicar</a></li>
-          <% } %>
-    </ul>
-  </aside>
-  <div class="toggle-btn">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-  <main>
-    <p>"Bem-vindo ao lugar onde as discussões sobre Xbox e o mundo dos jogos são intensas e emocionantes! Junte-se a
-      nós para trocar ideias e compartilhar seus conhecimentos sobre tudo relacionado aos jogos. Este é o lugar onde
-      você pode se conectar com outros jogadores apaixonados e mergulhar no universo dos jogos de uma forma incrível!"
-    </p>
-    <widgetbot class="wb-embed" server="901946904408113212" channel="903661574592561192"></widgetbot>
-  </main>
-  <footer>
-    <div class="social-row">
-      <a href="https://discord.gg/RZF7K5BX"><img src="/dc.webp" alt="Botão do Discord"></a>
-      <a href="https://twitter.com/hu3bruzan"><img src="/tt.webp" alt="Botão do Discord"></a>
-    </div>
-    <p>© 2024 Xbox Family BR</p>
-  </footer>
+
+          <div id="tab2" class="tab-content hidden" role="tabpanel" aria-labelledby="tab2">
+            <p>"Prepare-se para se divertir e se emocionar como nunca antes! Aqui você encontrará os clipes mais
+              incríveis e
+              hilários da comunidade, que vão te fazer rir, chorar e se apaixonar pela vida!"</p>
+            <widgetbot class="wb-embed" server="901946904408113212" channel="904535541406638101"></widgetbot>
+          </div>
+        </div>
+      </main>
+      <%- include('partials/footer') %>
 </body>
 
 </html>

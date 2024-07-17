@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Veja o perfil completo de <%= user.login_usu %>, incluindo sua imagem de perfil, gamertag, gamerscore, e todos os artigos que ele publicou. Navegue pelas páginas de artigos e conheça melhor o conteúdo compartilhado.">
+  <link rel="preload" href="/css/perfil.css" as="style">
+  <link rel="preload" href="/css/searchbar.css" as="style">
+  <link rel="preload" href="/css/navbar.css" as="style">
+  <link rel="preload" href="/css/mobile-sidebar.css" as="style">
+  <link rel="stylesheet" href="/css/perfil.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/searchbar.css">
+  <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
+  <script src="/script/perfil.js" defer></script>
+  <script src="/script/utils.js" defer></script>
+</head>
+
+<body>
+  <%- include('partials/header') %>
+    <%- include('partials/sidebar') %>
+      <div class="perfil-container">
+        <div class="profile">
+          <div class="autor">
+            <div class="hole-container">
+              <div class="hole"></div>
+            </div>
+            <div class="image-xbox">
+              <img src="/<%= imgpathUser %>" alt="Imagem do Perfil" width="96" height="96" class="imagem-perfil">
+            </div>
+            <div class="profile-description">
+              <p class="gamertag">
+                <%= user.login_usu %>
+              </p>
+              <div class="gs-container">
+                <div class="circle">
+                  <div class="letter">G</div>
+                </div>
+                <p class="gamerscore"> <span class="gamerscore-value">
+                    <%= user.gamerscore %>
+                  </span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="profile2">
+          <div class="autor">
+            <div class="hole-container">
+              <div class="hole"></div>
+            </div>
+            <div class="profile-description2">
+              <textarea data-user-id="<%= userId %>" class="desc-profile2"
+                placeholder="Sua descrição atual do perfil vai aqui."
+                readonly><%= user.descricao || "Descrição não fornecida" %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <main>
+        <div class="article-container">
+          <% articles.forEach((article, index)=> { %>
+            <article data-id="<%= article.id_artigo %>" onclick="openArticle('<%= article.id_artigo %>')">
+              <% let imageUrl=article.imagem_url; %>
+                <% if (index===0) { %>
+                  <% imageUrl=imageUrl.replace('.webp', '_firstchild.webp' ); %>
+                    <% } %>
+                      <img src="/<%= imageUrl %>" alt="Descrição da Imagem" width="860" height="483"
+                        data-original-src="/<%= article.imagem_url %>">
+                      <h1>
+                        <%= article.titulo %>
+                      </h1>
+                      <p>
+                        <%= article.previa_conteudo %>
+                      </p>
+                      <p2>Postado por <%= article.login_usu %> em <%= article.data_formatada %>
+                      </p2>
+            </article>
+            <% }); %>
+        </div>
+
+        <div class="pagination-container">
+          <div class="pagination">
+            <% if (currentPage> 1) { %>
+              <a class="prev-page" href="/perfil/<%= user.login_usu %>/page/<%= currentPage - 1 %>">Anterior</a>
+              <% } else { %>
+                <a class="prev-page disabled" href="#">Anterior</a>
+                <% } %>
+
+                  <div class="page-numbers">
+                    <% for(let i=1; i <=totalPages; i++) { %>
+                      <a href="/perfil/<%= user.login_usu %>/page/<%= i %>"
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                      </a>
+                      <% } %>
+                  </div>
+
+                  <% if (currentPage < totalPages) { %>
+                    <a class="next-page" href="/perfil/<%= user.login_usu %>/page/<%= currentPage + 1 %>">Próxima</a>
+                    <% } else { %>
+                      <a class="next-page disabled" href="#">Próxima</a>
+                      <% } %>
+          </div>
+        </div>
+      </main>
+      <%- include('partials/footer') %>
+        <button type="button" class="up">
+          <img height="50" width="50" src="/upw.webp" alt="Voltar ao Topo">
+        </button>
+</body>
+
+</html>

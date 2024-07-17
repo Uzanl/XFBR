@@ -17,138 +17,80 @@
   <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
   <link rel="preload" href="/script/utils.js" as="script">
   <script src="/script/utils.js" defer></script>
-  <script src="/script/noticias.js" defer></script>
+  <script src="/script/noticias.js" async></script>
 </head>
 
 <body>
-  <header class="navbar">
-    <nav>
-      <ul>
-        <li>
-          <div class="search-container">
-            <input type="text" class="search-box" placeholder="Pesquisar" name="search-box" autocomplete="off">
-            <button class="clear-button">X</button>
-          </div>
-          <ul class="suggestion-list">
-          </ul>
-        </li>
-        <li class="submenu">
-          <span class="menu-item">Artigos</span>
-          <ul class="submenu-list">
-            <li class="item"><a class="nav-link" href="/noticias">Notícias</a></li>
-            <% if (userLoggedIn) { %>
-              <li class="item"><a href="/editor.html" class="nav-link">Publicar</a></li>
-              <% } %>
-          </ul>
-        </li>
-        <li class="submenu">
-          <span class="menu-item">Comunidade</span>
-          <ul class="submenu-list">
-            <li class="item"><a class="nav-link" href="/info">Informações</a></li>
-            <li class="item"><a class="nav-link" href="bate-papo.html">Bate-papo</a></li>
-            <li class="item"><a class="nav-link" href="video-clipes.html">Vídeo-clipes</a></li>
-          </ul>
-        </li>
-        <li class="submenu">
-          <span class="menu-item">
-            <img src="<%= userLoggedIn ? imgpath : '/profile.png' %>" alt="Logout" class="profile-image">
-          </span>
-          <ul class="submenu-list">
-            <% if (userLoggedIn) { %>
-              <li class="item" id="btnLogout"><span class="nav-link">Sair</span></li>
-              <li class="item" id="item-profile"><a class="nav-link" href="<%= perfilLink %>">Perfil</a></li>
-              <% } else { %>
-                <li class="item"><a class="nav-link" href="login.html">Login</a></li>
-                <% } %>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-  </header>
-  <div class="sidebar">
-    <ul>
-      <li><a href="/info">Info</a></li>
-      <li><a href="notícias.html">Notícias</a></li>
-      <li><a href="bate-papo.html">Chat</a></li>
-      <li><a href="video-clipes.html">Vídeos</a></li>
-      <% if (userLoggedIn) { %>
-        <li><a href="/editor.html">Publicar</a></li>
-        <% } %>
-    </ul>
-  </div>
-  <div class="toggle-btn">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-  <div class="container-row">
-    <div class="start">
-    </div>
-    <div class="container">
-      <div class="status-trapezoid-container">
-        <div class="trapezoid">
-          <div class="status">
-            <div class="status-item-container">
-              <div class="status-item">
-                <div class="red">B</div>
+  <%- include('partials/header') %>
+    <%- include('partials/sidebar') %>
+      <div class="container-row">
+        <div class="start">
+        </div>
+        <div class="container">
+          <div class="status-trapezoid-container">
+            <div class="trapezoid">
+              <div class="status">
+                <div class="status-item-container">
+                  <div class="status-item">
+                    <div class="red">B</div>
+                  </div>
+                  <p>Enviados: <%= counts.enviado %>
+                  </p>
+                </div>
+                <div class="status-item-container">
+                  <div class="status-item">
+                    <div class="yellow">Y</div>
+                  </div>
+                  <p>Em Análise: <%= counts.em_analise %>
+                  </p>
+                </div>
+                <div class="status-item-container">
+                  <div class="status-item">
+                    <div class="green">A</div>
+                  </div>
+                  <p>Produzidos: <%= counts.aprovado %>
+                  </p>
+                </div>
               </div>
-              <p>Enviados: X</p>
-            </div>
-            <div class="status-item-container">
-              <div class="status-item">
-                <div class="yellow">Y</div>
-              </div>
-              <p>Em Análise: X</p>
-            </div>
-            <div class="status-item-container">
-              <div class="status-item">
-                <div class="green">A</div>
-              </div>
-              <p>Produzidos: X</p>
             </div>
           </div>
+          <% if (isAdmin) { %>
+            <div class="status-news">
+              <label class="lblStatus" for="cmbStatus">Status:</label>
+              <select id="cmbStatus" name="cmbStatus">
+                <option value="aprovado">Aprovados</option>
+                <option value="reprovado">Reprovados</option>
+                <option value="analise">Em Análise</option>
+                <option value="enviado">Enviados</option>
+              </select>
+            </div>
+            <% } %>
+              <div class="article-container">
+              </div>
+              <div class="pagination-container">
+                <div class="pagination">
+                  <a class="prev-page">Anterior</a>
+                  <div class="page-numbers">
+                    <a href="#" class="active">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">4</a>
+                    <a href="#">5</a>
+                    <a href="#">6</a>
+                    <a href="#">7</a>
+                    <a href="#">8</a>
+                  </div>
+                  <a class="next-page">Próxima</a>
+                </div>
+              </div>
+        </div>
+        <div class="end">
         </div>
       </div>
-      <% if (isAdmin) { %>
-        <div class="status-news">
-          <label class="lblStatus" for="cmbStatus">Status:</label>
-          <select id="cmbStatus" name="cmbStatus">
-            <option value="aprovado">Aprovados</option>
-            <option value="reprovado">Reprovados</option>
-            <option value="analise">Em Análise</option>
-            <option value="enviado">Enviados</option>
-          </select>
-        </div>
-        <% } %>
-          <div class="article-container">
-          </div>
-          <div class="pagination-container">
-            <div class="pagination">
-              <a class="prev-page">Anterior</a>
-              <div class="page-numbers">
-                <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">5</a>
-                <a href="#">6</a>
-                <a href="#">7</a>
-                <a href="#">8</a>
-              </div>
-              <a class="next-page">Próxima</a>
-            </div>
-          </div>
-    </div>
-    <div class="end">
-    </div>
-  </div>
-  <footer>
-    <div class="social-row">
-      <a href="https://discord.gg/RZF7K5BX"><img fetchpriority="low" src="/dc.webp" alt="Botão do Discord"></a>
-      <a href="https://twitter.com/hu3bruzan"><img fetchpriority="low" src="/tt.webp" alt="Botão do Discord"></a>
-    </div>
-    <p>© 2024 Xbox Family BR</p>
-  </footer>
+      <%- include('partials/footer') %>
+        <button type="button" class="up">
+          <img height="50" width="50" src="/upw.webp" alt="Voltar ao Topo">
+        </button>
 </body>
 
 </html>

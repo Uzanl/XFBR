@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editor de Notícias</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tiny.cloud/1/bjfo8zrpuri2l033ekmkidpsvm7qba94fcvobj9bzweizm4c/tinymce/5/tinymce.min.js"
+        referrerpolicy="origin" defer></script>
+    <link rel="preload" href="/css/navbar.css" as="style">
+    <link rel="preload" href="/css/searchbar.css" as="style">
+    <link rel="preload" href="/css/editor.css" as="style">
+    <link rel="preload" href="/css/mobile-sidebar.css" as="style">
+    <link rel="stylesheet" href="/css/editor.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/searchbar.css">
+    <link rel="stylesheet" href="/css/mobile-sidebar.css" media="(max-width: 768px)">
+    <script src="/script/editor.js" defer></script>
+    <script src="/script/utils.js" defer></script>
+
+</head>
+
+<body>
+    <%- include('partials/header') %>
+        <%- include('partials/sidebar') %>
+            <div class="container">
+                <form class="form-editor" enctype="multipart/form-data">
+                    <h1>Editor de Notícias</h1>
+                    <label for="title">Título:</label>
+                    <input type="text" class="textbox" id="title" name="title" placeholder="Digite um título">
+                    <label for="image">Imagem (16:9, PNG ou JPG):</label>
+                    <div class="file-input-container">
+                        <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" />
+                        <button type="button" id="removeImageBtn" class="remove-btn">X</button>
+                    </div>
+                    <label for="content-preview">Conteúdo Prévia:</label>
+                    <input type="text" class="textbox" id="content-preview" name="contentpreview"
+                        placeholder="Digite uma breve descrição do conteúdo">
+                    <label for="editor">Conteúdo:</label>
+                    <textarea id="editor" class="textbox" name="content"></textarea>
+                    <div class="inserir">
+                        <input type="submit" value="Publicar">
+                        <input type="submit" value="Salvar">
+                    </div>
+                    <div id="error-message"></div>
+                    <div class="preview-container">
+                        <div class="noticia-preview">
+                            <div class="image-preview"></div>
+                            <div class="title-preview">
+                                <h1></h1>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="preview"></div>
+            </div>
+            <%- include('partials/footer') %>
+</body>
+
+</html>
