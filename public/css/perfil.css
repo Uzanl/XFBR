@@ -8,11 +8,19 @@
   --border-color: #ccc;
 }
 
-p2 {
+.sun {
+	--primary-color: #f2f2f2;
+  --font-color: #333333;
+}
+
+
+.post-info{
   color: var(--italian-font-color);
   font-style: italic;
   font-size: smaller;
 }
+
+
 
 body {
   display: flex;
@@ -29,7 +37,7 @@ body {
   display: none;
 }
 
-.sidebar {
+aside {
   display: none;
 }
 
@@ -61,8 +69,7 @@ footer img:hover {
 
 article h1 {
   font-size: 24px;
-  margin-bottom: 10px;
-  cursor: pointer;
+ /* margin-bottom: 10px;*/
 }
 
 article {
@@ -82,7 +89,7 @@ article h1:hover {
 
 article p {
   font-size: 16px;
-  margin-bottom: 20px;
+  /*margin-bottom: 20px;*/
   color: var(--secondary-font-color);
 }
 
@@ -294,7 +301,6 @@ article:first-child {
 article img {
   width: 100%;
   border-radius: 10px;
-  cursor: pointer;
   height: auto;
   display: block;
 }
@@ -302,6 +308,7 @@ article img {
 article {
   flex: 0 1 calc((100% / 3) - (40px * 2 / 3));
   text-align: center;
+  cursor: pointer;
 }
 
 .up {

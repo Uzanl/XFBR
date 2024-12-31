@@ -77,11 +77,9 @@ app.use(bodyParser.json());*/
 
 app.use(fileUpload());
 
-app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.static(path.join(__dirname, 'rsc')));
-
-app.use(express.static(path.join(__dirname, 'fonts')));
 
 app.use(express.static(path.join(__dirname, 'images-preview')));
 
@@ -112,6 +110,7 @@ app.use('/config', (req, res, next) => {
 });
 
 app.set('view engine', 'ejs');
+
 app.get('/noticias', asyncHandler(async (req, res, next) => {
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   const tipoUsuario = req.session.userType;
@@ -149,7 +148,7 @@ app.get('/info', (req, res) => {
   res.render('info', { userLoggedIn, imgpath, perfilLink });
 });
 
-app.get('/bate-papo', (req, res) => {
+app.get('/bate-papo', (req, res) => {//ESSA ROTA VAI SER DESCONTINUADA E O CONTEÚDO VAI SER JUNTADO À /INFO 
   const userLoggedIn = req.session.idxbox !== undefined; // Verifica se o usuário está logado
   tipoUsuario = req.session.userType;
   imgpath = req.session.idxbox + '.webp'; // Atualiza o caminho da imagem
@@ -248,22 +247,26 @@ app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next
   const query = promisify(connection.query).bind(connection);
   let userId;
   let imgpathUser = '';
-  let imgpath = '';
-  let perfilLink = '';
+  let username = req.params.username;
 
-  if (userLoggedIn) {
-    imgpath = `/${req.session.idxbox}.webp`;
-    perfilLink = `/perfil/${req.params.username}/page/1`;
+  // Validar o username com expressão regular
+  const validUsernameRegex = /^[a-zA-Z0-9#\s]+$/;
+  if (!validUsernameRegex.test(username)) {
+    return res.status(400).json({ error: 'Formato de gamertag inválido' });
   }
 
+  let imgpath = userLoggedIn ? `/${req.session.idxbox}.webp` : '';
+  let perfilLink = userLoggedIn ? `/perfil/${username}/page/1` : '';
   try {
+    // Consulta para obter o ID do usuário com base no username
     const selectUserIdQuery = `
       SELECT u.id_usu, ux.id_usu_xbox
       FROM usuario u
       INNER JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
       WHERE ux.gamertag = ?;
     `;
-    const userIdResult = await query(selectUserIdQuery, [req.params.username]);
+
+    const userIdResult = await query(selectUserIdQuery, [username]);
 
     if (userIdResult.length === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -272,116 +275,6 @@ app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next
     userId = userIdResult[0].id_usu;
     imgpathUser = userIdResult[0].id_usu_xbox + '.webp';
 
-    const itemsPerPage = 8;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-
-    const selectUserQuery = `
-      SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
-             IFNULL(u.descricao, "") AS descricao,
-             IFNULL(ux.imagem_url, u.imagem_url) AS imagem_url,
-             IFNULL(ux.gamerscore, 0) AS gamerscore
-      FROM usuario u
-      LEFT JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
-      WHERE u.id_usu = ?;
-    `;
-    const userResult = await query(selectUserQuery, [userId]);
-
-    if (userResult.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
-
-    const user = userResult[0];
-
-    // Ajuste a query para artigos
-    const countQuery = userLoggedIn
-      ? `
-        SELECT COUNT(*) AS total_count 
-        FROM artigo
-        WHERE artigo.id_usu = ?;
-      `
-      : `
-        SELECT COUNT(*) AS total_count 
-        FROM artigo
-        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado';
-      `;
-
-    const articlesQuery = userLoggedIn
-      ? `
-        SELECT 
-          artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
-          IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
-        FROM artigo
-        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
-        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-        WHERE artigo.id_usu = ?
-        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
-      `
-      : `
-        SELECT 
-          artigo.id_artigo, artigo.titulo, DATE_FORMAT(artigo.data_publicacao, '%d/%m/%Y %H:%i') AS data_formatada, artigo.id_usu, artigo.imagem_url, artigo.previa_conteudo, 
-          IFNULL(usuario.login_usu, ux.gamertag) AS login_usu
-        FROM artigo
-        LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
-        LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-        WHERE artigo.id_usu = ? AND artigo.status = 'aprovado'
-        ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
-      `;
-
-    const [countResults, articles] = await Promise.all([
-      query(countQuery, [userId]),
-      query(articlesQuery, [userId, startIndex, itemsPerPage])
-    ]);
-
-    const totalCount = countResults[0].total_count;
-    const totalPages = Math.ceil(totalCount / itemsPerPage);
-
-    res.render('perfil', {
-      user,
-      userId,
-      articles,
-      totalPages,
-      currentPage,
-      userLoggedIn,
-      imgpathUser,
-      imgpath,
-      perfilLink
-    });
-  } catch (error) {
-    next(error);
-  }
-}));
-
-
-
-/*app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next) => {
-  const { username, pageNumber } = req.params; // Captura os parâmetros da URL
-  const currentPage = parseInt(pageNumber, 10) || 1; // Pega o número da página da URL, com fallback para 1
-
-  // Validação simples do número da página
-  if (isNaN(currentPage) || currentPage < 1) {
-    return res.status(400).json({ error: 'Número de página inválido' });
-  }
-
-  const query = promisify(connection.query).bind(connection);
-  let userId;
-
-  try {
-    // Consulta para obter o ID do usuário com base no username
-    const selectUserIdQuery = `
-      SELECT u.id_usu
-      FROM usuario u
-      INNER JOIN usuario_xbox ux ON u.id_usu_xbox = ux.id_usu_xbox
-      WHERE ux.gamertag = ?;
-    `;
-    
-    const userIdResult = await query(selectUserIdQuery, [username]);
-
-    if (userIdResult.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
-
-    userId = userIdResult[0].id_usu;
-    
     // Consulta para obter informações do usuário
     const selectUserQuery = `
       SELECT IFNULL(u.login_usu, ux.gamertag) AS login_usu,
@@ -403,10 +296,11 @@ app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next
     const itemsPerPage = 8;
     const startIndex = (currentPage - 1) * itemsPerPage;
 
-    const loggedUserId = req.session.user ? req.session.user.id_usu : req.session.userId;
-    const viewingOwnProfile = userId === loggedUserId;
+    const loggedUserId = req.session.userId; // Usado para verificar se o usuário está logado
+    const viewingOwnProfile = userId === loggedUserId; // Verificação se é o próprio perfil
+    const isAdmin = req.session.userType === "administrador"; // Corrigido para usar req.session.usertype
 
-    const countQuery = viewingOwnProfile
+    const countQuery = viewingOwnProfile || isAdmin
       ? `
         SELECT COUNT(*) AS total_count 
         FROM artigo
@@ -425,7 +319,7 @@ app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next
         FROM artigo
         LEFT JOIN usuario ON artigo.id_usu = usuario.id_usu
         LEFT JOIN usuario_xbox ux ON ux.id_usu_xbox = usuario.id_usu_xbox
-        WHERE artigo.id_usu = ? ${viewingOwnProfile ? "" : "AND artigo.status = 'aprovado'"}
+        WHERE artigo.id_usu = ? ${viewingOwnProfile || isAdmin ? "" : "AND artigo.status = 'aprovado'"}
         ORDER BY artigo.data_publicacao DESC LIMIT ?, ?;
     `;
 
@@ -435,18 +329,24 @@ app.get('/perfil/:username/page/:pageNumber', asyncHandler(async (req, res, next
     ]);
 
     const totalCount = countResults[0].total_count;
-    const hasNextPage = articles.length === itemsPerPage;
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-    res.json({ user, articles, totalCount, hasNextPage });
+    res.render('perfil', {
+      user,
+      userId,
+      articles,
+      totalPages,
+      currentPage,
+      userLoggedIn,
+      imgpathUser,
+      imgpath,
+      perfilLink
+    });
 
   } catch (error) {
     next(error);
   }
-}));*/
-
-
-
-
+}));
 
 
 /*app.get('/feed.xml', (req, res) => {
@@ -494,8 +394,6 @@ const url = 'https://localhost:3000/feed.xml'; // Substitua pelo URL do seu feed
     console.error('Erro ao validar o feed:', err);
   }
 })();*/
-
-
 
 app.delete('/excluir-artigo/:artigoId', (req, res) => { // pra deletar um artigo é preciso ser o dono dele ou administrador
   const artigoId = req.params.artigoId;

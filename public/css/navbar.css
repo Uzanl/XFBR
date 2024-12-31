@@ -6,6 +6,7 @@
   --header-font-color: #f2f2f2;
 }
 
+
 header {
   display: block;
   border-bottom: 1px solid var(--header-border-color);
@@ -45,7 +46,7 @@ header nav ul li {
   gap: 5px;
   transition: filter 0.3s ease-in-out;
   padding: 10px;
-  color: var(--header-font-color);
+  /*color: var(--header-font-color);*/
   cursor: pointer;
 }
 
