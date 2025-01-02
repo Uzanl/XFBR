@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'TT Octosquares';
-  src: url(/TTOctosquares-Black.woff2) format('woff2');
+  src: url(/fonts/TTOctosquares-Black.woff2) format('woff2');
   font-display: swap;
 }
 
@@ -16,12 +16,12 @@
   --header-border-bottom-color: #999;
 }
 
-.sidebar {
+aside {
   display: none;
 }
 
 .toggle-btn {
-	display: none;
+  display: none;
 }
 
 
@@ -92,7 +92,7 @@ main {
   flex-grow: 1;
 }
 
-.bate-papo{
+.bate-papo {
   width: 100%;
   min-height: 50dvh;
 }

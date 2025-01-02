@@ -75,8 +75,8 @@
                       <p>
                         <%= article.previa_conteudo %>
                       </p>
-                      <p2>Postado por <%= article.login_usu %> em <%= article.data_formatada %>
-                      </p2>
+                      <span class="post-info">Postado por <%= article.login_usu %> em <%= article.data_formatada %>
+                      </span>
             </article>
             <% }); %>
         </div>
@@ -108,7 +108,7 @@
       </main>
       <%- include('partials/footer') %>
         <button type="button" class="up">
-          <img height="50" width="50" src="/upw.webp" alt="Voltar ao Topo">
+          <img height="50" width="50" src="/upw.webp" id="img-up" alt="Voltar ao Topo">
         </button>
 </body>
 

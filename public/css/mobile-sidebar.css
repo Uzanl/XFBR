@@ -1,4 +1,4 @@
-.sidebar {
+aside {
   position: fixed;
   display: block;
   top: 0;
@@ -34,14 +34,14 @@ header {
   transition: left 0.3s;
 }
 
-.sidebar ul li {
+aside ul li {
   width: 100%;
   height: 50px;
   /*border-radius: 10px;*/
   cursor: pointer;
 }
 
-.sidebar ul li:hover {
+aside ul li:hover {
   background-color: #555555;
 }
 
@@ -55,11 +55,11 @@ header {
  /* transition: transform 0.3s;*/
 }
 
-.sidebar.active {
+aside.active {
   left: 0;
 }
 
-.sidebar ul li a {
+aside ul li a {
   font-size: 16px;
   color: #fff;
   text-decoration: none;
@@ -70,7 +70,7 @@ header {
   justify-content: center;
 }
 
-.sidebar ul {
+aside ul {
   list-style: none;
   padding: 0;
   display: flex;
@@ -80,21 +80,21 @@ header {
 
 @media screen and (max-width: 480px) {
 
-  .sidebar {
+  aside {
     width: calc(100% - 40px);
   }
 
-  .sidebar.active~.toggle-btn {
+  aside.active~.toggle-btn {
     left: calc(100% - 40px);
   }
 }
 
 @media screen and (min-width: 481px) and (max-width: 768px) {
-  .sidebar {
+  aside {
     width: calc(50% - 40px);
   }
 
-  .sidebar.active~.toggle-btn {
+  aside.active~.toggle-btn {
     left: calc(50% - 40px);
   }
 }

@@ -6,6 +6,7 @@
   --header-font-color: #f2f2f2;
 }
 
+
 header {
   display: block;
   border-bottom: 1px solid var(--header-border-color);
@@ -40,12 +41,12 @@ header nav ul li {
 }
 
 .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   transition: filter 0.3s ease-in-out;
-  display: block;
   padding: 10px;
-  color: var(--header-font-color);
-  text-decoration: none;
-  border-radius: 5px;
+  /*color: var(--header-font-color);*/
   cursor: pointer;
 }
 
@@ -146,12 +147,6 @@ ul .suggestion-item:last-child {
 
 .middle {
   width: 70%;
-}
-
- .menu-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
 .arrow-icon {

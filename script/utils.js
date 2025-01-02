@@ -2,7 +2,7 @@ const toggleBtn = document.querySelector('.toggle-btn');
 const searchBox = document.querySelector('.search-box');
 const clearButton = document.querySelector('.clear-button');
 const suggestionList = document.querySelector('.suggestion-list');
-const sidebar = document.querySelector('.sidebar');
+const aside = document.querySelector('aside');
 const logoutButton = document.getElementById('btnLogout');
 const upBtn = document.querySelector('.up');
 
@@ -40,12 +40,12 @@ clearButton.addEventListener('click', () => {
 });
 
 toggleBtn.addEventListener('click', function () {
-  sidebar.classList.toggle('active');
+  aside.classList.toggle('active');
   toggleBtn.classList.toggle('active');
   const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
 
   toggleBtn.setAttribute('aria-expanded', !isExpanded);
-  sidebar.hidden = isExpanded;
+  aside.hidden = isExpanded;
 });
 
 searchBox.addEventListener('input', async function () {
@@ -140,4 +140,32 @@ document.querySelectorAll('.submenu').forEach(menu => {
   menu.addEventListener('mouseleave', () => {
       menu.setAttribute('aria-expanded', 'false');
   });
+});
+
+document.querySelector('.submenu-page-pallet').addEventListener('click', function() {
+  const img = document.getElementById('toggle-img');
+  const moonSrc = '/moon.png';
+  const sunSrc = '/sun.png';
+  const htmlElement = document.documentElement;
+
+  // Verifica se a imagem atual é a lua
+  if (img.src.endsWith(moonSrc)) {
+    // Troca para o sol e adiciona a classe 'sun'
+    img.src = sunSrc;
+    htmlElement.classList.add('sun');
+
+    // Troca as imagens twitter e discord para as versões do dia
+    document.getElementById('twitter-img').src = '/tt-day.webp';
+    document.getElementById('discord-img').src = '/dc-day.webp';
+    document.getElementById('img-up').src = '/up.webp';
+  } else {
+    // Caso contrário, troca para a lua e remove a classe 'sun'
+    img.src = moonSrc;
+    htmlElement.classList.remove('sun');
+
+    // Volta as imagens twitter e discord para as versões originais
+    document.getElementById('twitter-img').src = '/tt.webp';
+    document.getElementById('discord-img').src = '/dc.webp';
+    document.getElementById('img-up').src = '/upw.webp';
+  }
 });
